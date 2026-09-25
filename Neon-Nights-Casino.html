@@ -1522,6 +1522,7 @@ body[data-view="town"] .toasts { top: calc(76px + env(safe-area-inset-top, 0px))
 @keyframes siBought { 0% { box-shadow: 0 0 0 2px var(--mint), 0 0 30px rgba(93, 255, 176, 0.5); } 100% { box-shadow: 0 0 0 0 transparent; } }
 .shop-inv.pulse { animation: invPulse 0.6s ease-out; }
 @keyframes invPulse { 30% { color: var(--mint); transform: scale(1.06); } }
+.float-text.meow { font: 700 14px var(--body); color: #2a0716; padding: 4px 10px; border-radius: 12px 12px 12px 3px; background: #fff6e0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); text-shadow: none; animation-duration: 1.4s; }
 
 </style>
 </head>
@@ -3293,6 +3294,8 @@ const I18N_ROWS = [
   ['Allein wippt es sich schlecht.', 'Seesawing alone doesn\'t really work.', 'Balancearse solo no funciona.', 'Seul, la bascule ne marche pas.', 'Tahterevalliye tek başına binilmez.'],
   ['Benutzen', 'Use', 'Usar', 'Utiliser', 'Kullan'],
   ['benutzen · Bushaltestelle = andere Orte', 'use · bus stop = other places', 'usar · parada = otros lugares', 'utiliser · arrêt de bus = autres lieux', 'kullan · otobüs durağı = diğer yerler'],
+  ['Miau!', 'Meow!', '¡Miau!', 'Miaou !', 'Miyav!'],
+  ['Mimi rollt sich auf den Rücken – Bauchkraulen!', 'Mimi rolls onto her back – belly rubs!', 'Mimi se pone panza arriba: ¡caricias en la barriga!', 'Mimi se roule sur le dos – des papouilles sur le ventre !', 'Mimi sırtüstü yuvarlandı – göbek kaşıma zamanı!'],
   // Figur
   ['Wer bist du heute Nacht?', 'Who are you tonight?', '¿Quién eres esta noche?', 'Qui es-tu ce soir ?', 'Bu gece kimsin?'],
   ['Gestalte deine Figur für die Casino-Halle.', 'Design your character for the casino floor.', 'Diseña tu personaje para el salón.', 'Crée ton personnage pour la salle du casino.', 'Casino salonu için karakterini tasarla.'],
@@ -9336,6 +9339,26 @@ const Town = (() => {
       g.strokeStyle = '#3a1a08'; g.lineWidth = 1.2; g.beginPath(); g.arc(-14, -9, 2, 0.2, Math.PI - 0.2); g.stroke(); g.beginPath(); g.arc(-9, -9, 2, 0.2, Math.PI - 0.2); g.stroke();
       g.restore(); return;
     }
+    if (state === 'roll') {
+      const wig = Math.sin(time * 9) * 3;
+      g.strokeStyle = fur; g.lineWidth = 5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(12, -7); g.quadraticCurveTo(24, -4 + wig, 28, -12 + wig); g.stroke();
+      g.strokeStyle = dark; g.lineWidth = 3;
+      [[-8, 0], [-2, 1.3], [5, 2.1], [10, 0.7]].forEach(([lx, ph]) => { const k = Math.sin(time * 8 + ph) * 3; g.beginPath(); g.moveTo(lx, -10); g.lineTo(lx + k * 0.4, -21 + k); g.stroke(); });
+      g.fillStyle = light; g.beginPath(); g.arc(-8 + 0, -21 + Math.sin(time * 8) * 3, 2.2, 0, Math.PI * 2); g.fill();
+      const bgR = g.createLinearGradient(0, -16, 0, -2); bgR.addColorStop(0, fur); bgR.addColorStop(1, dark);
+      g.fillStyle = bgR; g.beginPath(); g.ellipse(1, -8, 16, 8, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = light; g.beginPath(); g.ellipse(1, -11, 10, 4.5, 0, 0, Math.PI * 2); g.fill();
+      // Kopf seitlich, Augen zu
+      g.fillStyle = fur; g.beginPath(); g.arc(-16, -8, 8.5, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.moveTo(-22, -2); g.lineTo(-30, 0); g.lineTo(-23, -8); g.fill();
+      g.beginPath(); g.moveTo(-21, -13); g.lineTo(-27, -19); g.lineTo(-17, -16); g.fill();
+      g.strokeStyle = '#3a1a08'; g.lineWidth = 1.3;
+      g.beginPath(); g.arc(-18, -9, 2, Math.PI + 0.3, -0.3); g.stroke(); g.beginPath(); g.arc(-13, -6, 2, Math.PI + 0.3, -0.3); g.stroke();
+      g.fillStyle = '#ff6a8a'; g.beginPath(); g.arc(-12, -11, 1.3, 0, Math.PI * 2); g.fill();
+      if (collar) { g.strokeStyle = collar; g.lineWidth = 2.5; g.beginPath(); g.arc(-16, -8, 8, -0.4, 0.9); g.stroke(); }
+      g.restore(); return;
+    }
     const sit = state === 'sit' || state === 'eat' || state === 'petted';
     const legSw = moving ? Math.sin(phase * 1.4) * 4 : 0;
     // Schwanz
@@ -9398,7 +9421,7 @@ const Town = (() => {
       if (!c.present) return;
       c.phase += dt * 10;
       const sp = c.state === 'run' ? 170 : c.state === 'chase' ? 190 : 55;
-      if (c.follow && !['petted', 'eat', 'chase'].includes(c.state)) {
+      if (c.follow && !['petted', 'eat', 'chase', 'roll'].includes(c.state)) {
         const d = Math.hypot(player.x - c.x, player.y - c.y);
         if (d > 70) goTo(player.x + (c.x < player.x ? -34 : 34), player.y + 4, d > 140);
         else if (c.state === 'walk' || c.state === 'run') set('sit', 1.5);
@@ -9417,14 +9440,20 @@ const Town = (() => {
         }
       } else c.moving = false;
       if (c.yarn) { c.yarn.x += c.yarn.vx * dt; c.yarn.y += c.yarn.vy * dt; c.yarn.vx *= 0.96; c.yarn.vy *= 0.96; c.yarn.rot += dt * c.yarn.vx * 0.1; }
+      // Zutrauliche Mimi läuft zur Begrüßung herbei
+      if (!c.follow && S().aff >= 50 && c.state === 'sit' && time - (c.lastGreet || -99) > 25) {
+        const d = Math.hypot(player.x - c.x, player.y - c.y);
+        if (d > 70 && d < 260) { c.lastGreet = time; goTo(player.x + (c.x < player.x ? -30 : 30), player.y + 4, true); meow(); }
+      }
       if ((c.state === 'sit' || c.state === 'sleep') && time > c.until && !c.follow) {
         const [x0, y0, x1, y1] = c.area;
         goTo(U.rand(x0, x1), U.rand(y0, y1), false);
       }
-      if ((c.state === 'petted' || c.state === 'eat') && time > c.until) set('sit', 2);
+      if ((c.state === 'petted' || c.state === 'eat' || c.state === 'roll') && time > c.until) set('sit', 2);
       if (c.state === 'sleep' && Math.random() < dt * 0.8) FX.floatText(...toScreen(c.x - 14, c.y - 40), 'z', 'zzz');
-      if (time - c.lastMeow > 14 && Math.hypot(player.x - c.x, player.y - c.y) < 160 && c.state !== 'sleep' && Math.random() < dt) { c.lastMeow = time; Sfx.meow && Sfx.meow(); }
+      if (time - c.lastMeow > 14 && Math.hypot(player.x - c.x, player.y - c.y) < 160 && c.state !== 'sleep' && Math.random() < dt) meow();
     }
+    function meow() { c.lastMeow = time; Sfx.meow && Sfx.meow(); const [sx, sy] = toScreen(c.x + 6, c.y - 52); FX.floatText(sx, sy, I18N.t('Miau!'), 'meow'); }
     function throwYarn() {
       const [x0, y0, x1, y1] = c.area || [player.x - 150, player.y - 100, player.x + 150, player.y + 60];
       const tx = U.clamp(c.x + U.rand(-180, 180), x0, x1), ty = U.clamp(c.y + U.rand(-100, 100), y0, y1);
@@ -9444,10 +9473,11 @@ const Town = (() => {
       if (c.state === 'sleep') { set('sit', 1); Sfx.meow && Sfx.meow(); Panel.say(I18N.t('Mimi wacht auf und streckt sich.')); return; }
       if (c.state === 'petted') return;
       c.dir = player.x < c.x ? -1 : 1;
-      set('petted', 2.2); Sfx.purr && Sfx.purr(); hearts(4);
+      const roll = S().aff >= 80 && Math.random() < 0.45;
+      set(roll ? 'roll' : 'petted', roll ? 2.8 : 2.2); Sfx.purr && Sfx.purr(); hearts(roll ? 7 : 4);
       const s = S(); s.pets = (s.pets || 0) + 1;
       addAff(3); Store.emit({ type: 'catPet', pets: s.pets });
-      Panel.say(U.pick([I18N.t('Mimi schnurrt zufrieden.'), I18N.t('Mimi schmiegt sich an deine Hand.'), I18N.t('Mimi blinzelt dich glücklich an.')]));
+      if (roll) Panel.say(I18N.t('Mimi rollt sich auf den Rücken – Bauchkraulen!')); else Panel.say(U.pick([I18N.t('Mimi schnurrt zufrieden.'), I18N.t('Mimi schmiegt sich an deine Hand.'), I18N.t('Mimi blinzelt dich glücklich an.')]));
     }
     function feed(kind) {
       const inv = Inv.get();
