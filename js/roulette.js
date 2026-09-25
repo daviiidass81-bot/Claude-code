@@ -270,8 +270,10 @@ const Roulette = (() => {
     const tot = totalBet();
     if (!tot) { setMsg('Setze zuerst Chips auf das Tableau.'); Sfx.error(); return; }
     if (!Store.bet(tot)) { App.insufficient(tot); return; }
+    Store.hold('roulette', tot);
+    if (window.innerWidth < 720) el.canvas.scrollIntoView({ block: 'center', behavior: U.reducedMotion ? 'auto' : 'smooth' });
     spinning = true; lastBets = { ...bets }; undoStack = [];
-    clearResultMarks(); el.result.hidden = true;
+    clearResultMarks(); el.result.classList.add('empty');
     renderBets();
     setMsg('Nichts geht mehr!');
     const result = Math.floor(Math.random() * 37);
@@ -289,14 +291,18 @@ const Roulette = (() => {
     showResult(result, c, ret, tot);
     history.unshift(result); history.length = Math.min(history.length, 14);
     renderHistory();
-    if (ret > 0) {
-      Store.win(ret);
-      const net = ret - tot;
+    Store.release('roulette');
+    const net = ret - tot;
+    if (ret > 0) Store.win(ret, net);
+    if (net > 0) {
       const cc = FX.center(el.result);
       FX.coins(cc.x, cc.y, Math.min(50, 10 + Math.round(ret / tot * 3)), 1);
-      if (straightHit) { FX.confetti(90); Sfx.win(3); } else Sfx.win(net > 0 ? 2 : 1);
-      setMsg(net > 0 ? `Gewinn: ${U.fmt(ret)} Münzen (+${U.fmt(net)})` : `Zurück: ${U.fmt(ret)} Münzen`);
+      if (straightHit) { FX.confetti(90); Sfx.win(3); } else Sfx.win(2);
+      setMsg(I18N.t('Gewinn: {0} Münzen (+{1})', U.fmt(ret), U.fmt(net)));
       if (ret >= tot * 15) Celebrate.bigWin(ret, tot);
+    } else if (ret > 0) {
+      Sfx.push();
+      setMsg(I18N.t('Zurück: {0} von {1} Münzen ({2})', U.fmt(ret), U.fmt(tot), '−' + U.fmt(-net)));
     } else { Sfx.lose(); setMsg(result === 0 ? 'Null! Die Bank gewinnt.' : 'Leider daneben. Nochmal?'); }
     Store.stat('rlSpins');
     Store.emit({ type: 'roulette', result, win: ret, bet: tot, straight: straightHit, net: ret - tot });
@@ -306,10 +312,10 @@ const Roulette = (() => {
   }
 
   function showResult(n, c, ret, tot) {
-    el.result.hidden = false;
     el.result.className = 'rl-result ' + c;
     const tags = n === 0 ? ['Null'] : [c === 'red' ? 'Rot' : 'Schwarz', n % 2 ? 'Ungerade' : 'Gerade', n <= 18 ? '1–18' : '19–36'];
-    el.result.innerHTML = `<b>${n}</b><span>${tags.map(x => I18N.t(x)).join(' · ')}</span>${ret > 0 ? `<em>+${U.fmt(ret)}</em>` : ''}`;
+    const net = ret - tot;
+    el.result.innerHTML = `<b>${n}</b><span>${tags.map(x => I18N.t(x)).join(' · ')}</span>${tot ? `<em class="${net > 0 ? 'good' : net < 0 ? 'bad' : ''}">${net > 0 ? '+' : net < 0 ? '−' : '±'}${U.fmt(Math.abs(net))}</em>` : ''}`;
     el.result.animate([{ transform: 'scale(0.4)', opacity: 0 }, { transform: 'scale(1.1)', opacity: 1, offset: 0.7 }, { transform: 'scale(1)' }], { duration: 450, easing: 'ease-out' });
   }
   function renderHistory() {
@@ -336,6 +342,7 @@ const Roulette = (() => {
     Sfx.chip(); for (const k in bets) bets[k] *= 2; renderBets();
   });
   window.addEventListener('resize', () => active && resize());
+  I18N.onChange(() => renderBets());
   Store.on(ev => { if (ev.type === 'balance' && active && !spinning) renderBets(); });
 
   return {

@@ -50,6 +50,18 @@ const Chips = (() => {
   return { LIST, label, colorFor, rack, marker, fly };
 })();
 
+/* Verschiebt Bedienelemente auf schmalen Bildschirmen direkt unter das Spielfeld */
+function MobileDock(items, mobileParent, query = '(max-width: 960px)') {
+  const mq = window.matchMedia(query);
+  const homes = items.map(el => ({ el, parent: el.parentElement, next: el.nextElementSibling }));
+  const apply = () => {
+    if (mq.matches) items.forEach(el => mobileParent.appendChild(el));
+    else homes.forEach(h => h.parent.insertBefore(h.el, h.next && h.next.parentElement === h.parent ? h.next : null));
+  };
+  mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
+  apply();
+}
+
 /* Einsatz-Stepper (−/+) für Spiele mit fester Einsatzliste */
 function BetStepper(minusEl, valEl, plusEl, list, startIdx, onChange) {
   let i = startIdx;

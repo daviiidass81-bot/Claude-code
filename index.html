@@ -12,6 +12,27 @@
 <link rel="stylesheet" href="css/world.css">
 </head>
 <body data-view="floor">
+<div class="loader" id="loader" role="dialog" aria-modal="true" aria-labelledby="ldTitle">
+  <div class="ld-box">
+    <h1 class="neon-sign ld-sign" id="ldTitle"><span class="n1">NEON</span><span class="n2">NIGHTS</span></h1>
+    <div class="ld-progress">
+      <span class="ld-chip" aria-hidden="true"></span>
+      <div class="ld-bar"><i id="ldFill"></i></div>
+    </div>
+    <p class="ld-step" id="ldStep" aria-live="polite">Lade das Casino …</p>
+    <section class="ld-note">
+      <h2>Nur zur Unterhaltung</h2>
+      <p>Dieses Spiel soll Glücksspiel weder verharmlosen noch schönreden. Es dient ausschließlich der Unterhaltung.</p>
+      <ul>
+        <li>Gespielt wird nur mit Spielgeld – ohne echte Einsätze, Käufe oder Auszahlungen.</li>
+        <li>Glück hier sagt nichts über echte Chancen aus: Auf Dauer gewinnt immer die Bank.</li>
+        <li>Glücksspiel kann süchtig machen. Hilfe gibt es anonym und kostenlos, z. B. unter check-dein-spiel.de oder bei einer Suchtberatung in deiner Nähe.</li>
+      </ul>
+    </section>
+    <div class="ld-langs" id="ldLangs" aria-label="Sprache"></div>
+    <button class="cta-btn ld-go" id="ldGo" type="button" disabled>Verstanden – ins Casino</button>
+  </div>
+</div>
 <canvas id="bg" aria-hidden="true"></canvas>
 
 <header class="topbar">
@@ -50,7 +71,7 @@
     <canvas id="floorCanvas"></canvas>
     <div class="floor-prompt" id="floorPrompt" hidden>
       <b id="floorPromptName"></b><small id="floorPromptSub"></small>
-      <span class="fp-key" id="floorPromptKey"><kbd>E</kbd> spielen</span><span class="fp-tap">Tippen zum Spielen</span>
+      <span class="fp-key"><kbd>E</kbd> <span id="floorPromptKey">spielen</span></span><span class="fp-tap">Tippen zum Spielen</span>
     </div>
     <div class="floor-help"><kbd>WASD</kbd> / <kbd>Pfeile</kbd> laufen · <kbd>E</kbd> spielen · Klick = hinlaufen</div>
     <canvas class="minimap" id="minimap" aria-hidden="true"></canvas>
@@ -208,7 +229,7 @@
     <div class="game-head">
       <a class="back-btn" href="#floor"><i>←</i> Casino</a>
       <h2>Midnight Blackjack</h2>
-      <span class="pill">Max. Einsatz <b>5.000</b></span>
+      <span class="pill">Max. Einsatz <b data-num="5000">5.000</b></span>
     </div>
     <div class="bj-table" id="bjTable">
       <div class="bj-shoe" id="bjShoe" aria-hidden="true"><span class="shoe-cards"></span><small id="bjShoeCount">312</small></div>
@@ -256,12 +277,12 @@
     <div class="game-head">
       <a class="back-btn" href="#floor"><i>←</i> Casino</a>
       <h2>Grand Roulette</h2>
-      <span class="pill">Tischlimit <b>10.000</b></span>
+      <span class="pill">Tischlimit <b data-num="10000">10.000</b></span>
     </div>
     <div class="rl-layout">
       <div class="panel rl-wheel-panel" id="rlStage">
         <div class="rl-wheel-box"><div class="rl-pointer" aria-hidden="true"></div><canvas id="rlWheel"></canvas></div>
-        <div class="rl-result" id="rlResult" hidden></div>
+        <div class="rl-result empty" id="rlResult"><b>0</b><span>–</span></div>
         <div class="rl-history" id="rlHistory" aria-label="Letzte Zahlen"></div>
       </div>
       <div class="rl-right">
@@ -308,7 +329,7 @@
           <div class="auto-row">
             <input id="crAuto" type="number" min="1.01" max="1000" step="0.1" value="2" inputmode="decimal">
             <span>×</span>
-            <label class="switch"><input type="checkbox" id="crAutoOn"><i></i><span>aktiv</span></label>
+            <label class="switch"><input type="checkbox" id="crAutoOn"><i></i><span>Auto</span></label>
           </div>
           <div class="quick"><button type="button" data-auto="1.5">1,5×</button><button type="button" data-auto="2">2×</button><button type="button" data-auto="5">5×</button><button type="button" data-auto="10">10×</button></div>
         </div>
@@ -377,6 +398,7 @@
         </div>
         <div class="sc-foot"><span>Serie NN-<b>7</b></span><span>Nur Spielgeld</span></div>
       </div>
+      <div class="sc-dock"></div>
       <aside class="panel scratch-side">
         <div class="field">
           <label>Lospreis</label>
@@ -402,7 +424,7 @@
     <div class="game-head">
       <a class="back-btn" href="#floor"><i>←</i> Casino</a>
       <h2>Würfel-Duell</h2>
-      <span class="pill">Tischlimit <b>5.000</b></span>
+      <span class="pill">Tischlimit <b data-num="5000">5.000</b></span>
     </div>
     <div class="dice-table">
       <div class="dice-tray" id="diceTray">

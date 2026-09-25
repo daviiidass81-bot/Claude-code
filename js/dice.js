@@ -60,7 +60,7 @@ const Dice = (() => {
   function animateDie(d, val, from, delay, lane) {
     const [fx, fy] = FACE_ROT[val];
     const spinsX = 360 * U.randInt(2, 3), spinsY = 360 * U.randInt(2, 3);
-    const to = [fx + spinsX * Math.sign(Math.random() - 0.3), fy + spinsY];
+    const to = [fx - 14 + spinsX * Math.sign(Math.random() - 0.3), fy + 18 + spinsY]; // leichte Schräglage bleibt sichtbar
     const cube = d.querySelector('.cube');
     const kf = [
       { transform: `rotateX(${from[0]}deg) rotateY(${from[1]}deg)` },
@@ -85,6 +85,7 @@ const Dice = (() => {
     const t = total();
     if (!t) { setMsg('Setze Chips auf ein Feld.'); Sfx.error(); return; }
     if (!Store.bet(t)) { App.insufficient(t); return; }
+    Store.hold('dice', t);
     rolling = true; lastBets = { ...bets }; render();
     Store.stat('rolls');
     $$('.dice-field').forEach(f => f.classList.remove('won', 'lost'));
@@ -111,12 +112,16 @@ const Dice = (() => {
     for (const k of Object.keys(FIELDS)) if (!bets[k] && FIELDS[k].test(a, b)) fieldEl(k).classList.add('hint');
     history.unshift(sum); history.length = Math.min(history.length, 16);
     el.hist.innerHTML = history.map((s, i) => `<span class="${s === 7 ? 'seven' : s < 7 ? 'under' : 'over'}${i ? '' : ' last'}">${s}</span>`).join('');
-    if (ret > 0) {
-      Store.win(ret);
+    Store.release('dice');
+    if (ret > 0) Store.win(ret, ret - t);
+    if (ret > t) {
       const c = FX.center(el.tray);
       FX.coins(c.x, c.y, Math.min(40, 10 + Math.round(ret / t * 4)), 1);
       Sfx.win(ret >= t * 4 ? 3 : 2);
-      setMsg(`${sum}! Du gewinnst ${U.fmt(ret)} Münzen.`);
+      setMsg(I18N.t('{0}! Du gewinnst {1} Münzen.', sum, U.fmt(ret)));
+    } else if (ret > 0) {
+      Sfx.push();
+      setMsg(I18N.t('{0}! Zurück: {1} von {2} Münzen.', sum, U.fmt(ret), U.fmt(t)));
     } else { Sfx.lose(); setMsg(`${sum} – diesmal nicht.`); }
     Store.emit({ type: 'dice', sum, pair: a === b, pairWin: !!bets.pair && a === b, win: ret, bet: t });
     await U.sleep(900);

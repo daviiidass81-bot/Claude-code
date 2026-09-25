@@ -424,15 +424,16 @@ const AvatarEditor = (() => {
   function loop(now) {
     if (!open) { raf = null; return; }
     const dt = Math.max(0, Math.min(0.05, (now - last) / 1000 || 0)); last = now; t += dt;
-    const dpr = Math.min(2, window.devicePixelRatio || 1), W = c.clientWidth, H = c.clientHeight;
-    if (c.width !== Math.round(W * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
+    const dpr = Math.min(2, window.devicePixelRatio || 1), rect = c.getBoundingClientRect(), W = rect.width, H = rect.height;
+    if (W < 10 || H < 10) { raf = requestAnimationFrame(loop); return; }
+    if (c.width !== Math.round(W * dpr) || c.height !== Math.round(H * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
     g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
     const bg = g.createRadialGradient(W / 2, H * 0.6, 10, W / 2, H * 0.6, W * 0.6);
     bg.addColorStop(0, 'rgba(157,92,255,0.35)'); bg.addColorStop(1, 'rgba(157,92,255,0)');
     g.fillStyle = bg; g.fillRect(0, 0, W, H);
     const dir = [0, 2, 3, 1][Math.floor(t / 1.6) % 4];
-    const k = Math.min(W / 60, H / 80) * 0.9;
-    g.save(); g.translate(W / 2, H * 0.9); g.scale(k, k);
+    const k = Math.min(W / 50, H / 78) * 0.85;
+    g.save(); g.translate(W / 2, H * 0.92); g.scale(k, k);
     Avatar.draw(g, 0, 0, a, dir, t * 9, true);
     g.restore();
     raf = requestAnimationFrame(loop);
@@ -498,6 +499,40 @@ const Profile = (() => {
     hide() { active = false; },
     render,
   };
+})();
+
+/* ---------- Ladebildschirm mit Hinweis ---------- */
+const Loader = (() => {
+  const el = $('#loader'), fill = $('#ldFill'), step = $('#ldStep'), go = $('#ldGo'), langs = $('#ldLangs');
+  let done = null;
+  const mark = () => $$('.lang-btn', langs).forEach(b => { b.classList.toggle('on', b.dataset.lang === I18N.lang); b.setAttribute('aria-pressed', b.dataset.lang === I18N.lang); });
+  langs.innerHTML = I18N.ORDER.map(c => `<button type="button" class="lang-btn" data-lang="${c}"><b>${c.toUpperCase()}</b><span>${I18N.LANGS[c].name}</span></button>`).join('');
+  $$('.lang-btn', langs).forEach(b => b.addEventListener('click', () => { I18N.set(b.dataset.lang); mark(); }));
+  I18N.onChange(mark);
+  go.addEventListener('click', () => {
+    Sfx.init(); Sfx.win(1);
+    el.classList.add('out');
+    setTimeout(() => { el.hidden = true; }, 500);
+    done && done();
+  });
+  async function run(onDone) {
+    done = onDone; mark();
+    const t0 = performance.now();
+    const set = (txt, p) => { step.textContent = txt; fill.style.width = p + '%'; };
+    set('Schriften werden geladen …', 15);
+    await Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), U.sleep(2500)]);
+    set('Karten werden gemischt …', 45);
+    await U.sleep(220);
+    Symbols.clear(); Symbols.ids.forEach(id => Symbols.sprite(id, 128));
+    set('Automaten werden poliert …', 72);
+    await U.sleep(260);
+    set('Die Lichter gehen an …', 92);
+    await U.sleep(Math.max(200, 1500 - (performance.now() - t0)));
+    fill.style.width = '100%'; step.textContent = 'Bereit!';
+    el.classList.add('ready');
+    go.disabled = false; go.focus({ preventScroll: true });
+  }
+  return { run, get open() { return !el.hidden; } };
 })();
 
 /* ---------- App / Navigation ---------- */
@@ -676,6 +711,7 @@ const App = (() => {
   });
 
   document.addEventListener('keydown', e => {
+    if (Loader.open) return; // Ladebildschirm zuerst bestätigen
     if (e.key === 'Escape') { closeModal(); return; }
     if (openModalId || e.target.closest('input, textarea, select')) return;
     if (e.target.closest('button') && (e.code === 'Space' || e.code === 'Enter')) return; // Button-Klick nicht doppelt auslösen
@@ -699,7 +735,12 @@ const App = (() => {
   volRange.addEventListener('change', () => Sfx.click());
   showVol();
   $('#settingsBtn').addEventListener('click', () => { Sfx.init(); Sfx.click(); showVol(); openModal('modal-settings'); });
-  I18N.onChange(() => { updateXp(); updateBonus(); renderStats(); Achievements.render(); Profile.render(); setMuteUI && setMuteUI(); });
+  const fmtStatic = () => {
+    $$('[data-num]').forEach(e => { e.textContent = U.fmt(+e.dataset.num); });
+    $$('[data-auto]').forEach(b => { b.textContent = U.fmtMult(+b.dataset.auto); });
+  };
+  fmtStatic();
+  I18N.onChange(() => { fmtStatic(); updateXp(); updateBonus(); renderStats(); Achievements.render(); Profile.render(); setMuteUI && setMuteUI(); });
   $('#gamesBtn').addEventListener('click', () => { Sfx.init(); Sfx.click(); openModal('modal-games'); });
   $('#avatarBtn').addEventListener('click', () => { Sfx.init(); Sfx.click(); openModal('modal-avatar'); });
   $('#profileEdit').addEventListener('click', () => { Sfx.init(); Sfx.click(); openModal('modal-avatar'); });
@@ -724,9 +765,15 @@ const App = (() => {
   return {
     init() {
       I18N.start();
+      const refund = Store.refundPending();
+      shownBalance = Store.s.balance;
       balEl.textContent = U.fmt(Store.s.balance);
+      const afterLoad = () => {
+        if (refund) setTimeout(() => Toast.show(I18N.t('Offene Runde erstattet'), I18N.t('{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', U.fmt(refund)), '↺', 'ach'), 600);
+        if (!Store.s.avatar) setTimeout(() => openModal('modal-avatar'), 450);
+      };
       updateXp(); updateBonus(); route();
-      if (!Store.s.avatar) setTimeout(() => openModal('modal-avatar'), 500);
+      Loader.run(afterLoad);
     },
     openModal, closeModal, insufficient, updateBonus, enter,
   };

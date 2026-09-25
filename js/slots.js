@@ -410,7 +410,8 @@ const Slots = (() => {
     const b = bet();
     const free = fsLeft > 0;
     if (!free) {
-      if (!Store.bet(b)) {
+      if (Store.bet(b)) Store.hold('slots', b);
+      else {
         auto = false; updateUI();
         App.insufficient(b);
         return;
@@ -434,6 +435,7 @@ const Slots = (() => {
     let scatWin = 0, fsAward = 0;
     if (sc >= 3) { scatWin = S.scatterPays[sc][0] * b; fsAward = S.scatterPays[sc][1]; }
     const total = lineWin + scatWin;
+    Store.release('slots');
     wins = ev.lines;
     scatterHit = sc >= 3 ? { cells: ev.scat, amount: scatWin, count: sc } : null;
     showStart = performance.now(); lastShowIdx = -1;
@@ -441,7 +443,7 @@ const Slots = (() => {
     if (free) fsWinTotal += total;
 
     if (total > 0) {
-      Store.win(total);
+      Store.win(total, free ? total : total - b);
       await presentWin(total, b);
     } else {
       el.msg.textContent = free ? 'Weiter geht’s …' : U.pick(['Knapp daneben!', 'Nächstes Mal!', 'Dreh weiter!', 'Das Glück wartet …']);
@@ -532,6 +534,7 @@ const Slots = (() => {
   el.turbo.addEventListener('click', () => { Sfx.init(); Sfx.click(); turbo = !turbo; updateUI(); });
   $('#slotInfo').addEventListener('click', () => { Sfx.init(); Sfx.click(); buildPaytable(); App.openModal('modal-paytable'); });
   window.addEventListener('resize', () => active && resize());
+  I18N.onChange(() => updateUI());
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { Symbols.clear(); if (active) resize(); });
 
   return {

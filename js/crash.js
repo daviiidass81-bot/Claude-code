@@ -11,6 +11,7 @@ const Crash = (() => {
   const g = el.canvas.getContext('2d');
   let W = 0, H = 0, dpr = 1, active = false, raf = null, last = 0;
   let phase = 'idle'; // idle | launch | fly | crashed
+  let cooldownUntil = 0;
   let t = 0, crashAt = 1, mult = 1, bet = 0, cashed = false, cashMult = 0, launchT = 0;
   let stars = [], flames = [], debris = [], history = [], bots = [], shake = 0;
   const stepper = BetStepper($('#crBetMinus'), $('#crBet'), $('#crBetPlus'), BETS, 3);
@@ -50,10 +51,16 @@ const Crash = (() => {
       const len = phase === 'fly' ? s.z * speed * 6 : 0;
       g.fillRect(s.x * W, s.y * H, 1.3 * s.z + len, 1.3 * s.z);
     }
-    // Planet
-    const pg = g.createRadialGradient(W * 0.86, H * 0.2, 4, W * 0.86, H * 0.2, H * 0.16);
-    pg.addColorStop(0, '#ffb3f0'); pg.addColorStop(0.6, '#9d5cff'); pg.addColorStop(1, 'rgba(60,20,120,0)');
-    g.fillStyle = pg; g.beginPath(); g.arc(W * 0.86, H * 0.2, H * 0.16, 0, Math.PI * 2); g.fill();
+    // Planet mit Ring und Kratern
+    const px = W * 0.85, py = H * 0.2, pr = H * 0.09;
+    const pg = g.createRadialGradient(px - pr * 0.4, py - pr * 0.4, pr * 0.1, px, py, pr);
+    pg.addColorStop(0, '#f0d0ff'); pg.addColorStop(0.55, '#9d5cff'); pg.addColorStop(1, '#3a1680');
+    g.strokeStyle = 'rgba(255,200,240,0.45)'; g.lineWidth = 3;
+    g.beginPath(); g.ellipse(px, py, pr * 1.7, pr * 0.45, -0.35, Math.PI, Math.PI * 2); g.stroke();
+    g.fillStyle = pg; g.beginPath(); g.arc(px, py, pr, 0, Math.PI * 2); g.fill();
+    g.fillStyle = 'rgba(40,10,90,0.35)';
+    [[-0.3, 0.2, 0.2], [0.35, -0.1, 0.14], [0.05, 0.45, 0.11]].forEach(([dx, dy, r]) => { g.beginPath(); g.arc(px + dx * pr, py + dy * pr, r * pr, 0, Math.PI * 2); g.fill(); });
+    g.beginPath(); g.ellipse(px, py, pr * 1.7, pr * 0.45, -0.35, 0, Math.PI); g.stroke();
 
     // Achsen
     const pad = { l: 46, r: 18, t: 20, b: 30 };
@@ -168,6 +175,7 @@ const Crash = (() => {
     Sfx.init();
     const b = stepper.value;
     if (!Store.bet(b)) { App.insufficient(b); return; }
+    Store.hold('crash', b);
     bet = b; cashed = false; cashMult = 0; t = 0; mult = 1; debris = []; flames = [];
     const U1 = Math.random();
     crashAt = Math.max(1, Math.floor(0.97 / (1 - U1) * 100) / 100);
@@ -189,7 +197,8 @@ const Crash = (() => {
     if (phase !== 'fly' || cashed || !bet) return;
     cashed = true; cashMult = mult;
     const win = Math.floor(bet * mult);
-    Store.win(win);
+    Store.release('crash');
+    Store.win(win, win - bet);
     Sfx.win(mult >= 5 ? 3 : 2);
     const c = FX.center(el.btn);
     FX.coins(c.x, c.y - 30, Math.min(40, 10 + Math.round(mult * 4)), 1);
@@ -204,7 +213,9 @@ const Crash = (() => {
     phase = 'crashed';
     Sfx.rocket && Sfx.rocket(false);
     Sfx.explode && Sfx.explode();
+    Store.release('crash');
     shake = 8;
+    cooldownUntil = performance.now() + 1400; // späte Klicks nach dem Absturz ignorieren
     // Explosion an der Kurvenspitze
     const pad = { l: 46, r: 18, t: 20, b: 30 };
     const tMax = Math.max(8, t * 1.18), mMax = Math.max(2, multAt(t) * 1.25);
@@ -226,7 +237,7 @@ const Crash = (() => {
     bots.forEach(b => { if (!b.out) b.out = null; });
     renderPlayers();
     FX.shake(el.stage, crashAt > 5);
-    setTimeout(() => { if (phase === 'crashed') { bet = 0; stepper.locked = false; updateBtn(); } }, 900);
+    setTimeout(() => { if (phase === 'crashed') { bet = 0; stepper.locked = false; updateBtn(); } }, 1400);
     updateBtn();
   }
 
@@ -243,8 +254,11 @@ const Crash = (() => {
     } else if (phase === 'launch' || (phase === 'fly')) {
       b.classList.add('wait'); b.disabled = true;
       el.btnLabel.textContent = cashed ? 'Ausgezahlt' : 'Zündung …'; el.btnSub.textContent = cashed ? fmtM(cashMult) : '';
+    } else if (phase === 'crashed' && performance.now() < cooldownUntil) {
+      b.classList.add('crashed'); b.disabled = true;
+      el.btnLabel.textContent = 'CRASH'; el.btnSub.textContent = fmtM(crashAt);
     } else {
-      b.disabled = false; el.btnLabel.textContent = 'Abheben'; el.btnSub.textContent = 'Einsatz ' + U.fmt(stepper.value);
+      b.disabled = false; b.classList.remove('crashed'); el.btnLabel.textContent = 'Abheben'; el.btnSub.textContent = I18N.t('Einsatz {0}', U.fmt(stepper.value));
     }
   }
 
@@ -283,10 +297,14 @@ const Crash = (() => {
     raf = requestAnimationFrame(loop);
   }
 
-  el.btn.addEventListener('click', () => { if (phase === 'fly' && bet && !cashed) cashOut(); else launch(); });
+  el.btn.addEventListener('click', () => {
+    if (performance.now() < cooldownUntil) return;
+    if (phase === 'fly' && bet && !cashed) cashOut(); else launch();
+  });
   $('#crBetMinus').addEventListener('click', updateBtn); $('#crBetPlus').addEventListener('click', updateBtn);
   $$('[data-auto]').forEach(b => b.addEventListener('click', () => { Sfx.click(); el.auto.value = b.dataset.auto; el.autoOn.checked = true; }));
   window.addEventListener('resize', () => active && resize());
+  I18N.onChange(() => { updateBtn(); renderPlayers(); renderHistory(); });
 
   return {
     show() { active = true; requestAnimationFrame(() => { resize(); updateBtn(); renderPlayers(); if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); } }); },
@@ -294,7 +312,7 @@ const Crash = (() => {
       // Läuft noch eine Runde mit Einsatz: beim Verlassen automatisch auszahlen
       if (phase === 'fly' && bet && !cashed) cashOut(true);
       active = false; Sfx.rocket && Sfx.rocket(false);
-      if (phase === 'launch' && bet) Store.credit(bet); // Start abgebrochen: Einsatz zurück
+      if (phase === 'launch' && bet) { Store.release('crash'); Store.credit(bet); } // Start abgebrochen: Einsatz zurück
       if (phase === 'launch' || phase === 'fly') { phase = 'idle'; bet = 0; stepper.locked = false; }
     },
     key(e) { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); el.btn.click(); return true; } return false; },

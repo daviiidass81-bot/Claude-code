@@ -26,6 +26,7 @@ const Floor = (() => {
   const sh = Avatar.shade;
   function glowText(txt, x, y, size, color, blur = 12, font = 'Bungee') {
     txt = I18N.t(txt);
+    size = Math.max(size, 10.5 / zoom);
     g.font = `${size}px "${font}", Impact, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.shadowColor = color; g.shadowBlur = blur; g.fillStyle = '#fff'; g.fillText(txt, x, y);
     g.shadowBlur = blur * 0.5; g.fillStyle = color; g.globalAlpha = 0.35; g.fillText(txt, x, y); g.globalAlpha = 1;
@@ -43,9 +44,9 @@ const Floor = (() => {
     rg.addColorStop(0, 'rgba(120,30,90,0.35)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
     t.fillStyle = rg; t.fillRect(0, 0, T, T);
     // Rautengitter
-    t.strokeStyle = 'rgba(255,201,74,0.16)'; t.lineWidth = 2;
+    t.strokeStyle = 'rgba(255,201,74,0.08)'; t.lineWidth = 2;
     t.beginPath(); t.moveTo(T / 2, 0); t.lineTo(T, T / 2); t.lineTo(T / 2, T); t.lineTo(0, T / 2); t.closePath(); t.stroke();
-    t.strokeStyle = 'rgba(59,232,255,0.10)'; t.lineWidth = 1;
+    t.strokeStyle = 'rgba(59,232,255,0.05)'; t.lineWidth = 1;
     t.beginPath(); t.moveTo(T / 2, 14); t.lineTo(T - 14, T / 2); t.lineTo(T / 2, T - 14); t.lineTo(14, T / 2); t.closePath(); t.stroke();
     // Rosetten
     const ros = (x, y, r, col) => {
@@ -56,8 +57,8 @@ const Floor = (() => {
       }
       t.fillStyle = 'rgba(255,201,74,0.5)'; t.beginPath(); t.arc(x, y, r * 0.18, 0, Math.PI * 2); t.fill();
     };
-    ros(T / 2, T / 2, 22, 'rgba(255,61,139,0.22)');
-    [[0, 0], [T, 0], [0, T], [T, T]].forEach(([x, y]) => ros(x, y, 16, 'rgba(157,92,255,0.22)'));
+    ros(T / 2, T / 2, 22, 'rgba(255,61,139,0.11)');
+    [[0, 0], [T, 0], [0, T], [T, T]].forEach(([x, y]) => ros(x, y, 16, 'rgba(157,92,255,0.10)'));
     t.fillStyle = 'rgba(255,201,74,0.18)';
     [[T / 2, 0], [0, T / 2], [T, T / 2], [T / 2, T]].forEach(([x, y]) => { t.beginPath(); t.arc(x, y, 3, 0, Math.PI * 2); t.fill(); });
     // Körnung
@@ -248,7 +249,20 @@ const Floor = (() => {
     near = best;
   }
 
+  // Figuren nicht ineinander stehen lassen
+  function separate() {
+    const all = [player, ...guests];
+    for (let i = 1; i < all.length; i++) for (let j = 0; j < all.length; j++) {
+      if (i === j) continue;
+      const a = all[i], b = all[j], dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy) || 0.01;
+      if (d < 22) {
+        const push = (22 - d) * (j === 0 ? 1 : 0.5), nx = a.x + dx / d * push, ny = a.y + dy / d * push;
+        if (!collides(nx, ny)) { a.x = nx; a.y = ny; }
+      }
+    }
+  }
   function updateGuests(dt) {
+    separate();
     for (const n of guests) {
       if (n.path) { if (!followPath(n, dt)) n.moving = false; continue; }
       n.moving = false;
@@ -259,7 +273,7 @@ const Floor = (() => {
       let tx, ty;
       if (Math.random() < 0.55) {
         const o = U.pick(interactives.filter(o => o.game !== 'lobby'));
-        tx = o.ix + U.rand(-30, 30); ty = o.iy + U.rand(0, 16);
+        tx = o.ix + U.pick([-36, 0, 36]); ty = o.iy + U.rand(4, 14);
         n.playing = o;
       } else { tx = U.rand(80, WW - 80); ty = U.rand(WALL + 200, WH - 60); n.playing = null; }
       n.path = findPath(n.x, n.y, tx, ty);
@@ -810,7 +824,7 @@ const Floor = (() => {
     // Licht
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
-    vg.addColorStop(0, 'rgba(5,2,10,0)'); vg.addColorStop(1, 'rgba(5,2,10,0.6)');
+    vg.addColorStop(0, 'rgba(5,2,10,0)'); vg.addColorStop(1, 'rgba(5,2,10,0.7)');
     g.fillStyle = vg; g.fillRect(0, 0, W, H);
   }
 
@@ -836,7 +850,8 @@ const Floor = (() => {
   function updateCamera(snap) {
     const vw = W / zoom, vh = H / zoom;
     const tx = U.clamp(player.x - vw / 2, 0, Math.max(0, WW - vw));
-    const ty = U.clamp(player.y - vh * 0.55, 0, Math.max(0, WH - vh));
+    // Nahe der Rückwand ganz nach oben schauen, damit Schilder vollständig sichtbar sind
+    const ty = player.y < WALL + 240 ? 0 : U.clamp(player.y - vh * 0.6, 0, Math.max(0, WH - vh));
     if (snap) { camX = tx; camY = ty; } else { camX += (tx - camX) * 0.12; camY += (ty - camY) * 0.12; }
     if (vw > WW + 80) camX = (WW - vw) / 2;
   }
@@ -844,9 +859,12 @@ const Floor = (() => {
   function updatePrompt() {
     if (!near) { promptEl.hidden = true; promptEl.__for = null; actionBtn.disabled = true; if (actionBtn.__lbl !== 'Aktion') { actionBtn.__lbl = 'Aktion'; actionBtn.querySelector('b').textContent = 'Aktion'; } return; }
     promptEl.hidden = false;
-    if (promptEl.__for !== near) { promptEl.__for = near; promptName.textContent = near.label; $('#floorPromptSub').textContent = near.sub || ''; }
+    if (promptEl.__for !== near) {
+      promptEl.__for = near; promptName.textContent = near.label; $('#floorPromptSub').textContent = near.sub || '';
+      promptKey.textContent = near.game === 'bar' ? 'bestellen' : near.game === 'lobby' ? 'öffnen' : 'spielen';
+    }
     const sx = (near.x - camX) * zoom, sy = (near.y - (near.vh || 60) - 60 - camY) * zoom;
-    promptEl.style.transform = `translate(${Math.round(U.clamp(sx, 90, W - 90))}px, ${Math.round(Math.max(70, sy))}px) translate(-50%, -100%)`;
+    promptEl.style.transform = `translate(${Math.round(U.clamp(sx, 110, W - 110))}px, ${Math.round(Math.max(promptEl.offsetHeight + 12, sy))}px) translate(-50%, -100%)`;
     actionBtn.disabled = false;
     const al = near.game === 'bar' ? 'Bestellen' : near.game === 'lobby' ? 'Öffnen' : 'Spielen';
     if (actionBtn.__lbl !== al) { actionBtn.__lbl = al; actionBtn.querySelector('b').textContent = al; }

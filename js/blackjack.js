@@ -225,6 +225,7 @@ const Blackjack = (() => {
     if (phase !== 'bet' || !pending || busy) return;
     Sfx.init();
     if (!Store.bet(pending)) { App.insufficient(pending); return; }
+    Store.hold('blackjack', pending);
     busy = true;
     lastBet = pending;
     clearTable();
@@ -280,6 +281,7 @@ const Blackjack = (() => {
     if (phase !== 'play' || busy) return;
     const h = hands[activeIdx];
     if (h.cards.length !== 2 || !Store.bet(h.bet)) { Sfx.error(); return; }
+    Store.hold('blackjack', h.bet);
     busy = true; setControls();
     Sfx.chip();
     h.bet *= 2; h.doubled = true; renderValues();
@@ -296,6 +298,7 @@ const Blackjack = (() => {
     const h = hands[0];
     if (h.cards.length !== 2 || cardVal(h.cards[0]) !== cardVal(h.cards[1])) return;
     if (!Store.bet(h.bet)) { Sfx.error(); return; }
+    Store.hold('blackjack', h.bet);
     busy = true; setControls(); Sfx.chip();
     const h2 = newHandEl(h.bet);
     const moved = h.cards.pop();
@@ -381,7 +384,8 @@ const Blackjack = (() => {
         if (net > 0) FX.coins(c.x, c.y, cls === 'bj' ? 34 : 16, cls === 'bj' ? 1.15 : 0.9);
       }
     }
-    if (totalReturn) Store.win(totalReturn);
+    Store.release('blackjack');
+    if (totalReturn) Store.win(totalReturn, totalReturn - hands.reduce((s, h) => s + h.bet, 0));
     Store.stat('hands');
     if (bjHit) { Store.stat('bj'); Sfx.blackjack(); FX.confetti(110); FX.flash(); }
     else if (anyWin) Sfx.win(2);
@@ -424,6 +428,7 @@ const Blackjack = (() => {
   el.split.addEventListener('click', split);
   Store.on(ev => { if (ev.type === 'balance' && phase === 'bet') setControls(); });
 
+  I18N.onChange(() => renderStack());
   buildShoe();
   pending = 100;
   renderStack();

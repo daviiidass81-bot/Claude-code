@@ -41,6 +41,7 @@ const Mines = (() => {
     Sfx.init();
     const b = stepper.value;
     if (!Store.bet(b)) { App.insufficient(b); return; }
+    Store.hold('mines', b);
     bet = b; found = 0; over = false; playing = true;
     Store.stat('minesRounds');
     const idx = Array.from({ length: SIZE }, (_, i) => i);
@@ -78,6 +79,7 @@ const Mines = (() => {
 
   function boom(i) {
     over = true; playing = false;
+    Store.release('mines');
     const t = tile(i);
     t.querySelector('.mt-back').innerHTML = BOMB_SVG;
     t.classList.add('open', 'bomb', 'hit');
@@ -96,7 +98,8 @@ const Mines = (() => {
     if (!playing || !found) return;
     playing = false; over = true;
     const m = multFor(found), win = Math.floor(bet * m);
-    Store.win(win);
+    Store.release('mines');
+    Store.win(win, win - bet);
     Sfx.win(m >= 5 ? 3 : 2);
     const c = FX.center(el.board);
     FX.coins(c.x, c.y, Math.min(50, 12 + Math.round(m * 3)), 1.1);
@@ -151,9 +154,11 @@ const Mines = (() => {
 
   el.count.addEventListener('input', () => { mines = +el.count.value; updateUI(); });
   el.start.addEventListener('click', start);
+  I18N.onChange(() => updateUI());
   el.random.addEventListener('click', randomPick);
   $$('[data-mines]').forEach(b => b.addEventListener('click', () => { if (playing) return; Sfx.click(); el.count.value = b.dataset.mines; mines = +b.dataset.mines; updateUI(); }));
   buildGrid();
+  MobileDock([el.start, el.random], el.board);
   updateUI();
 
   return {

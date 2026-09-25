@@ -4,7 +4,8 @@ const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
 const U = {
-  fmt: n => Math.floor(n).toLocaleString(typeof I18N !== 'undefined' ? I18N.locale : 'de-DE'),
+  // Schmale geschützte Leerzeichen (fr) fehlen in Bungee: durch normales Leerzeichen ersetzen
+  fmt: n => Math.floor(n).toLocaleString(typeof I18N !== 'undefined' ? I18N.locale : 'de-DE').replace(/[\u202F\u00A0]/g, ' '),
   dec: () => (typeof I18N !== 'undefined' ? I18N.dec : ','),
   fmtMult(m) {
     const s = m >= 100 ? m.toFixed(0) : (Math.round(m * 10) / 10).toString();
@@ -66,6 +67,8 @@ const Store = (() => {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* ignorieren */ } }, 150);
   };
+  const flush = () => { clearTimeout(saveTimer); try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* ignorieren */ } };
+  window.addEventListener('pagehide', flush);
   const subs = [];
   const emit = ev => subs.forEach(f => f(ev));
 
@@ -100,10 +103,11 @@ const Store = (() => {
       save();
       return true;
     },
-    win(x) {
+    // net = Gewinn abzüglich Einsatz (nur echte Gewinne zählen als "größter Gewinn")
+    win(x, net = x) {
       if (x <= 0) return;
       s.balance += x; s.stats.won += x;
-      if (x > s.stats.biggest) s.stats.biggest = x;
+      if (net > s.stats.biggest) s.stats.biggest = net;
       if (s.balance > s.peak) s.peak = s.balance;
       save();
       emit({ type: 'balance', delta: x });
@@ -113,6 +117,15 @@ const Store = (() => {
       if (s.balance > s.peak) s.peak = s.balance;
       save();
       emit({ type: 'balance', delta: x });
+    },
+    // Laufende Einsätze vormerken, damit ein Neuladen mitten in der Runde nichts kostet
+    hold(game, amt) { const p = s.pending || (s.pending = {}); p[game] = (p[game] || 0) + amt; flush(); },
+    release(game) { if (s.pending && s.pending[game]) { delete s.pending[game]; save(); } },
+    refundPending() {
+      const p = s.pending || {}, sum = Object.values(p).reduce((a, b) => a + b, 0);
+      s.pending = {};
+      if (sum > 0) { s.balance += sum; flush(); emit({ type: 'balance', delta: sum }); }
+      return sum;
     },
     stat(key, inc = 1) { s.stats[key] += inc; save(); emit({ type: 'stat', key }); },
     statMax(key, v) { if (v > s.stats[key]) { s.stats[key] = v; save(); emit({ type: 'stat', key }); } },

@@ -1157,9 +1157,80 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
 .vol-row b { min-width: 52px; text-align: right; font: 15px var(--display); color: var(--gold); }
 @media (max-width: 420px) { #muteBtn { display: none; } }
 
+/* ---------- Korrekturen Runde 3 ---------- */
+.rl-result.empty { visibility: hidden; }
+.rl-result em.good { color: var(--mint); } .rl-result em.bad { color: #ff8a95; } .rl-result em { color: var(--muted); }
+.dice-hist, .rl-history { min-height: 30px; }
+.big-cta.crashed { color: #fff; background: linear-gradient(180deg, #ff7a8a, #c81d38); box-shadow: 0 5px 0 #5a0a18, 0 10px 24px rgba(255, 61, 90, 0.35); filter: none; }
+.crash-players { min-height: 120px; max-height: 260px; }
+.cta-btn:disabled:not(.cash):not(.crashed) { filter: none; color: var(--muted); background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 0 0 1px var(--line); }
+.mt-front::after { content: "◆"; width: auto; aspect-ratio: auto; background: none; font-size: 18px; color: rgba(255, 255, 255, 0.1); }
+.minimap { opacity: 0.82; }
+#modal-avatar h2 { padding: 0 44px; }
+.av-box { padding-bottom: 0; }
+.av-box > .cta-btn { position: sticky; bottom: 0; margin: 0 -24px; width: calc(100% + 48px); max-width: none; border-radius: 0 0 24px 24px; padding: 16px; box-shadow: 0 -12px 20px rgba(23, 12, 40, 0.9); }
+#avGlasses.on { color: #fff; background: linear-gradient(180deg, #ff6aa6, var(--neon)); box-shadow: 0 0 16px rgba(255, 61, 139, 0.45); }
+.mines-board > .big-cta, .mines-board > #minesRandom { width: min(100%, 520px); }
+.sc-dock { display: none; }
+@media (max-width: 960px) {
+  .sc-dock { display: grid; gap: 10px; width: min(100%, 480px); justify-self: center; }
+}
+@media (max-width: 720px) { .av-box > .cta-btn { margin: 0 -14px; width: calc(100% + 28px); } }
+
+/* ---------- Ladebildschirm ---------- */
+.loader {
+  position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; overflow-y: auto;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: radial-gradient(ellipse at 50% 30%, rgba(157, 92, 255, 0.28), transparent 60%), radial-gradient(ellipse at 50% 100%, rgba(255, 61, 139, 0.18), transparent 60%), #0b0514;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.loader.out { opacity: 0; transform: scale(1.04); pointer-events: none; }
+.ld-box { display: grid; justify-items: center; gap: 16px; width: min(100%, 560px); text-align: center; }
+.ld-sign .n1 { font-size: clamp(40px, 11vw, 78px); }
+.ld-sign .n2 { font-size: clamp(34px, 9.4vw, 66px); }
+.ld-progress { display: flex; align-items: center; gap: 14px; width: min(100%, 380px); }
+.ld-chip { flex: none; width: 34px; height: 34px; border-radius: 50%; background: repeating-conic-gradient(#fff 0 12deg, var(--neon) 12deg 45deg); box-shadow: inset 0 0 0 6px var(--neon), 0 0 18px rgba(255, 61, 139, 0.6); animation: spinSlow 1.1s linear infinite; }
+.loader.ready .ld-chip { animation-duration: 3s; background: repeating-conic-gradient(#fff 0 12deg, var(--gold) 12deg 45deg); box-shadow: inset 0 0 0 6px var(--gold), 0 0 18px rgba(255, 201, 74, 0.6); }
+.ld-bar { flex: 1; height: 10px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.ld-bar i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--violet), var(--neon), var(--gold)); box-shadow: 0 0 14px var(--neon); transition: width 0.45s ease; }
+.ld-step { margin: -6px 0 0; min-height: 21px; font-size: 14px; color: var(--muted); }
+.ld-note { width: 100%; padding: 16px 20px; border-radius: 18px; text-align: left; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 201, 74, 0.3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+.ld-note h2 { font: 16px var(--display); font-weight: 400; color: var(--gold); letter-spacing: 0.03em; }
+.ld-note p { margin: 8px 0 6px; font-size: 14.5px; font-weight: 600; color: var(--text); }
+.ld-note ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; font-size: 13.5px; color: #cfc2e6; }
+.ld-langs { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.ld-langs .lang-btn { padding: 6px 10px; gap: 6px; }
+.ld-langs .lang-btn span { font-size: 12.5px; }
+.ld-langs .lang-btn b { width: 28px; height: 22px; font-size: 10px; }
+.ld-go { min-width: 260px; }
+.ld-go:disabled { opacity: 0.5; }
+@media (max-width: 720px) { .ld-langs .lang-btn span { display: none; } .ld-go { min-width: 0; width: 100%; } }
+@media (hover: hover) and (min-width: 721px) { .minimap { top: auto; bottom: 16px; right: 16px; } }
+
 </style>
 </head>
 <body data-view="floor">
+<div class="loader" id="loader" role="dialog" aria-modal="true" aria-labelledby="ldTitle">
+  <div class="ld-box">
+    <h1 class="neon-sign ld-sign" id="ldTitle"><span class="n1">NEON</span><span class="n2">NIGHTS</span></h1>
+    <div class="ld-progress">
+      <span class="ld-chip" aria-hidden="true"></span>
+      <div class="ld-bar"><i id="ldFill"></i></div>
+    </div>
+    <p class="ld-step" id="ldStep" aria-live="polite">Lade das Casino …</p>
+    <section class="ld-note">
+      <h2>Nur zur Unterhaltung</h2>
+      <p>Dieses Spiel soll Glücksspiel weder verharmlosen noch schönreden. Es dient ausschließlich der Unterhaltung.</p>
+      <ul>
+        <li>Gespielt wird nur mit Spielgeld – ohne echte Einsätze, Käufe oder Auszahlungen.</li>
+        <li>Glück hier sagt nichts über echte Chancen aus: Auf Dauer gewinnt immer die Bank.</li>
+        <li>Glücksspiel kann süchtig machen. Hilfe gibt es anonym und kostenlos, z. B. unter check-dein-spiel.de oder bei einer Suchtberatung in deiner Nähe.</li>
+      </ul>
+    </section>
+    <div class="ld-langs" id="ldLangs" aria-label="Sprache"></div>
+    <button class="cta-btn ld-go" id="ldGo" type="button" disabled>Verstanden – ins Casino</button>
+  </div>
+</div>
 <canvas id="bg" aria-hidden="true"></canvas>
 
 <header class="topbar">
@@ -1198,7 +1269,7 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
     <canvas id="floorCanvas"></canvas>
     <div class="floor-prompt" id="floorPrompt" hidden>
       <b id="floorPromptName"></b><small id="floorPromptSub"></small>
-      <span class="fp-key" id="floorPromptKey"><kbd>E</kbd> spielen</span><span class="fp-tap">Tippen zum Spielen</span>
+      <span class="fp-key"><kbd>E</kbd> <span id="floorPromptKey">spielen</span></span><span class="fp-tap">Tippen zum Spielen</span>
     </div>
     <div class="floor-help"><kbd>WASD</kbd> / <kbd>Pfeile</kbd> laufen · <kbd>E</kbd> spielen · Klick = hinlaufen</div>
     <canvas class="minimap" id="minimap" aria-hidden="true"></canvas>
@@ -1356,7 +1427,7 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
     <div class="game-head">
       <a class="back-btn" href="#floor"><i>←</i> Casino</a>
       <h2>Midnight Blackjack</h2>
-      <span class="pill">Max. Einsatz <b>5.000</b></span>
+      <span class="pill">Max. Einsatz <b data-num="5000">5.000</b></span>
     </div>
     <div class="bj-table" id="bjTable">
       <div class="bj-shoe" id="bjShoe" aria-hidden="true"><span class="shoe-cards"></span><small id="bjShoeCount">312</small></div>
@@ -1404,12 +1475,12 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
     <div class="game-head">
       <a class="back-btn" href="#floor"><i>←</i> Casino</a>
       <h2>Grand Roulette</h2>
-      <span class="pill">Tischlimit <b>10.000</b></span>
+      <span class="pill">Tischlimit <b data-num="10000">10.000</b></span>
     </div>
     <div class="rl-layout">
       <div class="panel rl-wheel-panel" id="rlStage">
         <div class="rl-wheel-box"><div class="rl-pointer" aria-hidden="true"></div><canvas id="rlWheel"></canvas></div>
-        <div class="rl-result" id="rlResult" hidden></div>
+        <div class="rl-result empty" id="rlResult"><b>0</b><span>–</span></div>
         <div class="rl-history" id="rlHistory" aria-label="Letzte Zahlen"></div>
       </div>
       <div class="rl-right">
@@ -1456,7 +1527,7 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
           <div class="auto-row">
             <input id="crAuto" type="number" min="1.01" max="1000" step="0.1" value="2" inputmode="decimal">
             <span>×</span>
-            <label class="switch"><input type="checkbox" id="crAutoOn"><i></i><span>aktiv</span></label>
+            <label class="switch"><input type="checkbox" id="crAutoOn"><i></i><span>Auto</span></label>
           </div>
           <div class="quick"><button type="button" data-auto="1.5">1,5×</button><button type="button" data-auto="2">2×</button><button type="button" data-auto="5">5×</button><button type="button" data-auto="10">10×</button></div>
         </div>
@@ -1525,6 +1596,7 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
         </div>
         <div class="sc-foot"><span>Serie NN-<b>7</b></span><span>Nur Spielgeld</span></div>
       </div>
+      <div class="sc-dock"></div>
       <aside class="panel scratch-side">
         <div class="field">
           <label>Lospreis</label>
@@ -1550,7 +1622,7 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
     <div class="game-head">
       <a class="back-btn" href="#floor"><i>←</i> Casino</a>
       <h2>Würfel-Duell</h2>
-      <span class="pill">Tischlimit <b>5.000</b></span>
+      <span class="pill">Tischlimit <b data-num="5000">5.000</b></span>
     </div>
     <div class="dice-table">
       <div class="dice-tray" id="diceTray">
@@ -1762,7 +1834,8 @@ const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
 const U = {
-  fmt: n => Math.floor(n).toLocaleString(typeof I18N !== 'undefined' ? I18N.locale : 'de-DE'),
+  // Schmale geschützte Leerzeichen (fr) fehlen in Bungee: durch normales Leerzeichen ersetzen
+  fmt: n => Math.floor(n).toLocaleString(typeof I18N !== 'undefined' ? I18N.locale : 'de-DE').replace(/[\u202F\u00A0]/g, ' '),
   dec: () => (typeof I18N !== 'undefined' ? I18N.dec : ','),
   fmtMult(m) {
     const s = m >= 100 ? m.toFixed(0) : (Math.round(m * 10) / 10).toString();
@@ -1824,6 +1897,8 @@ const Store = (() => {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* ignorieren */ } }, 150);
   };
+  const flush = () => { clearTimeout(saveTimer); try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* ignorieren */ } };
+  window.addEventListener('pagehide', flush);
   const subs = [];
   const emit = ev => subs.forEach(f => f(ev));
 
@@ -1858,10 +1933,11 @@ const Store = (() => {
       save();
       return true;
     },
-    win(x) {
+    // net = Gewinn abzüglich Einsatz (nur echte Gewinne zählen als "größter Gewinn")
+    win(x, net = x) {
       if (x <= 0) return;
       s.balance += x; s.stats.won += x;
-      if (x > s.stats.biggest) s.stats.biggest = x;
+      if (net > s.stats.biggest) s.stats.biggest = net;
       if (s.balance > s.peak) s.peak = s.balance;
       save();
       emit({ type: 'balance', delta: x });
@@ -1871,6 +1947,15 @@ const Store = (() => {
       if (s.balance > s.peak) s.peak = s.balance;
       save();
       emit({ type: 'balance', delta: x });
+    },
+    // Laufende Einsätze vormerken, damit ein Neuladen mitten in der Runde nichts kostet
+    hold(game, amt) { const p = s.pending || (s.pending = {}); p[game] = (p[game] || 0) + amt; flush(); },
+    release(game) { if (s.pending && s.pending[game]) { delete s.pending[game]; save(); } },
+    refundPending() {
+      const p = s.pending || {}, sum = Object.values(p).reduce((a, b) => a + b, 0);
+      s.pending = {};
+      if (sum > 0) { s.balance += sum; flush(); emit({ type: 'balance', delta: sum }); }
+      return sum;
     },
     stat(key, inc = 1) { s.stats[key] += inc; save(); emit({ type: 'stat', key }); },
     statMax(key, v) { if (v > s.stats[key]) { s.stats[key] = v; save(); emit({ type: 'stat', key }); } },
@@ -2427,6 +2512,24 @@ const I18N_ROWS = [
   ['Willkommen, {0}!', 'Welcome, {0}!', '¡Bienvenido, {0}!', 'Bienvenue, {0} !', 'Hoş geldin, {0}!'],
   ['Lauf durch die Halle und such dir einen Tisch aus.', 'Walk around the hall and pick a table.', 'Recorre el salón y elige una mesa.', 'Parcours la salle et choisis une table.', 'Salonda dolaş ve bir masa seç.'],
 
+  ['Zurück: {0} von {1} Münzen ({2})', 'Returned: {0} of {1} coins ({2})', 'Devuelto: {0} de {1} monedas ({2})', 'Rendu : {0} sur {1} pièces ({2})', 'İade: {1} jetondan {0} ({2})'],
+  ['{0}! Zurück: {1} von {2} Münzen.', '{0}! Returned: {1} of {2} coins.', '¡{0}! Devuelto: {1} de {2} monedas.', '{0} ! Rendu : {1} sur {2} pièces.', '{0}! İade: {2} jetondan {1}.'],
+  ['Offene Runde erstattet', 'Unfinished round refunded', 'Ronda pendiente reembolsada', 'Manche inachevée remboursée', 'Yarım kalan tur iade edildi'],
+  ['{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', '{0} coins from an unfinished round were refunded.', 'Se te han devuelto {0} monedas de una ronda pendiente.', '{0} pièces d’une manche inachevée t’ont été rendues.', 'Yarım kalan bir turdan {0} jeton iade edildi.'],
+  ['bestellen', 'order', 'pedir', 'commander', 'sipariş ver'],
+  ['öffnen', 'open', 'abrir', 'ouvrir', 'aç'],
+  ['Lade das Casino …', 'Loading the casino …', 'Cargando el casino …', 'Chargement du casino …', 'Casino yükleniyor …'],
+  ['Schriften werden geladen …', 'Loading fonts …', 'Cargando fuentes …', 'Chargement des polices …', 'Yazı tipleri yükleniyor …'],
+  ['Karten werden gemischt …', 'Shuffling cards …', 'Barajando cartas …', 'Mélange des cartes …', 'Kartlar karıştırılıyor …'],
+  ['Automaten werden poliert …', 'Polishing the machines …', 'Puliendo las máquinas …', 'On fait briller les machines …', 'Makineler parlatılıyor …'],
+  ['Die Lichter gehen an …', 'Turning on the lights …', 'Encendiendo las luces …', 'Les lumières s’allument …', 'Işıklar yanıyor …'],
+  ['Bereit!', 'Ready!', '¡Listo!', 'Prêt !', 'Hazır!'],
+  ['Nur zur Unterhaltung', 'For entertainment only', 'Solo para entretenimiento', 'Uniquement pour le divertissement', 'Sadece eğlence amaçlı'],
+  ['Dieses Spiel soll Glücksspiel weder verharmlosen noch schönreden. Es dient ausschließlich der Unterhaltung.', 'This game is not meant to trivialise or glorify gambling. It is for entertainment only.', 'Este juego no pretende trivializar ni embellecer el juego de azar. Es solo para entretenimiento.', 'Ce jeu ne veut ni banaliser ni embellir les jeux d’argent. Il sert uniquement au divertissement.', 'Bu oyun kumarı hafife almak ya da güzel göstermek için değildir. Sadece eğlence amaçlıdır.'],
+  ['Gespielt wird nur mit Spielgeld – ohne echte Einsätze, Käufe oder Auszahlungen.', 'You only play with play money – no real bets, purchases or payouts.', 'Solo se juega con dinero ficticio: sin apuestas reales, compras ni pagos.', 'On joue uniquement avec de l’argent fictif – sans vraies mises, achats ni paiements.', 'Sadece oyun parasıyla oynanır – gerçek bahis, satın alma veya ödeme yoktur.'],
+  ['Glück hier sagt nichts über echte Chancen aus: Auf Dauer gewinnt immer die Bank.', 'Luck here says nothing about real odds: in the long run the house always wins.', 'La suerte aquí no dice nada de las probabilidades reales: a la larga siempre gana la banca.', 'La chance ici ne dit rien des vraies probabilités : à long terme, la banque gagne toujours.', 'Buradaki şans gerçek olasılıklar hakkında bir şey söylemez: uzun vadede her zaman kasa kazanır.'],
+  ['Glücksspiel kann süchtig machen. Hilfe gibt es anonym und kostenlos, z. B. unter check-dein-spiel.de oder bei einer Suchtberatung in deiner Nähe.', 'Gambling can be addictive. Free, anonymous help is available from gambling support services in your country.', 'El juego puede crear adicción. Hay ayuda gratuita y anónima en los servicios de apoyo de tu país.', 'Les jeux d’argent peuvent rendre dépendant. Une aide gratuite et anonyme existe auprès des services spécialisés de ton pays.', 'Kumar bağımlılık yapabilir. Ülkendeki destek hizmetlerinden ücretsiz ve anonim yardım alabilirsin.'],
+  ['Verstanden – ins Casino', 'Got it – enter the casino', 'Entendido – al casino', 'Compris – entrer au casino', 'Anladım – casinoya gir'],
   // Figur
   ['Wer bist du heute Nacht?', 'Who are you tonight?', '¿Quién eres esta noche?', 'Qui es-tu ce soir ?', 'Bu gece kimsin?'],
   ['Gestalte deine Figur für die Casino-Halle.', 'Design your character for the casino floor.', 'Diseña tu personaje para el salón.', 'Crée ton personnage pour la salle du casino.', 'Casino salonu için karakterini tasarla.'],
@@ -3202,6 +3305,18 @@ const Chips = (() => {
   return { LIST, label, colorFor, rack, marker, fly };
 })();
 
+/* Verschiebt Bedienelemente auf schmalen Bildschirmen direkt unter das Spielfeld */
+function MobileDock(items, mobileParent, query = '(max-width: 960px)') {
+  const mq = window.matchMedia(query);
+  const homes = items.map(el => ({ el, parent: el.parentElement, next: el.nextElementSibling }));
+  const apply = () => {
+    if (mq.matches) items.forEach(el => mobileParent.appendChild(el));
+    else homes.forEach(h => h.parent.insertBefore(h.el, h.next && h.next.parentElement === h.parent ? h.next : null));
+  };
+  mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
+  apply();
+}
+
 /* Einsatz-Stepper (−/+) für Spiele mit fester Einsatzliste */
 function BetStepper(minusEl, valEl, plusEl, list, startIdx, onChange) {
   let i = startIdx;
@@ -3833,7 +3948,8 @@ const Slots = (() => {
     const b = bet();
     const free = fsLeft > 0;
     if (!free) {
-      if (!Store.bet(b)) {
+      if (Store.bet(b)) Store.hold('slots', b);
+      else {
         auto = false; updateUI();
         App.insufficient(b);
         return;
@@ -3857,6 +3973,7 @@ const Slots = (() => {
     let scatWin = 0, fsAward = 0;
     if (sc >= 3) { scatWin = S.scatterPays[sc][0] * b; fsAward = S.scatterPays[sc][1]; }
     const total = lineWin + scatWin;
+    Store.release('slots');
     wins = ev.lines;
     scatterHit = sc >= 3 ? { cells: ev.scat, amount: scatWin, count: sc } : null;
     showStart = performance.now(); lastShowIdx = -1;
@@ -3864,7 +3981,7 @@ const Slots = (() => {
     if (free) fsWinTotal += total;
 
     if (total > 0) {
-      Store.win(total);
+      Store.win(total, free ? total : total - b);
       await presentWin(total, b);
     } else {
       el.msg.textContent = free ? 'Weiter geht’s …' : U.pick(['Knapp daneben!', 'Nächstes Mal!', 'Dreh weiter!', 'Das Glück wartet …']);
@@ -3955,6 +4072,7 @@ const Slots = (() => {
   el.turbo.addEventListener('click', () => { Sfx.init(); Sfx.click(); turbo = !turbo; updateUI(); });
   $('#slotInfo').addEventListener('click', () => { Sfx.init(); Sfx.click(); buildPaytable(); App.openModal('modal-paytable'); });
   window.addEventListener('resize', () => active && resize());
+  I18N.onChange(() => updateUI());
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { Symbols.clear(); if (active) resize(); });
 
   return {
@@ -4030,6 +4148,7 @@ const Plinko = (() => {
     if (balls.length >= 40) return;
     const b = bet();
     if (!Store.bet(b)) { stopAuto(); App.insufficient(b); return; }
+    Store.hold('plinko', b);
     Store.stat('balls');
     const dirs = Array.from({ length: rows }, () => Math.random() < 0.5 ? 0 : 1);
     const pts = [];
@@ -4068,7 +4187,8 @@ const Plinko = (() => {
       binHit[p.k] = now;
       const m = P.tables[b.rows][b.risk][p.k];
       const win = Math.round(b.bet * m);
-      if (win > 0) Store.win(win);
+      const p = Store.s.pending; if (p && p.plinko) { p.plinko = Math.max(0, p.plinko - b.bet); if (!p.plinko) Store.release('plinko'); }
+      if (win > 0) Store.win(win, win - b.bet);
       Store.statMax('maxMult', m);
       Store.emit({ type: 'plinko', mult: m, win, bet: b.bet });
       if (quiet) return;
@@ -4219,6 +4339,7 @@ const Plinko = (() => {
   function stopAuto() { auto = false; clearInterval(autoTimer); autoTimer = null; updateUI(); }
 
   el.drop.addEventListener('click', drop);
+  I18N.onChange(() => updateUI());
   el.auto.addEventListener('click', () => {
     Sfx.init(); Sfx.click();
     if (auto) { stopAuto(); return; }
@@ -4474,6 +4595,7 @@ const Blackjack = (() => {
     if (phase !== 'bet' || !pending || busy) return;
     Sfx.init();
     if (!Store.bet(pending)) { App.insufficient(pending); return; }
+    Store.hold('blackjack', pending);
     busy = true;
     lastBet = pending;
     clearTable();
@@ -4529,6 +4651,7 @@ const Blackjack = (() => {
     if (phase !== 'play' || busy) return;
     const h = hands[activeIdx];
     if (h.cards.length !== 2 || !Store.bet(h.bet)) { Sfx.error(); return; }
+    Store.hold('blackjack', h.bet);
     busy = true; setControls();
     Sfx.chip();
     h.bet *= 2; h.doubled = true; renderValues();
@@ -4545,6 +4668,7 @@ const Blackjack = (() => {
     const h = hands[0];
     if (h.cards.length !== 2 || cardVal(h.cards[0]) !== cardVal(h.cards[1])) return;
     if (!Store.bet(h.bet)) { Sfx.error(); return; }
+    Store.hold('blackjack', h.bet);
     busy = true; setControls(); Sfx.chip();
     const h2 = newHandEl(h.bet);
     const moved = h.cards.pop();
@@ -4630,7 +4754,8 @@ const Blackjack = (() => {
         if (net > 0) FX.coins(c.x, c.y, cls === 'bj' ? 34 : 16, cls === 'bj' ? 1.15 : 0.9);
       }
     }
-    if (totalReturn) Store.win(totalReturn);
+    Store.release('blackjack');
+    if (totalReturn) Store.win(totalReturn, totalReturn - hands.reduce((s, h) => s + h.bet, 0));
     Store.stat('hands');
     if (bjHit) { Store.stat('bj'); Sfx.blackjack(); FX.confetti(110); FX.flash(); }
     else if (anyWin) Sfx.win(2);
@@ -4673,6 +4798,7 @@ const Blackjack = (() => {
   el.split.addEventListener('click', split);
   Store.on(ev => { if (ev.type === 'balance' && phase === 'bet') setControls(); });
 
+  I18N.onChange(() => renderStack());
   buildShoe();
   pending = 100;
   renderStack();
@@ -4964,8 +5090,10 @@ const Roulette = (() => {
     const tot = totalBet();
     if (!tot) { setMsg('Setze zuerst Chips auf das Tableau.'); Sfx.error(); return; }
     if (!Store.bet(tot)) { App.insufficient(tot); return; }
+    Store.hold('roulette', tot);
+    if (window.innerWidth < 720) el.canvas.scrollIntoView({ block: 'center', behavior: U.reducedMotion ? 'auto' : 'smooth' });
     spinning = true; lastBets = { ...bets }; undoStack = [];
-    clearResultMarks(); el.result.hidden = true;
+    clearResultMarks(); el.result.classList.add('empty');
     renderBets();
     setMsg('Nichts geht mehr!');
     const result = Math.floor(Math.random() * 37);
@@ -4983,14 +5111,18 @@ const Roulette = (() => {
     showResult(result, c, ret, tot);
     history.unshift(result); history.length = Math.min(history.length, 14);
     renderHistory();
-    if (ret > 0) {
-      Store.win(ret);
-      const net = ret - tot;
+    Store.release('roulette');
+    const net = ret - tot;
+    if (ret > 0) Store.win(ret, net);
+    if (net > 0) {
       const cc = FX.center(el.result);
       FX.coins(cc.x, cc.y, Math.min(50, 10 + Math.round(ret / tot * 3)), 1);
-      if (straightHit) { FX.confetti(90); Sfx.win(3); } else Sfx.win(net > 0 ? 2 : 1);
-      setMsg(net > 0 ? `Gewinn: ${U.fmt(ret)} Münzen (+${U.fmt(net)})` : `Zurück: ${U.fmt(ret)} Münzen`);
+      if (straightHit) { FX.confetti(90); Sfx.win(3); } else Sfx.win(2);
+      setMsg(I18N.t('Gewinn: {0} Münzen (+{1})', U.fmt(ret), U.fmt(net)));
       if (ret >= tot * 15) Celebrate.bigWin(ret, tot);
+    } else if (ret > 0) {
+      Sfx.push();
+      setMsg(I18N.t('Zurück: {0} von {1} Münzen ({2})', U.fmt(ret), U.fmt(tot), '−' + U.fmt(-net)));
     } else { Sfx.lose(); setMsg(result === 0 ? 'Null! Die Bank gewinnt.' : 'Leider daneben. Nochmal?'); }
     Store.stat('rlSpins');
     Store.emit({ type: 'roulette', result, win: ret, bet: tot, straight: straightHit, net: ret - tot });
@@ -5000,10 +5132,10 @@ const Roulette = (() => {
   }
 
   function showResult(n, c, ret, tot) {
-    el.result.hidden = false;
     el.result.className = 'rl-result ' + c;
     const tags = n === 0 ? ['Null'] : [c === 'red' ? 'Rot' : 'Schwarz', n % 2 ? 'Ungerade' : 'Gerade', n <= 18 ? '1–18' : '19–36'];
-    el.result.innerHTML = `<b>${n}</b><span>${tags.map(x => I18N.t(x)).join(' · ')}</span>${ret > 0 ? `<em>+${U.fmt(ret)}</em>` : ''}`;
+    const net = ret - tot;
+    el.result.innerHTML = `<b>${n}</b><span>${tags.map(x => I18N.t(x)).join(' · ')}</span>${tot ? `<em class="${net > 0 ? 'good' : net < 0 ? 'bad' : ''}">${net > 0 ? '+' : net < 0 ? '−' : '±'}${U.fmt(Math.abs(net))}</em>` : ''}`;
     el.result.animate([{ transform: 'scale(0.4)', opacity: 0 }, { transform: 'scale(1.1)', opacity: 1, offset: 0.7 }, { transform: 'scale(1)' }], { duration: 450, easing: 'ease-out' });
   }
   function renderHistory() {
@@ -5030,6 +5162,7 @@ const Roulette = (() => {
     Sfx.chip(); for (const k in bets) bets[k] *= 2; renderBets();
   });
   window.addEventListener('resize', () => active && resize());
+  I18N.onChange(() => renderBets());
   Store.on(ev => { if (ev.type === 'balance' && active && !spinning) renderBets(); });
 
   return {
@@ -5059,6 +5192,7 @@ const Crash = (() => {
   const g = el.canvas.getContext('2d');
   let W = 0, H = 0, dpr = 1, active = false, raf = null, last = 0;
   let phase = 'idle'; // idle | launch | fly | crashed
+  let cooldownUntil = 0;
   let t = 0, crashAt = 1, mult = 1, bet = 0, cashed = false, cashMult = 0, launchT = 0;
   let stars = [], flames = [], debris = [], history = [], bots = [], shake = 0;
   const stepper = BetStepper($('#crBetMinus'), $('#crBet'), $('#crBetPlus'), BETS, 3);
@@ -5098,10 +5232,16 @@ const Crash = (() => {
       const len = phase === 'fly' ? s.z * speed * 6 : 0;
       g.fillRect(s.x * W, s.y * H, 1.3 * s.z + len, 1.3 * s.z);
     }
-    // Planet
-    const pg = g.createRadialGradient(W * 0.86, H * 0.2, 4, W * 0.86, H * 0.2, H * 0.16);
-    pg.addColorStop(0, '#ffb3f0'); pg.addColorStop(0.6, '#9d5cff'); pg.addColorStop(1, 'rgba(60,20,120,0)');
-    g.fillStyle = pg; g.beginPath(); g.arc(W * 0.86, H * 0.2, H * 0.16, 0, Math.PI * 2); g.fill();
+    // Planet mit Ring und Kratern
+    const px = W * 0.85, py = H * 0.2, pr = H * 0.09;
+    const pg = g.createRadialGradient(px - pr * 0.4, py - pr * 0.4, pr * 0.1, px, py, pr);
+    pg.addColorStop(0, '#f0d0ff'); pg.addColorStop(0.55, '#9d5cff'); pg.addColorStop(1, '#3a1680');
+    g.strokeStyle = 'rgba(255,200,240,0.45)'; g.lineWidth = 3;
+    g.beginPath(); g.ellipse(px, py, pr * 1.7, pr * 0.45, -0.35, Math.PI, Math.PI * 2); g.stroke();
+    g.fillStyle = pg; g.beginPath(); g.arc(px, py, pr, 0, Math.PI * 2); g.fill();
+    g.fillStyle = 'rgba(40,10,90,0.35)';
+    [[-0.3, 0.2, 0.2], [0.35, -0.1, 0.14], [0.05, 0.45, 0.11]].forEach(([dx, dy, r]) => { g.beginPath(); g.arc(px + dx * pr, py + dy * pr, r * pr, 0, Math.PI * 2); g.fill(); });
+    g.beginPath(); g.ellipse(px, py, pr * 1.7, pr * 0.45, -0.35, 0, Math.PI); g.stroke();
 
     // Achsen
     const pad = { l: 46, r: 18, t: 20, b: 30 };
@@ -5216,6 +5356,7 @@ const Crash = (() => {
     Sfx.init();
     const b = stepper.value;
     if (!Store.bet(b)) { App.insufficient(b); return; }
+    Store.hold('crash', b);
     bet = b; cashed = false; cashMult = 0; t = 0; mult = 1; debris = []; flames = [];
     const U1 = Math.random();
     crashAt = Math.max(1, Math.floor(0.97 / (1 - U1) * 100) / 100);
@@ -5237,7 +5378,8 @@ const Crash = (() => {
     if (phase !== 'fly' || cashed || !bet) return;
     cashed = true; cashMult = mult;
     const win = Math.floor(bet * mult);
-    Store.win(win);
+    Store.release('crash');
+    Store.win(win, win - bet);
     Sfx.win(mult >= 5 ? 3 : 2);
     const c = FX.center(el.btn);
     FX.coins(c.x, c.y - 30, Math.min(40, 10 + Math.round(mult * 4)), 1);
@@ -5252,7 +5394,9 @@ const Crash = (() => {
     phase = 'crashed';
     Sfx.rocket && Sfx.rocket(false);
     Sfx.explode && Sfx.explode();
+    Store.release('crash');
     shake = 8;
+    cooldownUntil = performance.now() + 1400; // späte Klicks nach dem Absturz ignorieren
     // Explosion an der Kurvenspitze
     const pad = { l: 46, r: 18, t: 20, b: 30 };
     const tMax = Math.max(8, t * 1.18), mMax = Math.max(2, multAt(t) * 1.25);
@@ -5274,7 +5418,7 @@ const Crash = (() => {
     bots.forEach(b => { if (!b.out) b.out = null; });
     renderPlayers();
     FX.shake(el.stage, crashAt > 5);
-    setTimeout(() => { if (phase === 'crashed') { bet = 0; stepper.locked = false; updateBtn(); } }, 900);
+    setTimeout(() => { if (phase === 'crashed') { bet = 0; stepper.locked = false; updateBtn(); } }, 1400);
     updateBtn();
   }
 
@@ -5291,8 +5435,11 @@ const Crash = (() => {
     } else if (phase === 'launch' || (phase === 'fly')) {
       b.classList.add('wait'); b.disabled = true;
       el.btnLabel.textContent = cashed ? 'Ausgezahlt' : 'Zündung …'; el.btnSub.textContent = cashed ? fmtM(cashMult) : '';
+    } else if (phase === 'crashed' && performance.now() < cooldownUntil) {
+      b.classList.add('crashed'); b.disabled = true;
+      el.btnLabel.textContent = 'CRASH'; el.btnSub.textContent = fmtM(crashAt);
     } else {
-      b.disabled = false; el.btnLabel.textContent = 'Abheben'; el.btnSub.textContent = 'Einsatz ' + U.fmt(stepper.value);
+      b.disabled = false; b.classList.remove('crashed'); el.btnLabel.textContent = 'Abheben'; el.btnSub.textContent = I18N.t('Einsatz {0}', U.fmt(stepper.value));
     }
   }
 
@@ -5331,10 +5478,14 @@ const Crash = (() => {
     raf = requestAnimationFrame(loop);
   }
 
-  el.btn.addEventListener('click', () => { if (phase === 'fly' && bet && !cashed) cashOut(); else launch(); });
+  el.btn.addEventListener('click', () => {
+    if (performance.now() < cooldownUntil) return;
+    if (phase === 'fly' && bet && !cashed) cashOut(); else launch();
+  });
   $('#crBetMinus').addEventListener('click', updateBtn); $('#crBetPlus').addEventListener('click', updateBtn);
   $$('[data-auto]').forEach(b => b.addEventListener('click', () => { Sfx.click(); el.auto.value = b.dataset.auto; el.autoOn.checked = true; }));
   window.addEventListener('resize', () => active && resize());
+  I18N.onChange(() => { updateBtn(); renderPlayers(); renderHistory(); });
 
   return {
     show() { active = true; requestAnimationFrame(() => { resize(); updateBtn(); renderPlayers(); if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); } }); },
@@ -5342,7 +5493,7 @@ const Crash = (() => {
       // Läuft noch eine Runde mit Einsatz: beim Verlassen automatisch auszahlen
       if (phase === 'fly' && bet && !cashed) cashOut(true);
       active = false; Sfx.rocket && Sfx.rocket(false);
-      if (phase === 'launch' && bet) Store.credit(bet); // Start abgebrochen: Einsatz zurück
+      if (phase === 'launch' && bet) { Store.release('crash'); Store.credit(bet); } // Start abgebrochen: Einsatz zurück
       if (phase === 'launch' || phase === 'fly') { phase = 'idle'; bet = 0; stepper.locked = false; }
     },
     key(e) { if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); el.btn.click(); return true; } return false; },
@@ -5394,6 +5545,7 @@ const Mines = (() => {
     Sfx.init();
     const b = stepper.value;
     if (!Store.bet(b)) { App.insufficient(b); return; }
+    Store.hold('mines', b);
     bet = b; found = 0; over = false; playing = true;
     Store.stat('minesRounds');
     const idx = Array.from({ length: SIZE }, (_, i) => i);
@@ -5431,6 +5583,7 @@ const Mines = (() => {
 
   function boom(i) {
     over = true; playing = false;
+    Store.release('mines');
     const t = tile(i);
     t.querySelector('.mt-back').innerHTML = BOMB_SVG;
     t.classList.add('open', 'bomb', 'hit');
@@ -5449,7 +5602,8 @@ const Mines = (() => {
     if (!playing || !found) return;
     playing = false; over = true;
     const m = multFor(found), win = Math.floor(bet * m);
-    Store.win(win);
+    Store.release('mines');
+    Store.win(win, win - bet);
     Sfx.win(m >= 5 ? 3 : 2);
     const c = FX.center(el.board);
     FX.coins(c.x, c.y, Math.min(50, 12 + Math.round(m * 3)), 1.1);
@@ -5504,9 +5658,11 @@ const Mines = (() => {
 
   el.count.addEventListener('input', () => { mines = +el.count.value; updateUI(); });
   el.start.addEventListener('click', start);
+  I18N.onChange(() => updateUI());
   el.random.addEventListener('click', randomPick);
   $$('[data-mines]').forEach(b => b.addEventListener('click', () => { if (playing) return; Sfx.click(); el.count.value = b.dataset.mines; mines = +b.dataset.mines; updateUI(); }));
   buildGrid();
+  MobileDock([el.start, el.random], el.board);
   updateUI();
 
   return {
@@ -5592,8 +5748,10 @@ const Scratch = (() => {
     // Rautenmuster + Münzen
     cg.strokeStyle = 'rgba(255,255,255,0.25)'; cg.lineWidth = 1;
     for (let x = -H; x < W; x += 18) { cg.beginPath(); cg.moveTo(x, 0); cg.lineTo(x + H, H); cg.stroke(); }
-    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
-      const x = W * (c + 0.5) / 3, y = H * (r + 0.5) / 3;
+    const gr = el.grid.getBoundingClientRect();
+    const centers = $$('.sc-cell', el.grid).map(cell => { const r = cell.getBoundingClientRect(); return [r.left - gr.left + r.width / 2, r.top - gr.top + r.height / 2]; });
+    for (let i = 0; i < 9; i++) {
+      const [x, y] = centers[i] || [W * ((i % 3) + 0.5) / 3, H * (Math.floor(i / 3) + 0.5) / 3];
       cg.fillStyle = 'rgba(70,60,100,0.22)'; cg.beginPath(); cg.arc(x, y, Math.min(W, H) * 0.09, 0, Math.PI * 2); cg.fill();
       cg.fillStyle = 'rgba(70,60,100,0.35)'; cg.font = `${Math.round(Math.min(W, H) * 0.08)}px Bungee, Impact, sans-serif`; cg.textAlign = 'center'; cg.textBaseline = 'middle';
       cg.fillText('?', x, y + 1);
@@ -5608,6 +5766,7 @@ const Scratch = (() => {
     Sfx.init();
     const p = stepper.value;
     if (!Store.bet(p)) { App.insufficient(p); return; }
+    Store.hold('scratch', p);
     price = p; outcome = makeOutcome();
     el.cover.style.pointerEvents = '';
     Store.stat('tickets');
@@ -5655,12 +5814,13 @@ const Scratch = (() => {
   function finish() {
     if (state !== 'scratching') return;
     state = 'done'; drawing = false; lastPt = null;
+    Store.release('scratch');
     el.cover.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'forwards' }).onfinish = () => { cg.setTransform(1, 0, 0, 1, 0, 0); cg.clearRect(0, 0, el.cover.width, el.cover.height); el.cover.style.opacity = 0; };
     el.ticket.classList.remove('fresh');
     if (outcome.win) {
       const win = price * outcome.win.mult;
       outcome.grid.forEach((id, i) => { if (id === outcome.win.id) cells[i].classList.add('hit'); });
-      Store.win(win);
+      Store.win(win, win - price);
       el.ticket.classList.add('won');
       Sfx.win(outcome.win.mult >= 10 ? 3 : 2);
       const c = FX.center(el.ticket);
@@ -5702,7 +5862,9 @@ const Scratch = (() => {
   const up = () => { drawing = false; lastPt = null; };
   el.cover.addEventListener('pointerup', up); el.cover.addEventListener('pointercancel', up);
   el.cover.addEventListener('pointerleave', () => { el.coin.hidden = true; up(); });
+  MobileDock([el.buy, el.reveal], $('.scratch-layout .sc-dock'));
   el.buy.addEventListener('click', buy);
+  I18N.onChange(() => { renderTable(); updateUI(); if (state !== 'done') requestAnimationFrame(paintCover); });
   el.reveal.addEventListener('click', () => { Sfx.click(); finish(); });
   window.addEventListener('resize', () => { if (state === 'scratching') paintCover(); });
 
@@ -5790,7 +5952,7 @@ const Dice = (() => {
   function animateDie(d, val, from, delay, lane) {
     const [fx, fy] = FACE_ROT[val];
     const spinsX = 360 * U.randInt(2, 3), spinsY = 360 * U.randInt(2, 3);
-    const to = [fx + spinsX * Math.sign(Math.random() - 0.3), fy + spinsY];
+    const to = [fx - 14 + spinsX * Math.sign(Math.random() - 0.3), fy + 18 + spinsY]; // leichte Schräglage bleibt sichtbar
     const cube = d.querySelector('.cube');
     const kf = [
       { transform: `rotateX(${from[0]}deg) rotateY(${from[1]}deg)` },
@@ -5815,6 +5977,7 @@ const Dice = (() => {
     const t = total();
     if (!t) { setMsg('Setze Chips auf ein Feld.'); Sfx.error(); return; }
     if (!Store.bet(t)) { App.insufficient(t); return; }
+    Store.hold('dice', t);
     rolling = true; lastBets = { ...bets }; render();
     Store.stat('rolls');
     $$('.dice-field').forEach(f => f.classList.remove('won', 'lost'));
@@ -5841,12 +6004,16 @@ const Dice = (() => {
     for (const k of Object.keys(FIELDS)) if (!bets[k] && FIELDS[k].test(a, b)) fieldEl(k).classList.add('hint');
     history.unshift(sum); history.length = Math.min(history.length, 16);
     el.hist.innerHTML = history.map((s, i) => `<span class="${s === 7 ? 'seven' : s < 7 ? 'under' : 'over'}${i ? '' : ' last'}">${s}</span>`).join('');
-    if (ret > 0) {
-      Store.win(ret);
+    Store.release('dice');
+    if (ret > 0) Store.win(ret, ret - t);
+    if (ret > t) {
       const c = FX.center(el.tray);
       FX.coins(c.x, c.y, Math.min(40, 10 + Math.round(ret / t * 4)), 1);
       Sfx.win(ret >= t * 4 ? 3 : 2);
-      setMsg(`${sum}! Du gewinnst ${U.fmt(ret)} Münzen.`);
+      setMsg(I18N.t('{0}! Du gewinnst {1} Münzen.', sum, U.fmt(ret)));
+    } else if (ret > 0) {
+      Sfx.push();
+      setMsg(I18N.t('{0}! Zurück: {1} von {2} Münzen.', sum, U.fmt(ret), U.fmt(t)));
     } else { Sfx.lose(); setMsg(`${sum} – diesmal nicht.`); }
     Store.emit({ type: 'dice', sum, pair: a === b, pairWin: !!bets.pair && a === b, win: ret, bet: t });
     await U.sleep(900);
@@ -5908,6 +6075,7 @@ const Floor = (() => {
   const sh = Avatar.shade;
   function glowText(txt, x, y, size, color, blur = 12, font = 'Bungee') {
     txt = I18N.t(txt);
+    size = Math.max(size, 10.5 / zoom);
     g.font = `${size}px "${font}", Impact, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.shadowColor = color; g.shadowBlur = blur; g.fillStyle = '#fff'; g.fillText(txt, x, y);
     g.shadowBlur = blur * 0.5; g.fillStyle = color; g.globalAlpha = 0.35; g.fillText(txt, x, y); g.globalAlpha = 1;
@@ -5925,9 +6093,9 @@ const Floor = (() => {
     rg.addColorStop(0, 'rgba(120,30,90,0.35)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
     t.fillStyle = rg; t.fillRect(0, 0, T, T);
     // Rautengitter
-    t.strokeStyle = 'rgba(255,201,74,0.16)'; t.lineWidth = 2;
+    t.strokeStyle = 'rgba(255,201,74,0.08)'; t.lineWidth = 2;
     t.beginPath(); t.moveTo(T / 2, 0); t.lineTo(T, T / 2); t.lineTo(T / 2, T); t.lineTo(0, T / 2); t.closePath(); t.stroke();
-    t.strokeStyle = 'rgba(59,232,255,0.10)'; t.lineWidth = 1;
+    t.strokeStyle = 'rgba(59,232,255,0.05)'; t.lineWidth = 1;
     t.beginPath(); t.moveTo(T / 2, 14); t.lineTo(T - 14, T / 2); t.lineTo(T / 2, T - 14); t.lineTo(14, T / 2); t.closePath(); t.stroke();
     // Rosetten
     const ros = (x, y, r, col) => {
@@ -5938,8 +6106,8 @@ const Floor = (() => {
       }
       t.fillStyle = 'rgba(255,201,74,0.5)'; t.beginPath(); t.arc(x, y, r * 0.18, 0, Math.PI * 2); t.fill();
     };
-    ros(T / 2, T / 2, 22, 'rgba(255,61,139,0.22)');
-    [[0, 0], [T, 0], [0, T], [T, T]].forEach(([x, y]) => ros(x, y, 16, 'rgba(157,92,255,0.22)'));
+    ros(T / 2, T / 2, 22, 'rgba(255,61,139,0.11)');
+    [[0, 0], [T, 0], [0, T], [T, T]].forEach(([x, y]) => ros(x, y, 16, 'rgba(157,92,255,0.10)'));
     t.fillStyle = 'rgba(255,201,74,0.18)';
     [[T / 2, 0], [0, T / 2], [T, T / 2], [T / 2, T]].forEach(([x, y]) => { t.beginPath(); t.arc(x, y, 3, 0, Math.PI * 2); t.fill(); });
     // Körnung
@@ -6130,7 +6298,20 @@ const Floor = (() => {
     near = best;
   }
 
+  // Figuren nicht ineinander stehen lassen
+  function separate() {
+    const all = [player, ...guests];
+    for (let i = 1; i < all.length; i++) for (let j = 0; j < all.length; j++) {
+      if (i === j) continue;
+      const a = all[i], b = all[j], dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy) || 0.01;
+      if (d < 22) {
+        const push = (22 - d) * (j === 0 ? 1 : 0.5), nx = a.x + dx / d * push, ny = a.y + dy / d * push;
+        if (!collides(nx, ny)) { a.x = nx; a.y = ny; }
+      }
+    }
+  }
   function updateGuests(dt) {
+    separate();
     for (const n of guests) {
       if (n.path) { if (!followPath(n, dt)) n.moving = false; continue; }
       n.moving = false;
@@ -6141,7 +6322,7 @@ const Floor = (() => {
       let tx, ty;
       if (Math.random() < 0.55) {
         const o = U.pick(interactives.filter(o => o.game !== 'lobby'));
-        tx = o.ix + U.rand(-30, 30); ty = o.iy + U.rand(0, 16);
+        tx = o.ix + U.pick([-36, 0, 36]); ty = o.iy + U.rand(4, 14);
         n.playing = o;
       } else { tx = U.rand(80, WW - 80); ty = U.rand(WALL + 200, WH - 60); n.playing = null; }
       n.path = findPath(n.x, n.y, tx, ty);
@@ -6692,7 +6873,7 @@ const Floor = (() => {
     // Licht
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
-    vg.addColorStop(0, 'rgba(5,2,10,0)'); vg.addColorStop(1, 'rgba(5,2,10,0.6)');
+    vg.addColorStop(0, 'rgba(5,2,10,0)'); vg.addColorStop(1, 'rgba(5,2,10,0.7)');
     g.fillStyle = vg; g.fillRect(0, 0, W, H);
   }
 
@@ -6718,7 +6899,8 @@ const Floor = (() => {
   function updateCamera(snap) {
     const vw = W / zoom, vh = H / zoom;
     const tx = U.clamp(player.x - vw / 2, 0, Math.max(0, WW - vw));
-    const ty = U.clamp(player.y - vh * 0.55, 0, Math.max(0, WH - vh));
+    // Nahe der Rückwand ganz nach oben schauen, damit Schilder vollständig sichtbar sind
+    const ty = player.y < WALL + 240 ? 0 : U.clamp(player.y - vh * 0.6, 0, Math.max(0, WH - vh));
     if (snap) { camX = tx; camY = ty; } else { camX += (tx - camX) * 0.12; camY += (ty - camY) * 0.12; }
     if (vw > WW + 80) camX = (WW - vw) / 2;
   }
@@ -6726,9 +6908,12 @@ const Floor = (() => {
   function updatePrompt() {
     if (!near) { promptEl.hidden = true; promptEl.__for = null; actionBtn.disabled = true; if (actionBtn.__lbl !== 'Aktion') { actionBtn.__lbl = 'Aktion'; actionBtn.querySelector('b').textContent = 'Aktion'; } return; }
     promptEl.hidden = false;
-    if (promptEl.__for !== near) { promptEl.__for = near; promptName.textContent = near.label; $('#floorPromptSub').textContent = near.sub || ''; }
+    if (promptEl.__for !== near) {
+      promptEl.__for = near; promptName.textContent = near.label; $('#floorPromptSub').textContent = near.sub || '';
+      promptKey.textContent = near.game === 'bar' ? 'bestellen' : near.game === 'lobby' ? 'öffnen' : 'spielen';
+    }
     const sx = (near.x - camX) * zoom, sy = (near.y - (near.vh || 60) - 60 - camY) * zoom;
-    promptEl.style.transform = `translate(${Math.round(U.clamp(sx, 90, W - 90))}px, ${Math.round(Math.max(70, sy))}px) translate(-50%, -100%)`;
+    promptEl.style.transform = `translate(${Math.round(U.clamp(sx, 110, W - 110))}px, ${Math.round(Math.max(promptEl.offsetHeight + 12, sy))}px) translate(-50%, -100%)`;
     actionBtn.disabled = false;
     const al = near.game === 'bar' ? 'Bestellen' : near.game === 'lobby' ? 'Öffnen' : 'Spielen';
     if (actionBtn.__lbl !== al) { actionBtn.__lbl = al; actionBtn.querySelector('b').textContent = al; }
@@ -7291,15 +7476,16 @@ const AvatarEditor = (() => {
   function loop(now) {
     if (!open) { raf = null; return; }
     const dt = Math.max(0, Math.min(0.05, (now - last) / 1000 || 0)); last = now; t += dt;
-    const dpr = Math.min(2, window.devicePixelRatio || 1), W = c.clientWidth, H = c.clientHeight;
-    if (c.width !== Math.round(W * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
+    const dpr = Math.min(2, window.devicePixelRatio || 1), rect = c.getBoundingClientRect(), W = rect.width, H = rect.height;
+    if (W < 10 || H < 10) { raf = requestAnimationFrame(loop); return; }
+    if (c.width !== Math.round(W * dpr) || c.height !== Math.round(H * dpr)) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }
     g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
     const bg = g.createRadialGradient(W / 2, H * 0.6, 10, W / 2, H * 0.6, W * 0.6);
     bg.addColorStop(0, 'rgba(157,92,255,0.35)'); bg.addColorStop(1, 'rgba(157,92,255,0)');
     g.fillStyle = bg; g.fillRect(0, 0, W, H);
     const dir = [0, 2, 3, 1][Math.floor(t / 1.6) % 4];
-    const k = Math.min(W / 60, H / 80) * 0.9;
-    g.save(); g.translate(W / 2, H * 0.9); g.scale(k, k);
+    const k = Math.min(W / 50, H / 78) * 0.85;
+    g.save(); g.translate(W / 2, H * 0.92); g.scale(k, k);
     Avatar.draw(g, 0, 0, a, dir, t * 9, true);
     g.restore();
     raf = requestAnimationFrame(loop);
@@ -7365,6 +7551,40 @@ const Profile = (() => {
     hide() { active = false; },
     render,
   };
+})();
+
+/* ---------- Ladebildschirm mit Hinweis ---------- */
+const Loader = (() => {
+  const el = $('#loader'), fill = $('#ldFill'), step = $('#ldStep'), go = $('#ldGo'), langs = $('#ldLangs');
+  let done = null;
+  const mark = () => $$('.lang-btn', langs).forEach(b => { b.classList.toggle('on', b.dataset.lang === I18N.lang); b.setAttribute('aria-pressed', b.dataset.lang === I18N.lang); });
+  langs.innerHTML = I18N.ORDER.map(c => `<button type="button" class="lang-btn" data-lang="${c}"><b>${c.toUpperCase()}</b><span>${I18N.LANGS[c].name}</span></button>`).join('');
+  $$('.lang-btn', langs).forEach(b => b.addEventListener('click', () => { I18N.set(b.dataset.lang); mark(); }));
+  I18N.onChange(mark);
+  go.addEventListener('click', () => {
+    Sfx.init(); Sfx.win(1);
+    el.classList.add('out');
+    setTimeout(() => { el.hidden = true; }, 500);
+    done && done();
+  });
+  async function run(onDone) {
+    done = onDone; mark();
+    const t0 = performance.now();
+    const set = (txt, p) => { step.textContent = txt; fill.style.width = p + '%'; };
+    set('Schriften werden geladen …', 15);
+    await Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), U.sleep(2500)]);
+    set('Karten werden gemischt …', 45);
+    await U.sleep(220);
+    Symbols.clear(); Symbols.ids.forEach(id => Symbols.sprite(id, 128));
+    set('Automaten werden poliert …', 72);
+    await U.sleep(260);
+    set('Die Lichter gehen an …', 92);
+    await U.sleep(Math.max(200, 1500 - (performance.now() - t0)));
+    fill.style.width = '100%'; step.textContent = 'Bereit!';
+    el.classList.add('ready');
+    go.disabled = false; go.focus({ preventScroll: true });
+  }
+  return { run, get open() { return !el.hidden; } };
 })();
 
 /* ---------- App / Navigation ---------- */
@@ -7543,6 +7763,7 @@ const App = (() => {
   });
 
   document.addEventListener('keydown', e => {
+    if (Loader.open) return; // Ladebildschirm zuerst bestätigen
     if (e.key === 'Escape') { closeModal(); return; }
     if (openModalId || e.target.closest('input, textarea, select')) return;
     if (e.target.closest('button') && (e.code === 'Space' || e.code === 'Enter')) return; // Button-Klick nicht doppelt auslösen
@@ -7566,7 +7787,12 @@ const App = (() => {
   volRange.addEventListener('change', () => Sfx.click());
   showVol();
   $('#settingsBtn').addEventListener('click', () => { Sfx.init(); Sfx.click(); showVol(); openModal('modal-settings'); });
-  I18N.onChange(() => { updateXp(); updateBonus(); renderStats(); Achievements.render(); Profile.render(); setMuteUI && setMuteUI(); });
+  const fmtStatic = () => {
+    $$('[data-num]').forEach(e => { e.textContent = U.fmt(+e.dataset.num); });
+    $$('[data-auto]').forEach(b => { b.textContent = U.fmtMult(+b.dataset.auto); });
+  };
+  fmtStatic();
+  I18N.onChange(() => { fmtStatic(); updateXp(); updateBonus(); renderStats(); Achievements.render(); Profile.render(); setMuteUI && setMuteUI(); });
   $('#gamesBtn').addEventListener('click', () => { Sfx.init(); Sfx.click(); openModal('modal-games'); });
   $('#avatarBtn').addEventListener('click', () => { Sfx.init(); Sfx.click(); openModal('modal-avatar'); });
   $('#profileEdit').addEventListener('click', () => { Sfx.init(); Sfx.click(); openModal('modal-avatar'); });
@@ -7591,9 +7817,15 @@ const App = (() => {
   return {
     init() {
       I18N.start();
+      const refund = Store.refundPending();
+      shownBalance = Store.s.balance;
       balEl.textContent = U.fmt(Store.s.balance);
+      const afterLoad = () => {
+        if (refund) setTimeout(() => Toast.show(I18N.t('Offene Runde erstattet'), I18N.t('{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', U.fmt(refund)), '↺', 'ach'), 600);
+        if (!Store.s.avatar) setTimeout(() => openModal('modal-avatar'), 450);
+      };
       updateXp(); updateBonus(); route();
-      if (!Store.s.avatar) setTimeout(() => openModal('modal-avatar'), 500);
+      Loader.run(afterLoad);
     },
     openModal, closeModal, insufficient, updateBonus, enter,
   };

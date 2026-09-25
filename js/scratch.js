@@ -68,8 +68,10 @@ const Scratch = (() => {
     // Rautenmuster + Münzen
     cg.strokeStyle = 'rgba(255,255,255,0.25)'; cg.lineWidth = 1;
     for (let x = -H; x < W; x += 18) { cg.beginPath(); cg.moveTo(x, 0); cg.lineTo(x + H, H); cg.stroke(); }
-    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
-      const x = W * (c + 0.5) / 3, y = H * (r + 0.5) / 3;
+    const gr = el.grid.getBoundingClientRect();
+    const centers = $$('.sc-cell', el.grid).map(cell => { const r = cell.getBoundingClientRect(); return [r.left - gr.left + r.width / 2, r.top - gr.top + r.height / 2]; });
+    for (let i = 0; i < 9; i++) {
+      const [x, y] = centers[i] || [W * ((i % 3) + 0.5) / 3, H * (Math.floor(i / 3) + 0.5) / 3];
       cg.fillStyle = 'rgba(70,60,100,0.22)'; cg.beginPath(); cg.arc(x, y, Math.min(W, H) * 0.09, 0, Math.PI * 2); cg.fill();
       cg.fillStyle = 'rgba(70,60,100,0.35)'; cg.font = `${Math.round(Math.min(W, H) * 0.08)}px Bungee, Impact, sans-serif`; cg.textAlign = 'center'; cg.textBaseline = 'middle';
       cg.fillText('?', x, y + 1);
@@ -84,6 +86,7 @@ const Scratch = (() => {
     Sfx.init();
     const p = stepper.value;
     if (!Store.bet(p)) { App.insufficient(p); return; }
+    Store.hold('scratch', p);
     price = p; outcome = makeOutcome();
     el.cover.style.pointerEvents = '';
     Store.stat('tickets');
@@ -131,12 +134,13 @@ const Scratch = (() => {
   function finish() {
     if (state !== 'scratching') return;
     state = 'done'; drawing = false; lastPt = null;
+    Store.release('scratch');
     el.cover.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'forwards' }).onfinish = () => { cg.setTransform(1, 0, 0, 1, 0, 0); cg.clearRect(0, 0, el.cover.width, el.cover.height); el.cover.style.opacity = 0; };
     el.ticket.classList.remove('fresh');
     if (outcome.win) {
       const win = price * outcome.win.mult;
       outcome.grid.forEach((id, i) => { if (id === outcome.win.id) cells[i].classList.add('hit'); });
-      Store.win(win);
+      Store.win(win, win - price);
       el.ticket.classList.add('won');
       Sfx.win(outcome.win.mult >= 10 ? 3 : 2);
       const c = FX.center(el.ticket);
@@ -178,7 +182,9 @@ const Scratch = (() => {
   const up = () => { drawing = false; lastPt = null; };
   el.cover.addEventListener('pointerup', up); el.cover.addEventListener('pointercancel', up);
   el.cover.addEventListener('pointerleave', () => { el.coin.hidden = true; up(); });
+  MobileDock([el.buy, el.reveal], $('.scratch-layout .sc-dock'));
   el.buy.addEventListener('click', buy);
+  I18N.onChange(() => { renderTable(); updateUI(); if (state !== 'done') requestAnimationFrame(paintCover); });
   el.reveal.addEventListener('click', () => { Sfx.click(); finish(); });
   window.addEventListener('resize', () => { if (state === 'scratching') paintCover(); });
 

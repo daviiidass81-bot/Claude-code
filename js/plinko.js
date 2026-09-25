@@ -55,6 +55,7 @@ const Plinko = (() => {
     if (balls.length >= 40) return;
     const b = bet();
     if (!Store.bet(b)) { stopAuto(); App.insufficient(b); return; }
+    Store.hold('plinko', b);
     Store.stat('balls');
     const dirs = Array.from({ length: rows }, () => Math.random() < 0.5 ? 0 : 1);
     const pts = [];
@@ -93,7 +94,8 @@ const Plinko = (() => {
       binHit[p.k] = now;
       const m = P.tables[b.rows][b.risk][p.k];
       const win = Math.round(b.bet * m);
-      if (win > 0) Store.win(win);
+      const p = Store.s.pending; if (p && p.plinko) { p.plinko = Math.max(0, p.plinko - b.bet); if (!p.plinko) Store.release('plinko'); }
+      if (win > 0) Store.win(win, win - b.bet);
       Store.statMax('maxMult', m);
       Store.emit({ type: 'plinko', mult: m, win, bet: b.bet });
       if (quiet) return;
@@ -244,6 +246,7 @@ const Plinko = (() => {
   function stopAuto() { auto = false; clearInterval(autoTimer); autoTimer = null; updateUI(); }
 
   el.drop.addEventListener('click', drop);
+  I18N.onChange(() => updateUI());
   el.auto.addEventListener('click', () => {
     Sfx.init(); Sfx.click();
     if (auto) { stopAuto(); return; }
