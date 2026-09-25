@@ -4,10 +4,11 @@ const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
 const U = {
-  fmt: n => Math.floor(n).toLocaleString('de-DE'),
+  fmt: n => Math.floor(n).toLocaleString(typeof I18N !== 'undefined' ? I18N.locale : 'de-DE'),
+  dec: () => (typeof I18N !== 'undefined' ? I18N.dec : ','),
   fmtMult(m) {
     const s = m >= 100 ? m.toFixed(0) : (Math.round(m * 10) / 10).toString();
-    return s.replace('.', ',') + '×';
+    return s.replace('.', U.dec()) + '×';
   },
   rand: (a, b) => a + Math.random() * (b - a),
   randInt: (a, b) => Math.floor(a + Math.random() * (b - a + 1)),
@@ -50,7 +51,7 @@ const Store = (() => {
   const START = 2500;
   const defaults = () => ({
     balance: START, xp: 0, level: 1, lastBonus: 0, muted: false, peak: START,
-    stats: { bets: 0, wagered: 0, won: 0, biggest: 0, spins: 0, freeSpins: 0, balls: 0, hands: 0, bj: 0, bjWins: 0, maxMult: 0 },
+    stats: { bets: 0, wagered: 0, won: 0, biggest: 0, spins: 0, freeSpins: 0, balls: 0, hands: 0, bj: 0, bjWins: 0, maxMult: 0, rlSpins: 0, crashRounds: 0, maxCrash: 0, minesRounds: 0, tickets: 0, rolls: 0 },
     ach: {},
   });
   let s;
@@ -121,8 +122,9 @@ const Store = (() => {
 
 /* ---------- Sound (komplett synthetisiert per WebAudio) ---------- */
 const Sfx = (() => {
-  let ctx = null, master = null, noiseBuf = null;
+  let ctx = null, master = null, noiseBuf = null, ambientNode = null, rocketNode = null;
   let muted = Store.s.muted;
+  let vol = Store.s.volume != null ? Store.s.volume : 1;
 
   function init() {
     if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
@@ -132,7 +134,7 @@ const Sfx = (() => {
     const comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -14; comp.ratio.value = 4;
     master = ctx.createGain();
-    master.gain.value = muted ? 0 : 0.5;
+    master.gain.value = muted ? 0 : 0.5 * vol;
     master.connect(comp); comp.connect(ctx.destination);
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     const d = noiseBuf.getChannelData(0);
@@ -174,7 +176,12 @@ const Sfx = (() => {
     get muted() { return muted; },
     setMuted(m) {
       muted = m; Store.s.muted = m; Store.save();
-      if (master) master.gain.setTargetAtTime(m ? 0 : 0.5, ctx.currentTime, 0.02);
+      if (master) master.gain.setTargetAtTime(m ? 0 : 0.5 * vol, ctx.currentTime, 0.02);
+    },
+    get volume() { return vol; },
+    setVolume(v) {
+      vol = U.clamp(v, 0, 1); Store.s.volume = vol; Store.save();
+      if (master && !muted) master.gain.setTargetAtTime(0.5 * vol, ctx.currentTime, 0.03);
     },
     click() { tone(1400, { type: 'triangle', dur: 0.04, vol: 0.08 }); },
     hover() { tone(2200, { type: 'sine', dur: 0.03, vol: 0.025 }); },
@@ -246,5 +253,68 @@ const Sfx = (() => {
     achievement() {
       [79, 84, 88, 91].forEach((n, i) => tone(N(n), { type: 'triangle', dur: 0.3, vol: 0.08, at: i * 0.09 }));
     },
+    step() { noise({ dur: 0.05, vol: 0.035, freq: 380, q: 0.8, type: 'lowpass' }); },
+    // Leises Stimmengewirr + entfernte Automaten-Klänge in der Halle
+    ambient(on) {
+      if (!ctx) return;
+      if (on && !ambientNode) {
+        const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+        const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 520; f.Q.value = 0.6;
+        const gg = ctx.createGain(); gg.gain.value = 0; gg.gain.setTargetAtTime(0.045, ctx.currentTime, 1);
+        src.connect(f); f.connect(gg); gg.connect(master); src.start();
+        ambientNode = { src, gg };
+        const chime = () => {
+          if (!ambientNode) return;
+          const base = U.pick([72, 74, 76, 79]);
+          [0, 4, 7, 12].forEach((d, i) => tone(N(base + d), { type: 'triangle', dur: 0.25, vol: 0.012, at: i * 0.09 }));
+          ambientNode.t = setTimeout(chime, U.rand(3500, 9000));
+        };
+        ambientNode.t = setTimeout(chime, 2000);
+      } else if (!on && ambientNode) {
+        const a = ambientNode; ambientNode = null; clearTimeout(a.t);
+        a.gg.gain.setTargetAtTime(0, ctx.currentTime, 0.2);
+        setTimeout(() => { try { a.src.stop(); } catch (e) { /* schon gestoppt */ } }, 800);
+      }
+    },
+    roll(sec) {
+      if (!ctx || muted) return;
+      const t = ctx.currentTime;
+      const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 2; f.frequency.setValueAtTime(2400, t); f.frequency.exponentialRampToValueAtTime(700, t + sec);
+      const gg = ctx.createGain(); gg.gain.setValueAtTime(0.0001, t); gg.gain.exponentialRampToValueAtTime(0.09, t + 0.2); gg.gain.exponentialRampToValueAtTime(0.0001, t + sec);
+      src.connect(f); f.connect(gg); gg.connect(master); src.start(t); src.stop(t + sec + 0.1);
+    },
+    bounce(k = 1) { tone(900 + Math.random() * 400, { type: 'triangle', dur: 0.04, vol: 0.06 * k + 0.02 }); noise({ dur: 0.03, vol: 0.1 * k + 0.03, freq: 3500, q: 3 }); },
+    pocket() { tone(700, { type: 'triangle', dur: 0.06, vol: 0.1 }); noise({ dur: 0.06, vol: 0.14, freq: 2600, q: 2 }); tone(500, { type: 'triangle', dur: 0.05, vol: 0.06, at: 0.08 }); },
+    rocket(on) {
+      if (!ctx) return;
+      if (on && !rocketNode && !muted) {
+        const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 60;
+        const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+        const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 500;
+        const gg = ctx.createGain(); gg.gain.value = 0; gg.gain.setTargetAtTime(0.06, ctx.currentTime, 0.3);
+        o.connect(f); src.connect(f); f.connect(gg); gg.connect(master); o.start(); src.start();
+        o.frequency.linearRampToValueAtTime(140, ctx.currentTime + 30);
+        f.frequency.linearRampToValueAtTime(1600, ctx.currentTime + 30);
+        rocketNode = { o, src, gg };
+      } else if (!on && rocketNode) {
+        const r = rocketNode; rocketNode = null;
+        r.gg.gain.setTargetAtTime(0, ctx.currentTime, 0.05);
+        setTimeout(() => { try { r.o.stop(); r.src.stop(); } catch (e) { /* schon gestoppt */ } }, 300);
+      }
+    },
+    explode() {
+      noise({ dur: 0.9, vol: 0.35, freq: 900, q: 0.5, type: 'lowpass', sweep: 80 });
+      tone(90, { type: 'sine', dur: 0.6, vol: 0.4, slide: 30 });
+      noise({ dur: 0.3, vol: 0.15, freq: 4000, q: 0.7, at: 0.02 });
+    },
+    gem(k = 1) {
+      const n = 76 + Math.min(20, k * 2);
+      tone(N(n), { type: 'triangle', dur: 0.2, vol: 0.12 }); tone(N(n + 7), { type: 'sine', dur: 0.3, vol: 0.08, at: 0.05 });
+      tone(N(n + 12), { type: 'sine', dur: 0.35, vol: 0.05, at: 0.1 });
+    },
+    scratch() { noise({ dur: 0.06, vol: 0.05, freq: 5200 + Math.random() * 2000, q: 1.5, type: 'highpass' }); },
+    diceShake() { for (let i = 0; i < 6; i++) noise({ dur: 0.04, vol: 0.12, freq: 2200 + Math.random() * 1500, q: 3, at: i * 0.06 }); },
+    diceLand() { noise({ dur: 0.05, vol: 0.2, freq: 1400, q: 1.5 }); tone(220, { type: 'triangle', dur: 0.06, vol: 0.12 }); },
   };
 })();

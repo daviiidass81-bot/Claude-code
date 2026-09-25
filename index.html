@@ -9,12 +9,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Inline&family=Rubik:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/world.css">
 </head>
-<body data-view="lobby">
+<body data-view="floor">
 <canvas id="bg" aria-hidden="true"></canvas>
 
 <header class="topbar">
-  <a class="brand" href="#lobby" aria-label="Zur Lobby">
+  <a class="brand" href="#floor" aria-label="Zur Casino-Halle">
     <span class="brand-mark">N</span><span class="brand-text">Neon<b>Nights</b></span>
   </a>
   <div class="level-box" id="levelBox" title="Level-Fortschritt">
@@ -27,6 +28,15 @@
   <button class="bonus-btn" id="bonusBtn" type="button">
     <span class="bonus-wheel-icon" aria-hidden="true"></span><span class="bonus-label">Bonus<small id="bonusTimer">Bereit</small></span>
   </button>
+  <button class="icon-btn" id="gamesBtn" type="button" aria-label="Spiele-Schnellwahl" title="Spiele-Schnellwahl">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" fill="currentColor"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" fill="currentColor" opacity=".6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" fill="currentColor" opacity=".6"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" fill="currentColor"/></svg>
+  </button>
+  <button class="icon-btn" id="avatarBtn" type="button" aria-label="Figur anpassen" title="Figur anpassen">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="8" r="4.2" fill="currentColor"/><path d="M4 21c.8-4.4 4-6.6 8-6.6s7.2 2.2 8 6.6" fill="currentColor"/></svg>
+  </button>
+  <button class="icon-btn" id="settingsBtn" type="button" aria-label="Einstellungen" title="Einstellungen">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8zm8.3 4.6-.1-2.4 2-1.6-2-3.4-2.4.9a8 8 0 0 0-2-1.2L15.4 3h-4l-.4 2.5a8 8 0 0 0-2 1.2l-2.4-.9-2 3.4 2 1.6-.1 1.2.1 1.2-2 1.6 2 3.4 2.4-.9a8 8 0 0 0 2 1.2l.4 2.5h4l.4-2.5a8 8 0 0 0 2-1.2l2.4.9 2-3.4z" fill="currentColor"/></svg>
+  </button>
   <button class="icon-btn" id="muteBtn" type="button" aria-label="Ton an oder aus" aria-pressed="false">
     <svg class="ic-on" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
     <svg class="ic-off" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -35,73 +45,67 @@
 
 <main class="wrap">
   <!-- ================= LOBBY ================= -->
-  <section class="view active" id="view-lobby">
-    <div class="hero">
-      <p class="eyebrow">Spielgeld-Casino · geöffnet rund um die Uhr</p>
-      <h1 class="neon-sign" aria-label="Neon Nights">
-        <span class="n1">NEON</span>
-        <span class="n2">NIGH<span class="flicker">T</span>S</span>
-      </h1>
-      <p class="hero-sub">Drei Tische, ein Guthaben. Dreh die Walzen, lass Kugeln fallen oder fordere den Dealer heraus.</p>
+  <!-- ================= CASINO-HALLE ================= -->
+  <section class="view active" id="view-floor" aria-label="Casino-Halle">
+    <canvas id="floorCanvas"></canvas>
+    <div class="floor-prompt" id="floorPrompt" hidden>
+      <b id="floorPromptName"></b><small id="floorPromptSub"></small>
+      <span class="fp-key" id="floorPromptKey"><kbd>E</kbd> spielen</span><span class="fp-tap">Tippen zum Spielen</span>
     </div>
+    <div class="floor-help"><kbd>WASD</kbd> / <kbd>Pfeile</kbd> laufen · <kbd>E</kbd> spielen · Klick = hinlaufen</div>
+    <canvas class="minimap" id="minimap" aria-hidden="true"></canvas>
+    <div class="joy" id="joy" aria-hidden="true"><div class="joy-knob" id="joyKnob"></div></div>
+    <button class="floor-action" id="floorAction" type="button" disabled><b>Aktion</b></button>
+  </section>
 
-    <div class="games">
-      <a class="game-card gc-slots" href="#slots">
-        <div class="gc-art"><canvas id="prevSlots"></canvas></div>
-        <div class="gc-body">
-          <div class="gc-tags"><span>5 Walzen</span><span>10 Linien</span><span>Freispiele</span></div>
-          <h3>Lucky Seven Deluxe</h3>
-          <p>Wilde Kronen, Bonus-Sterne und bis zu 20 Freispiele mit doppelten Gewinnen.</p>
-          <span class="gc-play">Spielen <i>→</i></span>
-        </div>
-      </a>
-      <a class="game-card gc-plinko" href="#plinko">
-        <div class="gc-art"><canvas id="prevPlinko"></canvas></div>
-        <div class="gc-body">
-          <div class="gc-tags"><span>3 Risikostufen</span><span>bis 1000×</span></div>
-          <h3>Neon Plinko</h3>
-          <p>Lass die Kugel fallen und sieh zu, wie sie durch die Stifte tanzt. Am Rand wartet der Jackpot.</p>
-          <span class="gc-play">Spielen <i>→</i></span>
-        </div>
-      </a>
-      <a class="game-card gc-bj" href="#blackjack">
-        <div class="gc-art bj-art" aria-hidden="true">
-          <div class="art-card c1"><b>A</b><i>♠&#xFE0E;</i></div>
-          <div class="art-card c2 red"><b>K</b><i>♥&#xFE0E;</i></div>
-          <span class="art-chip" style="--c:#f0a412"></span><span class="art-chip c2" style="--c:#9b3dff"></span>
-        </div>
-        <div class="gc-body">
-          <div class="gc-tags"><span>6 Decks</span><span>3 : 2</span><span>Split</span></div>
-          <h3>Midnight Blackjack</h3>
-          <p>Klassisch gegen den Dealer. Verdoppeln, teilen und auf die 21 hoffen.</p>
-          <span class="gc-play">Spielen <i>→</i></span>
-        </div>
-      </a>
+  <!-- ================= PROFIL ================= -->
+  <section class="view" id="view-lobby">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Kasse &amp; Profil</h2>
+      <span class="pill">Level <b id="lobbyLevel">1</b></span>
     </div>
-
+    <div class="profile-top">
+      <section class="panel profile-card">
+        <canvas id="profileAvatar" aria-hidden="true"></canvas>
+        <div class="profile-info">
+          <p class="eyebrow">Mitgliedskarte · Neon Nights</p>
+          <h3 id="profileName">Gast</h3>
+          <span class="pill" id="profileTitle">Neuling</span>
+          <button class="ghost-btn" id="profileEdit" type="button">Aussehen ändern</button>
+        </div>
+      </section>
+      <section class="panel games-panel">
+        <header class="panel-head"><h2>Alle Spiele</h2><span class="pill">Häkchen = schon gespielt</span></header>
+        <div class="profile-games" id="profileGames"></div>
+      </section>
+    </div>
     <div class="lobby-grid">
       <section class="panel stats-panel">
-        <header class="panel-head"><h2>Deine Nacht</h2><span class="pill">Level <b id="lobbyLevel">1</b></span></header>
+        <header class="panel-head"><h2>Deine Nacht</h2></header>
         <dl class="stats">
           <div><dt>Guthaben</dt><dd id="stBalance">0</dd></div>
           <div><dt>Höchststand</dt><dd id="stPeak">0</dd></div>
           <div><dt>Größter Gewinn</dt><dd id="stBiggest">0</dd></div>
           <div><dt>Gesamteinsatz</dt><dd id="stWagered">0</dd></div>
-          <div><dt>Drehungen</dt><dd id="stSpins">0</dd></div>
+          <div><dt>Slot-Drehungen</dt><dd id="stSpins">0</dd></div>
+          <div><dt>Roulette-Runden</dt><dd id="stRl">0</dd></div>
           <div><dt>Blackjack-Hände</dt><dd id="stHands">0</dd></div>
           <div><dt>Plinko-Kugeln</dt><dd id="stBalls">0</dd></div>
           <div><dt>Bester Plinko-Treffer</dt><dd id="stMult">–</dd></div>
+          <div><dt>Höchster Crash-Ausstieg</dt><dd id="stCrash">–</dd></div>
+          <div><dt>Rubbellose</dt><dd id="stTickets">0</dd></div>
+          <div><dt>Würfe</dt><dd id="stRolls">0</dd></div>
         </dl>
         <div class="recent"><h3>Letzte große Gewinne</h3><div id="recentList"></div></div>
       </section>
       <section class="panel ach-panel">
-        <header class="panel-head"><h2>Erfolge</h2><span class="pill" id="achCount">0 / 12</span></header>
+        <header class="panel-head"><h2>Erfolge</h2><span class="pill" id="achCount">0 / 18</span></header>
         <div class="ach-grid" id="achGrid"></div>
       </section>
     </div>
-
     <footer class="foot">
-      <p><b>Nur Spielgeld.</b> Keine echten Einsätze, keine Auszahlungen. Jedes Level-Up und das Bonusrad schenken dir neue Münzen.</p>
+      <p><b>Nur Spielgeld.</b> Keine echten Einsätze, keine Auszahlungen. Jedes Level-Up, die Bar und das Bonusrad schenken dir neue Münzen.</p>
       <div class="reset">
         <button class="ghost-btn small" id="resetBtn" type="button">Spielstand zurücksetzen</button>
         <span id="resetConfirm" hidden>Wirklich alles löschen?
@@ -114,7 +118,7 @@
   <!-- ================= SLOTS ================= -->
   <section class="view" id="view-slots">
     <div class="game-head">
-      <a class="back-btn" href="#lobby"><i>←</i> Lobby</a>
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
       <h2>Lucky Seven Deluxe</h2>
       <button class="ghost-btn" id="slotInfo" type="button">Gewinntabelle</button>
     </div>
@@ -156,7 +160,7 @@
   <!-- ================= PLINKO ================= -->
   <section class="view" id="view-plinko">
     <div class="game-head">
-      <a class="back-btn" href="#lobby"><i>←</i> Lobby</a>
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
       <h2>Neon Plinko</h2>
       <span class="pill">Max <b id="plinkoMax">33×</b></span>
     </div>
@@ -202,7 +206,7 @@
   <!-- ================= BLACKJACK ================= -->
   <section class="view" id="view-blackjack">
     <div class="game-head">
-      <a class="back-btn" href="#lobby"><i>←</i> Lobby</a>
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
       <h2>Midnight Blackjack</h2>
       <span class="pill">Max. Einsatz <b>5.000</b></span>
     </div>
@@ -247,9 +251,233 @@
     </div>
     <p class="hint">Tasten: H Karte · S Halten · D Verdoppeln · P Teilen · Enter Austeilen</p>
   </section>
+  <!-- ================= ROULETTE ================= -->
+  <section class="view" id="view-roulette">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Grand Roulette</h2>
+      <span class="pill">Tischlimit <b>10.000</b></span>
+    </div>
+    <div class="rl-layout">
+      <div class="panel rl-wheel-panel" id="rlStage">
+        <div class="rl-wheel-box"><div class="rl-pointer" aria-hidden="true"></div><canvas id="rlWheel"></canvas></div>
+        <div class="rl-result" id="rlResult" hidden></div>
+        <div class="rl-history" id="rlHistory" aria-label="Letzte Zahlen"></div>
+      </div>
+      <div class="rl-right">
+        <div class="rl-felt"><div class="rl-board" id="rlBoard"></div></div>
+        <div class="rl-status"><span>Einsatz <b id="rlTotal">0</b></span><span id="rlMsg">Wähle einen Chip und setze auf das Tableau.</span></div>
+        <div class="chip-rack" id="rlChips"></div>
+        <div class="bj-bet-actions">
+          <button class="ghost-btn" id="rlClear" type="button">Löschen</button>
+          <button class="ghost-btn" id="rlUndo" type="button">Rückgängig</button>
+          <button class="ghost-btn" id="rlRebet" type="button">Wie zuvor</button>
+          <button class="ghost-btn" id="rlDouble" type="button">×2</button>
+          <button class="cta-btn" id="rlSpin" type="button">Drehen</button>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Klick setzt den gewählten Chip · Rechtsklick entfernt eine Wette · Leertaste dreht · R wiederholt</p>
+  </section>
+
+  <!-- ================= CRASH ================= -->
+  <section class="view" id="view-crash">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Rocket Crash</h2>
+      <span class="pill">Quote ca. <b>97 %</b></span>
+    </div>
+    <div class="crash-layout">
+      <div class="panel crash-stage" id="crashStage">
+        <canvas id="crashCanvas"></canvas>
+        <div class="crash-mult" id="crashMult">1,00×</div>
+        <div class="crash-status" id="crashStatus">Setze deinen Einsatz und starte die Rakete.</div>
+        <div class="crash-hist" id="crashHist" aria-label="Letzte Crash-Punkte"></div>
+      </div>
+      <aside class="panel crash-side">
+        <div class="field">
+          <label>Einsatz</label>
+          <div class="bet-ctl wide">
+            <button class="round-btn" id="crBetMinus" type="button" aria-label="Einsatz senken">−</button>
+            <div class="bet-val"><b id="crBet">100</b></div>
+            <button class="round-btn" id="crBetPlus" type="button" aria-label="Einsatz erhöhen">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="crAuto">Automatisch auszahlen bei</label>
+          <div class="auto-row">
+            <input id="crAuto" type="number" min="1.01" max="1000" step="0.1" value="2" inputmode="decimal">
+            <span>×</span>
+            <label class="switch"><input type="checkbox" id="crAutoOn"><i></i><span>aktiv</span></label>
+          </div>
+          <div class="quick"><button type="button" data-auto="1.5">1,5×</button><button type="button" data-auto="2">2×</button><button type="button" data-auto="5">5×</button><button type="button" data-auto="10">10×</button></div>
+        </div>
+        <button class="cta-btn big-cta" id="crashBtn" type="button"><span id="crashBtnLabel">Abheben</span><small id="crashBtnSub"></small></button>
+        <div class="field">
+          <label>Mitspieler dieser Runde</label>
+          <ul class="crash-players" id="crashPlayers"></ul>
+        </div>
+      </aside>
+    </div>
+    <p class="hint">Leertaste startet bzw. zahlt aus · Wer vor dem Absturz aussteigt, gewinnt Einsatz × Multiplikator</p>
+  </section>
+
+  <!-- ================= MINES ================= -->
+  <section class="view" id="view-mines">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Diamond Mines</h2>
+      <span class="pill">Quote ca. <b>97 %</b></span>
+    </div>
+    <div class="mines-layout">
+      <aside class="panel mines-side">
+        <div class="field">
+          <label>Einsatz</label>
+          <div class="bet-ctl wide">
+            <button class="round-btn" id="mnBetMinus" type="button" aria-label="Einsatz senken">−</button>
+            <div class="bet-val"><b id="mnBet">100</b></div>
+            <button class="round-btn" id="mnBetPlus" type="button" aria-label="Einsatz erhöhen">+</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="minesCount">Bomben: <b id="minesCountVal">3</b></label>
+          <input type="range" id="minesCount" min="1" max="24" value="3">
+          <div class="quick"><button type="button" data-mines="1">1</button><button type="button" data-mines="3">3</button><button type="button" data-mines="5">5</button><button type="button" data-mines="10">10</button><button type="button" data-mines="20">20</button></div>
+        </div>
+        <div class="mines-stats">
+          <div><small>Multiplikator</small><b id="minesMult">1,00×</b></div>
+          <div><small>Nächstes Juwel</small><b id="minesNext">–</b></div>
+          <div><small>Gefunden</small><b id="minesGems">0 / 22</b></div>
+        </div>
+        <button class="cta-btn big-cta" id="minesStart" type="button"><span id="minesStartLabel">Spiel starten</span><small id="minesStartSub"></small></button>
+        <button class="ghost-btn" id="minesRandom" type="button">Zufälliges Feld</button>
+      </aside>
+      <div class="panel mines-board" id="minesBoard">
+        <div class="mines-grid" id="minesGrid"></div>
+        <p class="mines-msg" id="minesMsg">Wähle Einsatz und Bombenanzahl – je mehr Bomben, desto höher die Gewinne.</p>
+      </div>
+    </div>
+    <p class="hint">Leertaste startet bzw. zahlt aus · R deckt ein zufälliges Feld auf</p>
+  </section>
+
+  <!-- ================= RUBBELLOSE ================= -->
+  <section class="view" id="view-scratch">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Rubbellose</h2>
+      <span class="pill">Quote ca. <b>96 %</b></span>
+    </div>
+    <div class="scratch-layout">
+      <div class="sc-ticket" id="scTicket">
+        <div class="sc-head"><span class="sc-brand">NEON NIGHTS</span><span class="sc-title">LUCKY SCRATCH</span><span class="sc-sub">3 gleiche Symbole gewinnen</span></div>
+        <div class="sc-field">
+          <div class="sc-grid" id="scGrid"></div>
+          <canvas class="sc-cover" id="scCover"></canvas>
+          <span class="sc-coin" id="scCoin" hidden></span>
+        </div>
+        <div class="sc-foot"><span>Serie NN-<b>7</b></span><span>Nur Spielgeld</span></div>
+      </div>
+      <aside class="panel scratch-side">
+        <div class="field">
+          <label>Lospreis</label>
+          <div class="bet-ctl wide">
+            <button class="round-btn" id="scMinus" type="button" aria-label="Preis senken">−</button>
+            <div class="bet-val"><b id="scPrice">50</b></div>
+            <button class="round-btn" id="scPlus" type="button" aria-label="Preis erhöhen">+</button>
+          </div>
+        </div>
+        <button class="cta-btn big-cta" id="scBuy" type="button"><span id="scBuyLabel">Los kaufen</span><small id="scBuySub"></small></button>
+        <button class="ghost-btn" id="scReveal" type="button">Alles aufdecken</button>
+        <p class="sc-msg" id="scMsg"></p>
+        <div class="field">
+          <label>Gewinnplan</label>
+          <ul class="sc-table" id="scTable"></ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= WÜRFEL ================= -->
+  <section class="view" id="view-dice">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Würfel-Duell</h2>
+      <span class="pill">Tischlimit <b>5.000</b></span>
+    </div>
+    <div class="dice-table">
+      <div class="dice-tray" id="diceTray">
+        <div class="die" id="die1"></div><div class="die" id="die2"></div>
+        <div class="dice-sum" id="diceSum"></div>
+      </div>
+      <div class="dice-fields">
+        <button class="dice-field" type="button" data-dfield="under"><b>Unter 7</b><small>Summe 2 – 6</small><em>zahlt 2,3×</em><span class="df-bet"></span></button>
+        <button class="dice-field seven" type="button" data-dfield="seven"><b>Genau 7</b><small>Summe 7</small><em>zahlt 5,8×</em><span class="df-bet"></span></button>
+        <button class="dice-field" type="button" data-dfield="over"><b>Über 7</b><small>Summe 8 – 12</small><em>zahlt 2,3×</em><span class="df-bet"></span></button>
+        <button class="dice-field pair" type="button" data-dfield="pair"><b>Pasch</b><small>zwei gleiche</small><em>zahlt 5,8×</em><span class="df-bet"></span></button>
+      </div>
+    </div>
+    <div class="dice-controls">
+      <div class="rl-status"><span>Einsatz <b id="diceTotal">0</b></span><span id="diceMsg">Wähle einen Chip und setze auf ein Feld.</span></div>
+      <div class="chip-rack" id="dcChips"></div>
+      <div class="bj-bet-actions">
+        <button class="ghost-btn" id="diceClear" type="button">Löschen</button>
+        <button class="ghost-btn" id="diceRebet" type="button">Wie zuvor</button>
+        <button class="cta-btn" id="diceRoll" type="button">Würfeln</button>
+      </div>
+      <div class="dice-hist" id="diceHist" aria-label="Letzte Würfe"></div>
+    </div>
+    <p class="hint">Mehrere Felder gleichzeitig möglich · Leertaste würfelt · R wiederholt</p>
+  </section>
 </main>
 
 <!-- ================= MODALS & OVERLAYS ================= -->
+<div class="modal" id="modal-settings" hidden role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="modal-box set-box">
+    <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
+    <h2 id="setTitle">Einstellungen</h2>
+    <div class="field">
+      <label>Sprache</label>
+      <div class="lang-grid" id="langGrid"></div>
+      <small class="field-hint">Die Sprache wird sofort übernommen.</small>
+    </div>
+    <div class="field">
+      <label for="volRange">Lautstärke</label>
+      <div class="vol-row"><input type="range" id="volRange" min="0" max="100" step="5"><b id="volVal">100 %</b></div>
+    </div>
+    <button class="cta-btn" type="button" data-close data-autofocus>Fertig</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-games" hidden role="dialog" aria-modal="true" aria-labelledby="gmTitle">
+  <div class="modal-box gm-box">
+    <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
+    <h2 id="gmTitle">Schnellwahl</h2>
+    <p class="modal-sub">Keine Lust zu laufen? Spring direkt an einen Tisch.</p>
+    <div class="gm-grid" id="gamesMenu"></div>
+  </div>
+</div>
+
+<div class="modal" id="modal-avatar" hidden role="dialog" aria-modal="true" aria-labelledby="avTitle">
+  <form class="modal-box av-box" id="avForm">
+    <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
+    <h2 id="avTitle">Wer bist du heute Nacht?</h2>
+    <p class="modal-sub">Gestalte deine Figur für die Casino-Halle.</p>
+    <div class="av-layout">
+      <canvas id="avPreview" aria-hidden="true"></canvas>
+      <div class="av-fields">
+        <div class="field"><label for="avName">Name</label><input id="avName" maxlength="14" placeholder="z. B. Lucky Lou" autocomplete="off"></div>
+        <div class="field"><label>Haut</label><div class="swatches" id="avSkin"></div></div>
+        <div class="field"><label>Frisur</label><div class="seg small" id="avStyle"></div></div>
+        <div class="field"><label>Haarfarbe</label><div class="swatches" id="avHair"></div></div>
+        <div class="field"><label>Anzug</label><div class="swatches" id="avOutfit"></div></div>
+        <div class="field"><label>Krawatte</label><div class="swatches" id="avAccent"></div></div>
+        <div class="av-row"><button class="toggle" id="avGlasses" type="button" aria-pressed="false">Sonnenbrille</button><button class="ghost-btn" id="avRandom" type="button">Zufall</button></div>
+      </div>
+    </div>
+    <button class="cta-btn" type="submit" data-autofocus>Ins Casino!</button>
+  </form>
+</div>
+
 <div class="modal" id="modal-wheel" hidden role="dialog" aria-modal="true" aria-labelledby="wheelTitle">
   <div class="modal-box wheel-box">
     <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
@@ -288,15 +516,26 @@
 </div>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="fade" id="fade" hidden></div>
 <canvas id="fx" aria-hidden="true"></canvas>
 
 <script src="js/config.js"></script>
 <script src="js/core.js"></script>
+<script src="js/i18n-data.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/symbols.js"></script>
+<script src="js/common.js"></script>
+<script src="js/avatar.js"></script>
 <script src="js/slots.js"></script>
 <script src="js/plinko.js"></script>
 <script src="js/blackjack.js"></script>
+<script src="js/roulette.js"></script>
+<script src="js/crash.js"></script>
+<script src="js/mines.js"></script>
+<script src="js/scratch.js"></script>
+<script src="js/dice.js"></script>
+<script src="js/floor.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

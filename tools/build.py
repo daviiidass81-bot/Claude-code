@@ -2,8 +2,9 @@
 import re, pathlib
 root = pathlib.Path(__file__).resolve().parent.parent
 html = (root / 'index.html').read_text(encoding='utf-8')
-css = (root / 'css/style.css').read_text(encoding='utf-8')
-html = html.replace('<link rel="stylesheet" href="css/style.css">', '<style>\n' + css + '\n</style>')
+def inline_css(m):
+    return '<style>\n' + (root / m.group(1)).read_text(encoding='utf-8') + '\n</style>'
+html = re.sub(r'<link rel="stylesheet" href="(css/[^"]+)">', inline_css, html)
 def inline(m):
     js = (root / m.group(1)).read_text(encoding='utf-8')
     return '<script>\n' + js.replace('</script', '<\\/script') + '\n</script>'

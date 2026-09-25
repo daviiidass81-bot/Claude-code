@@ -199,7 +199,7 @@ const Slots = (() => {
   }
 
   function render(now, once = false) {
-    const dt = Math.min(0.05, (now - lastT) / 1000 || 0); lastT = now;
+    const dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000 || 0)); lastT = now;
     let spinning = false;
     reels.forEach(r => {
       const p = r.pos; update(r, now, dt);

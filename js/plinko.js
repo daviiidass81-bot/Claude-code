@@ -176,7 +176,7 @@ const Plinko = (() => {
       roundRect(x, y, bw, binH, Math.min(8, bw * 0.2)); g.fill();
       g.shadowBlur = 0;
       g.fillStyle = 'rgba(255,255,255,0.25)'; roundRect(x + 2, y + 2, bw - 4, binH * 0.32, Math.min(6, bw * 0.15)); g.fill();
-      const base = t[k] >= 100 ? String(t[k]) : String(t[k]).replace('.', ',');
+      const base = t[k] >= 100 ? String(t[k]) : String(t[k]).replace('.', U.dec());
       let fs = Math.min(binH * 0.42, s * 0.32);
       const fit = txt => { g.font = `700 ${fs}px "Rubik", system-ui, sans-serif`; return g.measureText(txt).width <= bw * 0.8; };
       let label = base + '×';
@@ -204,7 +204,7 @@ const Plinko = (() => {
   }
 
   function loop(now) {
-    const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+    const dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000)); lastT = now;
     for (let i = balls.length - 1; i >= 0; i--) {
       const b = balls[i];
       b.t += dt / b.dur;
