@@ -24,7 +24,7 @@ const VideoPoker = (() => {
   let coins = 5, state = 'idle', hand = [], held = [false, false, false, false, false], deck = [], bet = 0, busy = false;
 
   function renderPay(hitId = null) {
-    el.pay.innerHTML = `<tbody>${HANDS.map(h => `<tr class="${hitId === h.id ? 'hit' : ''}"><th>${I18N.t(h.name)}</th>${h.pay.map((p, i) =>
+    el.pay.innerHTML = `<thead><tr><th>${I18N.t('Münzen')}</th>${[1, 2, 3, 4, 5].map(i => `<td class="${i === coins ? 'on' : ''}">${i}</td>`).join('')}</tr></thead><tbody>${HANDS.map(h => `<tr class="${hitId === h.id ? 'hit' : ''}"><th>${I18N.t(h.name)}</th>${h.pay.map((p, i) =>
       `<td class="${i === coins - 1 ? 'on' : ''}">${U.fmt(p * coinStep.value)}</td>`).join('')}</tr>`).join('')}</tbody>`;
     $$('.vp-coin-btn', el.coins).forEach(b => b.classList.toggle('on', +b.dataset.c === coins));
   }
@@ -98,6 +98,7 @@ const VideoPoker = (() => {
     busy = true; state = 'dealing'; updateUI();
     newDeck();
     hand = deck.splice(0, 5); held = [false, false, false, false, false];
+    { const H0 = HANDS.find(h => h.id === evaluate(hand)); Store.settle('poker', H0 ? H0.pay[coins - 1] * coinStep.value : 0); } // Neuladen = Hand bleibt wie ausgeteilt
     $$('.vp-slot', el.cards).forEach(s => s.classList.remove('held', 'win'));
     el.win.textContent = '—'; el.machine.classList.remove('won');
     Sfx.card();

@@ -98,14 +98,14 @@ const Floor = (() => {
   add({ kind: 'scratch', x: 1180, y: 1040, fw: 170, fh: 56, vh: 110, game: 'scratch', label: 'Rubbellose', sub: 'Bis 100× pro Los', ix: 1180, iy: 1092, glow: '#ffc94a' });
   add({ kind: 'cashier', x: 1480, y: 1040, fw: 210, fh: 56, vh: 120, game: 'lobby', label: 'Kasse & Profil', sub: 'Statistik · Erfolge', ix: 1480, iy: 1092, glow: '#9d5cff' });
   [[230, 470], [1570, 470], [230, 880], [1570, 880], [690, 880], [1110, 880], [230, 1250], [1570, 1250], [690, 1250], [1110, 1250]].forEach(([x, y]) => add({ kind: 'pillar', x, y, fw: 40, fh: 26, vh: 150 }));
-  [[60, 250], [1740, 360], [60, 1250], [1740, 1250], [760, 1640], [1040, 1640], [60, 640], [1740, 640], [60, 1640], [1740, 1640]].forEach(([x, y], i) => add({ kind: 'plant', x, y, fw: 34, fh: 22, vh: 70, v: i }));
+  [[60, 250], [1740, 360], [60, 1250], [1740, 1250], [744, 1664], [1056, 1664], [60, 640], [1740, 640], [60, 1640], [1740, 1640]].forEach(([x, y], i) => add({ kind: 'plant', x, y, fw: y === 1664 ? 26 : 34, fh: y === 1664 ? 16 : 22, vh: 70, v: i }));
   // Neue Reihe: Video-Poker, Keno, Hi-Lo, Baccarat
   [150, 240, 330].forEach((x, i) => {
     add({ kind: 'vpoker', x, y: 1430, fw: 72, fh: 44, vh: 124, game: 'poker', label: 'Jacks or Better', sub: 'Video-Poker', ix: x, iy: 1480, glow: '#3be8ff', seed: i * 2.3 });
     add({ kind: 'stool', x, y: 1468, c: '#3be8ff', nocoll: true });
   });
   add({ kind: 'keno', x: 590, y: 1430, fw: 170, fh: 56, vh: 140, game: 'keno', label: 'Neon Keno', sub: '10 aus 40', ix: 590, iy: 1482, glow: '#9d5cff' });
-  add({ kind: 'hilo', x: 1150, y: 1450, fw: 200, fh: 96, vh: 40, game: 'hilo', label: 'Hi-Lo', sub: 'Höher oder niedriger', ix: 1150, iy: 1500, glow: '#5dffb0' });
+  add({ kind: 'hilo', x: 1130, y: 1470, fw: 200, fh: 96, vh: 40, game: 'hilo', label: 'Hi-Lo', sub: 'Höher oder niedriger', ix: 1130, iy: 1520, glow: '#5dffb0' });
   add({ kind: 'baccarat', x: 1480, y: 1460, fw: 290, fh: 124, vh: 40, game: 'baccarat', label: 'Royal Baccarat', sub: 'Spieler · Bank · Unentschieden', ix: 1480, iy: 1512, glow: '#ffc94a' });
   add({ kind: 'door', x: 900, y: WH - 6, fw: 0, fh: 0, vh: 90, sortY: WH + 50, game: 'exit', label: 'Ausgang', sub: 'Zur Stadt', ix: 900, iy: WH - 80, glow: '#3be8ff' });
   [[820, 1560], [820, 1450], [980, 1560], [980, 1450]].forEach(([x, y]) => add({ kind: 'post', x, y, fw: 12, fh: 10, vh: 34 }));
@@ -121,7 +121,7 @@ const Floor = (() => {
     { x: 1370, y: 579, a: { skin: 4, hair: 0, style: 'bald', outfit: '#16121f', accent: '#ffc94a' }, opts: { bowtie: true } },
     { x: 1470, y: 206, a: { skin: 1, hair: 5, style: 'mohawk', outfit: '#1c1826', accent: '#3be8ff' }, opts: { bowtie: true } },
     { x: 1480, y: 990, a: { skin: 3, hair: 1, style: 'long', outfit: '#3a1f78', accent: '#ffc94a', glasses: true }, opts: {} },
-    { x: 1150, y: 1370, a: { skin: 1, hair: 6, style: 'bun', outfit: '#16121f', accent: '#5dffb0' }, opts: { bowtie: true } },
+    { x: 1130, y: 1390, a: { skin: 1, hair: 6, style: 'bun', outfit: '#16121f', accent: '#5dffb0' }, opts: { bowtie: true } },
     { x: 1480, y: 1356, a: { skin: 2, hair: 0, style: 'short', outfit: '#16121f', accent: '#ffc94a', glasses: false }, opts: { bowtie: true } },
   ].map(d => Object.assign(d, { dir: 0, phase: Math.random() * 6, npc: true, fixed: true }));
   const guests = Array.from({ length: 7 }, (_, i) => ({ x: 400 + i * 160, y: 900 + (i % 3) * 60, dir: 0, phase: 0, moving: false, a: rndAvatar(),
@@ -328,7 +328,7 @@ const Floor = (() => {
     for (const o of interactives) if (o.kind === 'slot' || o.kind === 'plinko') pool(o.x, o.y + 20, 90, hexRgb(o.glow), 0.12 + 0.04 * Math.sin(time * 2 + (o.seed || 0)));
     pool(330, 1060, 150, '255,93,61', 0.08); pool(620, 1060, 130, '59,232,255', 0.08);
     pool(1180, 1060, 150, '255,201,74', 0.07); pool(1480, 1060, 160, '157,92,255', 0.07);
-    pool(240, 1450, 200, '59,232,255', 0.08); pool(590, 1450, 140, '157,92,255', 0.08); pool(1150, 1430, 170, '93,255,176', 0.05); pool(1480, 1430, 220, '255,201,74', 0.06);
+    pool(240, 1450, 200, '59,232,255', 0.08); pool(590, 1450, 140, '157,92,255', 0.08); pool(1130, 1450, 170, '93,255,176', 0.05); pool(1480, 1430, 220, '255,201,74', 0.06);
     pool(900, WH - 40, 180, '59,232,255', 0.1);
     pool(900, 300, 220, '255,201,74', 0.08 + (Wheel.ready() ? 0.05 * Math.sin(time * 3) : 0));
     g.globalCompositeOperation = 'source-over';
@@ -871,7 +871,7 @@ const Floor = (() => {
     });
     g.beginPath(); g.ellipse(x, top + 80, 30, 12, 0, 0, Math.PI * 2); g.stroke();
     [[x - 90, top + 26], [x - 76, top + 24], [x + 60, top + 24], [x + 74, top + 26]].forEach(([cx, cy]) => { g.fillStyle = '#fff'; rr(cx, cy - 16, 11, 15, 1.5); g.fill(); });
-    glowText('BACCARAT', x, top + d - 14, 10, '#ffc94a', 6);
+    glowText('BACCARAT', x, top + d - 14, 12, '#ffe7a0', 10);
   }
 
   function drawDoor(o) {

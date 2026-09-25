@@ -773,7 +773,7 @@ const Town = (() => {
         goTo(U.rand(x0, x1), U.rand(y0, y1), false);
       }
       if ((c.state === 'petted' || c.state === 'eat') && time > c.until) set('sit', 2);
-      if (c.state === 'sleep' && Math.random() < dt * 0.8) FX.floatText(...toScreen(c.x - 10, c.y - 34), 'z', 'zzz');
+      if (c.state === 'sleep' && Math.random() < dt * 0.8) FX.floatText(...toScreen(c.x - 14, c.y - 40), 'z', 'zzz');
       if (time - c.lastMeow > 14 && Math.hypot(player.x - c.x, player.y - c.y) < 160 && c.state !== 'sleep' && Math.random() < dt) { c.lastMeow = time; Sfx.meow && Sfx.meow(); }
     }
     function throwYarn() {
@@ -783,7 +783,7 @@ const Town = (() => {
       c.yarn.vx = (tx - c.yarn.x) * 1.6; c.yarn.vy = (ty - c.yarn.y) * 1.6;
       c.state = 'chase';
     }
-    function hearts(n) { const [sx, sy] = toScreen(c.x, c.y - 30); for (let i = 0; i < n; i++) setTimeout(() => FX.floatText(sx + U.rand(-16, 16), sy, '♥', 'heart'), i * 120); }
+    function hearts(n) { const [sx, sy] = toScreen(c.x, c.y - 44); for (let i = 0; i < n; i++) setTimeout(() => FX.floatText(sx + U.rand(-16, 16), sy, '♥', 'heart'), i * 120); }
     function addAff(n, quiet) {
       const s = S(), before = level();
       s.aff = Math.min(100, s.aff + n); Store.save();
@@ -834,9 +834,9 @@ const Town = (() => {
         g.strokeStyle = '#ffc2e4'; g.lineWidth = 1.2; for (let i = 0; i < 3; i++) { g.beginPath(); g.arc(0, 0, 3 + i * 1.8, i, i + 2.6); g.stroke(); }
         g.restore();
       }
-      drawCatShape(c.x, c.y, c.dir, c.phase, c.moving, c.state === 'run' || c.state === 'walk' || c.state === 'chase' ? 'walk' : c.state, 1, Inv.get().collar);
+      drawCatShape(c.x, c.y, c.dir, c.phase, c.moving, c.state === 'run' || c.state === 'walk' || c.state === 'chase' ? 'walk' : c.state, 1.35, Inv.get().collar);
       if (near === tgt) {
-        g.strokeStyle = `rgba(255,201,74,${0.5 + 0.3 * Math.sin(time * 5)})`; g.lineWidth = 2; g.beginPath(); g.ellipse(c.x, c.y + 1, 24, 8, 0, 0, Math.PI * 2); g.stroke();
+        g.strokeStyle = `rgba(255,201,74,${0.5 + 0.3 * Math.sin(time * 5)})`; g.lineWidth = 2; g.beginPath(); g.ellipse(c.x, c.y + 1, 32, 10, 0, 0, Math.PI * 2); g.stroke();
       }
     }
     return {
@@ -1018,7 +1018,7 @@ const Town = (() => {
     await U.sleep(250);
     bus.state = 'out'; bus.t = time; Sfx.busLeave && Sfx.busLeave();
     lock = false;
-    Store.emit({ type: 'travel', zone: to });
+    Store.emit({ type: 'travel', zone: to, withCat: Cat.follow && to !== 'neighborhood' });
   }
   function waitBus(state) { return new Promise(res => { const chk = () => { if (bus.state === state) res(); else setTimeout(chk, 50); }; chk(); }); }
   function fadeScreen(on) {
@@ -1198,7 +1198,7 @@ const Town = (() => {
   function updateCamera(snap) {
     const vw = W / zoom, vh = H / zoom;
     const tx = U.clamp(player.x - vw / 2, 0, Math.max(0, WW - vw));
-    const ty = U.clamp(player.y - vh * 0.58, Math.max(0, TOP - 260), Math.max(0, WH - vh));
+    const ty = U.clamp(player.y - vh * 0.52, Math.max(0, TOP - 300), Math.max(0, WH - 40 - vh));
     if (snap) { camX = tx; camY = ty; } else { camX += (tx - camX) * 0.12; camY += (ty - camY) * 0.12; }
     if (vw > WW) camX = (WW - vw) / 2;
   }
@@ -1208,7 +1208,7 @@ const Town = (() => {
     if (promptEl.__for !== near) {
       promptEl.__for = near; promptName.textContent = near.label; promptSub.textContent = near.sub || '';
       promptKey.textContent = near.game === 'bus' ? 'einsteigen' : near.game === 'cat' ? 'kümmern' : near.game.startsWith('shop:') ? 'einkaufen' : near.game === 'casino' ? 'eintreten' : 'benutzen';
-      actionBtn.querySelector('b').textContent = near.game === 'bus' ? 'Bus' : near.game === 'cat' ? 'Mimi' : near.game.startsWith('shop:') ? 'Laden' : near.game === 'casino' ? 'Casino' : 'Los';
+      actionBtn.querySelector('b').textContent = near.game === 'bus' ? 'Bus' : near.game === 'cat' ? 'Mimi' : near.game.startsWith('shop:') ? 'Laden' : near.game === 'casino' ? 'Casino' : 'Benutzen';
     }
     const sx = (near.x - camX) * zoom, sy = (near.y - (near.vh || 60) - 40 - camY) * zoom;
     promptEl.style.transform = `translate(${Math.round(U.clamp(sx, 110, W - 110))}px, ${Math.round(Math.max(promptEl.offsetHeight + 12, sy))}px) translate(-50%, -100%)`;
@@ -1229,7 +1229,7 @@ const Town = (() => {
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     view.style.height = H + 'px';
-    zoom = U.clamp(Math.min(W / 1150, H / 740), 0.74, 1.3);
+    zoom = U.clamp(Math.min(W / 1150, H / 800), 0.72, 1.25);
     for (const k in patterns) delete patterns[k];
     updateCamera(true);
   }
@@ -1297,5 +1297,7 @@ const Town = (() => {
     },
     refreshAvatar() { avatar = Avatar.load(); },
     get zones() { return ZONES; },
+    get player() { return player; },
+    get cat() { return Cat; },
   };
 })();

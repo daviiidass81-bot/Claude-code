@@ -165,7 +165,25 @@ const Blackjack = (() => {
 
   function setMsg(t) { el.msg.textContent = t; el.msg.classList.remove('pop'); void el.msg.offsetWidth; el.msg.classList.add('pop'); }
 
+  // Was die Runde auszahlt, wenn ab jetzt alle Hände stehen – für die Abrechnung bei Neuladen
+  function standValue() {
+    const sim = shoe.slice(), draw = () => sim.pop() || { r: '10', s: '♠' };
+    const hs = hands.map(h => ({ cards: h.cards.map(c => ({ r: c.r, s: c.s })), bet: h.bet }));
+    const dc = dealer ? dealer.cards.map(c => ({ r: c.r, s: c.s })) : [];
+    if (hs.length === 1) while (hs[0].cards.length + dc.length < 4) (hs[0].cards.length <= dc.length ? hs[0].cards : dc).push(draw());
+    hs.forEach(h => { while (h.cards.length < 2) h.cards.push(draw()); });
+    const v = cs => value(cs).t;
+    if (hs.some(h => v(h.cards) <= 21) && !(hs.length === 1 && isBJ(hs[0].cards))) while (v(dc) < 17) dc.push(draw());
+    const d = v(dc), dBJ = isBJ(dc);
+    return hs.reduce((sum, h) => {
+      const p = v(h.cards), pBJ = hs.length === 1 && isBJ(h.cards);
+      if (pBJ) return sum + (dBJ ? h.bet : h.bet * 2.5);
+      if (p > 21 || dBJ) return sum;
+      return sum + (d > 21 || p > d ? h.bet * 2 : p === d ? h.bet : 0);
+    }, 0);
+  }
   function setControls() {
+    if ((phase === 'deal' || phase === 'play' || phase === 'dealer') && hands.length) Store.settle('blackjack', standValue());
     const betting = phase === 'bet';
     el.betting.hidden = !betting;
     el.actions.hidden = phase !== 'play';
@@ -240,6 +258,7 @@ const Blackjack = (() => {
     pending = 0; renderStack();
     setControls();
     setMsg('Karten werden ausgeteilt …');
+    Store.settle('blackjack', standValue());
     await dealTo(h); await dealTo(dealer); await dealTo(h); await dealTo(dealer, false);
 
     const up = dealer.cards[0];

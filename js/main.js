@@ -329,6 +329,42 @@ const Icons = (() => {
       card(-12, -0.2, '9'); card(12, 0.18, 'K');
       [['#2f7bff', 30], ['#e0103a', 66]].forEach(([c, cx]) => { g.fillStyle = c; g.beginPath(); g.ellipse(cx, 80, 14, 6, 0, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.stroke(); });
     }
+    else if (kind === 'cat') {
+      const fur = arg === 'gold' ? '#ffb347' : '#f0a860';
+      g.fillStyle = fur;
+      g.beginPath(); g.moveTo(20, 40); g.lineTo(26, 12); g.lineTo(42, 30); g.closePath(); g.fill();
+      g.beginPath(); g.moveTo(76, 40); g.lineTo(70, 12); g.lineTo(54, 30); g.closePath(); g.fill();
+      const fg = g.createRadialGradient(40, 44, 4, 48, 52, 32); fg.addColorStop(0, '#ffd8a0'); fg.addColorStop(1, '#d07a30');
+      g.fillStyle = fg; g.beginPath(); g.ellipse(48, 54, 30, 26, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ff9ab8'; [[27, 26], [69, 26]].forEach(([ex]) => { g.beginPath(); g.moveTo(ex - 3, 34); g.lineTo(ex + (ex < 48 ? 0 : 0), 20); g.lineTo(ex + 4 * (ex < 48 ? 1 : -1) + (ex < 48 ? 5 : -5), 32); g.closePath(); g.fill(); });
+      g.fillStyle = '#2a1a0a'; g.beginPath(); g.ellipse(37, 50, 4, 5.5, 0, 0, Math.PI * 2); g.ellipse(59, 50, 4, 5.5, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(38.5, 48, 1.6, 0, Math.PI * 2); g.arc(60.5, 48, 1.6, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ff6a8a'; g.beginPath(); g.moveTo(44, 60); g.lineTo(52, 60); g.lineTo(48, 65); g.closePath(); g.fill();
+      g.strokeStyle = 'rgba(60,30,10,0.7)'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(48, 65); g.quadraticCurveTo(44, 71, 40, 68); g.moveTo(48, 65); g.quadraticCurveTo(52, 71, 56, 68);
+      [[-1, 60], [-1, 64], [1, 60], [1, 64]].forEach(([d, wy]) => { g.moveTo(48 + d * 10, wy); g.lineTo(48 + d * 30, wy - 3 + (wy - 60)); }); g.stroke();
+      if (arg === 'gold') { g.fillStyle = '#ff3d8b'; g.font = '22px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('♥', 80, 78); }
+    } else if (kind === 'heart') {
+      const hg = g.createRadialGradient(40, 36, 4, 48, 50, 40); hg.addColorStop(0, '#ffc2dc'); hg.addColorStop(0.5, '#ff3d8b'); hg.addColorStop(1, '#9a0a4a');
+      g.fillStyle = hg; g.beginPath(); g.moveTo(48, 80);
+      g.bezierCurveTo(10, 56, 12, 20, 34, 20); g.bezierCurveTo(42, 20, 48, 28, 48, 32); g.bezierCurveTo(48, 28, 54, 20, 62, 20); g.bezierCurveTo(84, 20, 86, 56, 48, 80); g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.6)'; g.beginPath(); g.ellipse(34, 32, 7, 4, -0.6, 0, Math.PI * 2); g.fill();
+    } else if (kind === 'bus') {
+      const bg = g.createLinearGradient(0, 22, 0, 74); bg.addColorStop(0, '#ff6aa6'); bg.addColorStop(1, '#a0105a');
+      g.fillStyle = bg; g.beginPath(); g.roundRect ? g.roundRect(8, 22, 80, 50, 9) : g.rect(8, 22, 80, 50); g.fill();
+      g.fillStyle = 'rgba(160,220,255,0.85)'; for (let i = 0; i < 4; i++) g.fillRect(14 + i * 17, 30, 13, 16);
+      g.fillStyle = '#ffc94a'; g.fillRect(8, 52, 80, 4);
+      g.fillStyle = '#111'; [28, 70].forEach(wx => { g.beginPath(); g.arc(wx, 74, 9, 0, Math.PI * 2); g.fill(); });
+      g.fillStyle = '#8a8298'; [28, 70].forEach(wx => { g.beginPath(); g.arc(wx, 74, 3.5, 0, Math.PI * 2); g.fill(); });
+    } else if (kind === 'hat') {
+      g.save(); g.translate(48, 72); g.scale(2.4, 2.4); Avatar.drawHat(g, arg || 'tophat', 0, false, 1, 0, '#ffc94a'); g.restore();
+    } else if (kind === 'swing') {
+      g.strokeStyle = '#c9a8ff'; g.lineWidth = 5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(14, 84); g.lineTo(26, 14); g.lineTo(70, 14); g.lineTo(82, 84); g.stroke();
+      g.strokeStyle = '#e8e0f0'; g.lineWidth = 2; g.beginPath(); g.moveTo(40, 14); g.lineTo(34, 60); g.moveTo(56, 14); g.lineTo(50, 60); g.stroke();
+      g.fillStyle = '#ff3d8b'; g.beginPath(); g.roundRect ? g.roundRect(29, 58, 26, 6, 3) : g.rect(29, 58, 26, 6); g.fill();
+      g.fillStyle = '#ffc94a'; g.font = '20px serif'; g.textAlign = 'center'; g.fillText('★', 70, 48);
+    }
     const u = c.toDataURL();
     cache.set(spec, u);
     return u;
@@ -374,6 +410,12 @@ const Achievements = (() => {
     { id: 'hilo_5', icon: 'hilo', name: 'Kartenleser', desc: 'Rate beim Hi-Lo 5-mal in Folge richtig.' },
     { id: 'bacc_tie', icon: 'bacc', name: 'Patt-Profi', desc: 'Gewinne beim Baccarat eine Unentschieden-Wette.' },
     { id: 'explorer', icon: 'sym:clover', name: 'Nachtschwärmer', desc: 'Spiele an allen 12 Tischen und Automaten.' },
+    { id: 'cat_pet', icon: 'cat', name: 'Samtpfote', desc: 'Streichle Katze Mimi in der Nachbarschaft.' },
+    { id: 'cat_best', icon: 'cat:gold', name: 'Beste Freunde', desc: 'Bring Mimis Zuneigung auf 100 %.' },
+    { id: 'cat_follow', icon: 'heart', name: 'Treue Begleiterin', desc: 'Nimm Mimi mit dem Bus an einen anderen Ort mit.' },
+    { id: 'traveler', icon: 'bus', name: 'Stadtbummel', desc: 'Besuche alle fünf Orte der Stadt.' },
+    { id: 'hat', icon: 'hat:tophat', name: 'Gut behütet', desc: 'Kauf dir einen Hut beim Hutmacher.' },
+    { id: 'playground', icon: 'swing', name: 'Kind geblieben', desc: 'Probiere alles auf dem Spielplatz aus.' },
     { id: 'level_5', icon: 'lvl:5', name: 'Stammgast', desc: 'Erreiche Level 5.' },
     { id: 'level_10', icon: 'lvl:10', name: 'VIP-Lounge', desc: 'Erreiche Level 10.' },
     { id: 'rich_10k', icon: 'coins:3', name: 'Fünfstellig', desc: 'Besitze 10.000 Münzen.' },
@@ -414,6 +456,15 @@ const Achievements = (() => {
     if (ev.type === 'keno') { played('keno'); if (ev.hits >= 6) unlock('keno_6'); }
     if (ev.type === 'hilo' || ev.type === 'hiloStep') { played('hilo'); if (ev.streak >= 5) unlock('hilo_5'); }
     if (ev.type === 'baccarat') { played('baccarat'); if (ev.tieWin) unlock('bacc_tie'); }
+    if (ev.type === 'catPet') unlock('cat_pet');
+    if (ev.type === 'cat' && ev.aff >= 100) unlock('cat_best');
+    if (ev.type === 'travel') {
+      const v = s.visited || (s.visited = {}); v[ev.zone] = 1; v.plaza = 1; Store.save();
+      if (['plaza', 'neighborhood', 'mall', 'market', 'playground'].every(z => v[z])) unlock('traveler');
+      if (ev.withCat) unlock('cat_follow');
+    }
+    if (ev.type === 'shop' && ev.item.startsWith('hat:')) unlock('hat');
+    if (ev.type === 'playground' && ev.all) unlock('playground');
     if (ev.type === 'levelup' || ev.type === 'xp') { if (s.level >= 5) unlock('level_5'); if (s.level >= 10) unlock('level_10'); }
     if (ev.type === 'balance') { if (s.balance >= 10000) unlock('rich_10k'); if (s.balance >= 100000) unlock('rich_100k'); }
   }
@@ -451,6 +502,7 @@ const AvatarEditor = (() => {
     $$('#avOutfit .swatch').forEach((b, i) => b.classList.toggle('on', a.outfit === i));
     $$('#avAccent .swatch').forEach(b => b.classList.toggle('on', b.style.getPropertyValue('--c') === a.accent));
     $$('#avStyle button').forEach(b => b.classList.toggle('on', b.dataset.style === a.style));
+    $$('#avHat button').forEach(b => b.classList.toggle('on', (b.dataset.hat || null) === (a.hat || null)));
     $('#avGlasses').classList.toggle('on', !!a.glasses);
     $('#avGlasses').setAttribute('aria-pressed', !!a.glasses);
   }
@@ -487,14 +539,21 @@ const AvatarEditor = (() => {
     e.preventDefault();
     a.name = ($('#avName').value || '').trim().slice(0, 14) || 'Gast';
     Store.s.avatar = { ...a }; Store.save();
-    Floor.refreshAvatar();
+    Floor.refreshAvatar(); Town.refreshAvatar();
     Sfx.win(1);
     App.closeModal(true);
     Profile.render();
     Toast.show(I18N.t('Willkommen, {0}!', a.name), 'Lauf durch die Halle und such dir einen Tisch aus.', '★', 'ach');
   });
+  function renderHats() {
+    const hats = (Store.s.inv && Store.s.inv.hats) || [];
+    $('#avHatField').hidden = !hats.length;
+    const NAMES = { cap: 'Basecap', beanie: 'Mütze', party: 'Partyhut', cowboy: 'Cowboyhut', tophat: 'Zylinder', crown: 'Krone' };
+    $('#avHat').innerHTML = `<button type="button" data-hat="">${I18N.t('Ohne')}</button>` + hats.map(h => `<button type="button" data-hat="${h}">${I18N.t(NAMES[h] || h)}</button>`).join('');
+    $$('#avHat button').forEach(b => b.addEventListener('click', () => { Sfx.click(); a.hat = b.dataset.hat || null; mark(); }));
+  }
   return {
-    open() { a = Avatar.load(); $('#avName').value = a.name === 'Gast' && !Store.s.avatar ? '' : a.name; mark(); open = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(loop); },
+    open() { a = Avatar.load(); renderHats(); $('#avName').value = a.name === 'Gast' && !Store.s.avatar ? '' : a.name; mark(); open = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(loop); },
     close() { open = false; },
   };
 })();
@@ -570,7 +629,7 @@ const Loader = (() => {
 
 /* ---------- App / Navigation ---------- */
 const App = (() => {
-  const views = { floor: Floor, lobby: null, slots: Slots, plinko: Plinko, blackjack: Blackjack, roulette: Roulette, crash: Crash, mines: Mines, scratch: Scratch, dice: Dice, poker: VideoPoker, keno: Keno, hilo: HiLo, baccarat: Baccarat };
+  const views = { floor: Floor, lobby: null, slots: Slots, plinko: Plinko, blackjack: Blackjack, roulette: Roulette, crash: Crash, mines: Mines, scratch: Scratch, dice: Dice, poker: VideoPoker, keno: Keno, hilo: HiLo, baccarat: Baccarat, town: Town };
   let current = null, shownBalance = Store.s.balance, openModalId = null;
   const fade = $('#fade');
 
@@ -585,7 +644,7 @@ const App = (() => {
     window.scrollTo(0, 0);
     if (views[name]) views[name].show();
     if (name === 'lobby') { renderStats(); Achievements.render(); Profile.show(); }
-    if (name !== 'floor' && name !== 'lobby') Floor.placeAt(name);
+    if (name !== 'floor' && name !== 'lobby' && name !== 'town') Floor.placeAt(name);
   }
 
   function route() {
@@ -702,12 +761,14 @@ const App = (() => {
   function buildGamesMenu() {
     const box = $('#gamesMenu');
     box.innerHTML = GAMES.map(gm => `<button type="button" class="gm-item" data-game="${gm.id}" style="--c:${gm.color}"><img alt="" src="${Icons.url(gm.icon)}"><span><b>${gm.name}</b><small>${gm.sub}</small></span></button>`).join('') +
+      `<button type="button" class="gm-item" data-game="town" style="--c:#ff6aa6"><img alt="" src="${Icons.url('bus')}"><span><b>${I18N.t('Raus in die Stadt')}</b><small>${I18N.t('Nachbarschaft, Mall, Markt, Spielplatz')}</small></span></button>` +
       `<button type="button" class="gm-item" data-game="wheel" style="--c:#ffc94a"><span class="gm-wheel"></span><span><b>Bonusrad</b><small>${Wheel.ready() ? 'Gratis-Dreh bereit' : 'lädt noch'}</small></span></button>`;
     $$('.gm-item', box).forEach(b => b.addEventListener('click', () => {
       Sfx.click();
       const id = b.dataset.game;
       closeModal();
       if (id === 'wheel') { setTimeout(() => openModal('modal-wheel'), 260); return; }
+      if (id === 'town') { if (current === 'town') return; Store.s.town = { zone: (Store.s.town && Store.s.town.zone) || 'plaza' }; enter('town'); return; }
       Floor.placeAt(id);
       enter(id);
     }));
@@ -752,7 +813,7 @@ const App = (() => {
 
   document.addEventListener('keydown', e => {
     if (Loader.open) return; // Ladebildschirm zuerst bestätigen
-    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'Escape') { if (!openModalId && current === 'town' && Town.key(e)) return; closeModal(); return; }
     if (openModalId || e.target.closest('input, textarea, select')) return;
     if (e.target.closest('button') && (e.code === 'Space' || e.code === 'Enter')) return; // Button-Klick nicht doppelt auslösen
     if (current !== 'floor' && current !== 'lobby' && e.code === 'Escape') return;
@@ -805,11 +866,12 @@ const App = (() => {
   return {
     init() {
       I18N.start();
+      const cf = $('.cat-face'); if (cf) cf.style.setProperty('--cat-icon', `url(${Icons.url('cat')})`);
       const refund = Store.refundPending();
       shownBalance = Store.s.balance;
       balEl.textContent = U.fmt(Store.s.balance);
       const afterLoad = () => {
-        if (refund) setTimeout(() => Toast.show(I18N.t('Offene Runde erstattet'), I18N.t('{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', U.fmt(refund)), '↺', 'ach'), 600);
+        if (refund) setTimeout(() => Toast.show(I18N.t('Offene Runde abgerechnet'), I18N.t('{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', U.fmt(refund)), '↺', 'ach'), 600);
         if (!Store.s.avatar) setTimeout(() => openModal('modal-avatar'), 450);
       };
       updateXp(); updateBonus(); route();

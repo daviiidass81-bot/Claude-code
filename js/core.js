@@ -120,7 +120,9 @@ const Store = (() => {
     },
     // Laufende Einsätze vormerken, damit ein Neuladen mitten in der Runde nichts kostet
     hold(game, amt) { const p = s.pending || (s.pending = {}); p[game] = (p[game] || 0) + amt; flush(); },
-    release(game) { if (s.pending && s.pending[game]) { delete s.pending[game]; save(); } },
+    // Steht das Ergebnis schon fest, wird beim Neuladen genau das ausgezahlt (kein Abbrechen schlechter Runden)
+    settle(game, v) { const p = s.pending; if (p && p[game] != null) { p[game] = Math.max(0, Math.floor(v)); flush(); } },
+    release(game) { if (s.pending && s.pending[game] != null) { delete s.pending[game]; save(); } },
     refundPending() {
       const p = s.pending || {}, sum = Object.values(p).reduce((a, b) => a + b, 0);
       s.pending = {};
@@ -329,5 +331,29 @@ const Sfx = (() => {
     scratch() { noise({ dur: 0.06, vol: 0.05, freq: 5200 + Math.random() * 2000, q: 1.5, type: 'highpass' }); },
     diceShake() { for (let i = 0; i < 6; i++) noise({ dur: 0.04, vol: 0.12, freq: 2200 + Math.random() * 1500, q: 3, at: i * 0.06 }); },
     diceLand() { noise({ dur: 0.05, vol: 0.2, freq: 1400, q: 1.5 }); tone(220, { type: 'triangle', dur: 0.06, vol: 0.12 }); },
+    // Stadt
+    meow() {
+      const b = 620 + Math.random() * 180;
+      tone(b, { type: 'triangle', dur: 0.16, vol: 0.09, slide: b * 1.45, attack: 0.03 });
+      tone(b * 1.45, { type: 'triangle', dur: 0.32, vol: 0.08, slide: b * 0.8, at: 0.15 });
+      tone(b * 2.9, { type: 'sine', dur: 0.4, vol: 0.02, slide: b * 1.6, at: 0.05 });
+    },
+    purr() {
+      for (let i = 0; i < 22; i++) noise({ dur: 0.05, vol: 0.09 * (1 - Math.abs(i - 11) / 14), freq: 140, q: 0.9, type: 'lowpass', at: i * 0.045 });
+      tone(48, { type: 'sine', dur: 1, vol: 0.05, attack: 0.2 });
+    },
+    busArrive() {
+      tone(55, { type: 'sawtooth', dur: 1.6, vol: 0.05, slide: 38, attack: 0.3 });
+      noise({ dur: 1.4, vol: 0.06, freq: 180, q: 0.6, type: 'lowpass' });
+      noise({ dur: 0.5, vol: 0.06, freq: 4500, q: 1, type: 'highpass', at: 1.3 });
+    },
+    busLeave() {
+      tone(38, { type: 'sawtooth', dur: 1.8, vol: 0.06, slide: 70, attack: 0.1 });
+      noise({ dur: 1.6, vol: 0.07, freq: 160, q: 0.6, type: 'lowpass', sweep: 420 });
+    },
+    busDoor() {
+      noise({ dur: 0.45, vol: 0.08, freq: 3800, q: 0.8, type: 'highpass', sweep: 1600 });
+      tone(N(84), { type: 'sine', dur: 0.35, vol: 0.07, at: 0.3 }); tone(N(79), { type: 'sine', dur: 0.45, vol: 0.07, at: 0.55 });
+    },
   };
 })();

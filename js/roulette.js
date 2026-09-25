@@ -277,6 +277,7 @@ const Roulette = (() => {
     renderBets();
     setMsg('Nichts geht mehr!');
     const result = Math.floor(Math.random() * 37);
+    Store.settle('roulette', Object.entries(bets).reduce((s, [k, v]) => s + (BETS[k].nums.includes(result) ? v * BETS[k].pay : 0), 0));
     await spinWheel(result);
     // Auswertung
     let ret = 0, straightHit = false;

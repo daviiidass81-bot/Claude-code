@@ -71,6 +71,7 @@ const Mines = (() => {
     const c = FX.center(t);
     FX.stars(c.x, c.y, 8, '#aef6ff');
     const m = multFor(found);
+    Store.settle('mines', bet * m);
     el.mult.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' });
     if (found === SIZE - mines) { cashOut(); return; }
     setMsg(`${found} ${found === 1 ? 'Juwel' : 'Juwelen'} – Gewinn jetzt ${U.fmt(Math.floor(bet * m))}.`);

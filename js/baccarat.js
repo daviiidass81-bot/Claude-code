@@ -58,6 +58,30 @@ const Baccarat = (() => {
   }
   function showVal(elV, cs) { elV.textContent = total(cs); elV.hidden = false; elV.animate([{ transform: 'scale(1.4)' }, { transform: 'scale(1)' }], { duration: 250 }); }
 
+  // Kompletter Coup nach Punto-Banco-Regeln – steht fest, bevor die erste Karte fällt
+  function coup() {
+    const P = [drawCard()], B = [drawCard()];
+    P.push(drawCard()); B.push(drawCard());
+    let p3 = null;
+    if (total(P) < 8 && total(B) < 8) {
+      if (total(P) <= 5) { P.push(drawCard()); p3 = val(P[2]); }
+      const bt = total(B);
+      const bankerDraws = p3 === null ? bt <= 5
+        : bt <= 2 || (bt === 3 && p3 !== 8) || (bt === 4 && p3 >= 2 && p3 <= 7) || (bt === 5 && p3 >= 4 && p3 <= 7) || (bt === 6 && (p3 === 6 || p3 === 7));
+      if (bankerDraws) B.push(drawCard());
+    }
+    const pt = total(P), bt = total(B);
+    return { P, B, pt, bt, res: pt > bt ? 'player' : bt > pt ? 'banker' : 'tie' };
+  }
+  function payout(res) {
+    let ret = 0;
+    for (const [k, v] of Object.entries(bets)) {
+      if (k === res) ret += Math.floor(v * PAY[k]);
+      else if (res === 'tie' && k !== 'tie') ret += v; // bei Unentschieden: Spieler-/Bankwetten zurück
+    }
+    return ret;
+  }
+
   async function play() {
     if (busy) return;
     Sfx.init();
@@ -67,51 +91,48 @@ const Baccarat = (() => {
     Store.hold('baccarat', t);
     Store.stat('baccRounds');
     busy = true; lastBets = { ...bets }; render();
-    el.pCards.innerHTML = ''; el.bCards.innerHTML = ''; el.pVal.hidden = el.bVal.hidden = true;
-    el.table.classList.remove('p-win', 'b-win', 't-win');
-    $$('.bc-spot').forEach(s => s.classList.remove('won', 'lost'));
-    const P = [], B = [];
-    setMsg(I18N.t('Karten werden ausgeteilt …'));
-    await deal1(el.pCards, P, drawCard()); await deal1(el.bCards, B, drawCard());
-    await deal1(el.pCards, P, drawCard()); showVal(el.pVal, P);
-    await deal1(el.bCards, B, drawCard()); showVal(el.bVal, B);
-    let pt = total(P), bt = total(B);
-    if (pt < 8 && bt < 8) {
-      let p3 = null;
-      if (pt <= 5) { await U.sleep(250); setMsg(I18N.t('Spieler zieht eine dritte Karte')); await deal1(el.pCards, P, drawCard()); p3 = val(P[2]); pt = total(P); showVal(el.pVal, P); }
-      let bankerDraws;
-      if (p3 === null) bankerDraws = bt <= 5;
-      else bankerDraws = bt <= 2 || (bt === 3 && p3 !== 8) || (bt === 4 && p3 >= 2 && p3 <= 7) || (bt === 5 && p3 >= 4 && p3 <= 7) || (bt === 6 && (p3 === 6 || p3 === 7));
-      if (bankerDraws) { await U.sleep(250); setMsg(I18N.t('Bank zieht eine dritte Karte')); await deal1(el.bCards, B, drawCard()); bt = total(B); showVal(el.bVal, B); }
-    }
-    await U.sleep(350);
-    const res = pt > bt ? 'player' : bt > pt ? 'banker' : 'tie';
-    let ret = 0;
-    for (const [k, v] of Object.entries(bets)) {
-      if (k === res) ret += Math.floor(v * PAY[k]);
-      else if (res === 'tie' && k !== 'tie') ret += v; // bei Unentschieden: Spieler-/Bankwetten zurück
-    }
+    const C = coup(), ret = payout(C.res);
+    Store.settle('baccarat', ret);
+    try {
+      el.pCards.innerHTML = ''; el.bCards.innerHTML = ''; el.pVal.hidden = el.bVal.hidden = true;
+      el.table.classList.remove('p-win', 'b-win', 't-win');
+      $$('.bc-spot').forEach(s => s.classList.remove('won', 'lost', 'push'));
+      const P = [], B = [];
+      setMsg(I18N.t('Karten werden ausgeteilt …'));
+      await deal1(el.pCards, P, C.P[0]); await deal1(el.bCards, B, C.B[0]);
+      await deal1(el.pCards, P, C.P[1]); showVal(el.pVal, P);
+      await deal1(el.bCards, B, C.B[1]); showVal(el.bVal, B);
+      if (C.P[2]) { await U.sleep(250); setMsg(I18N.t('Spieler zieht eine dritte Karte')); await deal1(el.pCards, P, C.P[2]); showVal(el.pVal, P); }
+      if (C.B[2]) { await U.sleep(250); setMsg(I18N.t('Bank zieht eine dritte Karte')); await deal1(el.bCards, B, C.B[2]); showVal(el.bVal, B); }
+      await U.sleep(350);
+    } catch (e) { console.error(e); }
+    const { res, pt, bt } = C;
+    // erst auszahlen, dann aufräumen – so geht nie ein Einsatz verloren
     Store.release('baccarat');
-    for (const k of Object.keys(bets)) spot(k).classList.add(k === res ? 'won' : res === 'tie' && k !== 'tie' ? '' : 'lost');
-    el.table.classList.add(res === 'player' ? 'p-win' : res === 'banker' ? 'b-win' : 't-win');
-    const label = res === 'player' ? I18N.t('Spieler gewinnt') : res === 'banker' ? I18N.t('Bank gewinnt') : I18N.t('Unentschieden');
     const net = ret - t;
     if (ret > 0) Store.win(ret, net);
-    if (net > 0) {
-      const c = FX.center(spot(res));
-      FX.coins(c.x, c.y, Math.min(45, 10 + Math.round(ret / t * 4)), 1);
-      Sfx.win(res === 'tie' ? 3 : 2);
-      setMsg(I18N.t('{0} ({1}:{2}) – du gewinnst {3} Münzen!', label, pt, bt, U.fmt(ret)));
-    } else if (ret > 0) { Sfx.push(); setMsg(I18N.t('{0} ({1}:{2}) – Einsatz zurück.', label, pt, bt)); }
-    else { Sfx.lose(); setMsg(I18N.t('{0} ({1}:{2}).', label, pt, bt)); }
-    road.push(res[0]); if (road.length > 48) road.shift();
-    renderRoad();
-    Store.emit({ type: 'baccarat', res, win: ret, bet: t, tieWin: res === 'tie' && !!bets.tie, net });
-    await U.sleep(700);
-    bets = {}; busy = false; render();
+    try {
+      for (const k of Object.keys(bets)) spot(k).classList.add(k === res ? 'won' : res === 'tie' && k !== 'tie' ? 'push' : 'lost');
+      el.table.classList.add(res === 'player' ? 'p-win' : res === 'banker' ? 'b-win' : 't-win');
+      const label = res === 'player' ? I18N.t('Spieler gewinnt') : res === 'banker' ? I18N.t('Bank gewinnt') : I18N.t('Unentschieden');
+      if (net > 0) {
+        const c = FX.center(spot(res));
+        FX.coins(c.x, c.y, Math.min(45, 10 + Math.round(ret / t * 4)), 1);
+        Sfx.win(res === 'tie' ? 3 : 2);
+        setMsg(I18N.t('{0} ({1}:{2}) – du gewinnst {3} Münzen!', label, pt, bt, U.fmt(ret)));
+      } else if (net === 0) { Sfx.push(); setMsg(I18N.t('{0} ({1}:{2}) – Einsatz zurück.', label, pt, bt)); }
+      else if (ret > 0) { Sfx.lose(); setMsg(I18N.t('{0} ({1}:{2}) – {3} von {4} zurück.', label, pt, bt, U.fmt(ret), U.fmt(t))); }
+      else { Sfx.lose(); setMsg(I18N.t('{0} ({1}:{2}).', label, pt, bt)); }
+      road.push(res[0]); if (road.length > 48) road.shift();
+      renderRoad();
+      Store.emit({ type: 'baccarat', res, win: ret, bet: t, tieWin: res === 'tie' && !!bets.tie, net });
+      await U.sleep(700);
+    } finally { bets = {}; busy = false; render(); }
   }
   function renderRoad() {
-    el.road.innerHTML = road.map(r => `<i class="${r}">${r === 'p' ? 'S' : r === 'b' ? 'B' : 'U'}</i>`).join('');
+    const L = { p: [I18N.t('S'), I18N.t('Spieler')], b: [I18N.t('B'), I18N.t('Bank')], t: [I18N.t('U'), I18N.t('Unentschieden')] };
+    el.road.dataset.empty = `${L.p[0]} · ${L.b[0]} · ${L.t[0]}`;
+    el.road.innerHTML = road.map(r => `<i class="${r}" title="${L[r][1]}">${L[r][0]}</i>`).join('');
   }
 
   $$('.bc-spot').forEach(s => {
@@ -125,8 +146,8 @@ const Baccarat = (() => {
     if (!t || t > Store.s.balance) { Sfx.error(); return; }
     Sfx.chip(); bets = { ...lastBets }; render();
   });
-  I18N.onChange(render);
-  buildShoe(); render();
+  I18N.onChange(() => { render(); renderRoad(); });
+  buildShoe(); render(); renderRoad();
 
   return {
     show() { render(); if (!road.length) setMsg(I18N.t('Setze auf Spieler, Bank oder Unentschieden.')); },

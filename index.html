@@ -79,6 +79,36 @@
     <button class="floor-action" id="floorAction" type="button" disabled><b>Aktion</b></button>
   </section>
 
+  <!-- ================= STADT ================= -->
+  <section class="view" id="view-town" aria-label="Stadt">
+    <canvas id="townCanvas"></canvas>
+    <div class="town-zone" id="townZone" aria-live="polite"></div>
+    <div class="floor-prompt" id="townPrompt" hidden>
+      <b id="townPromptName"></b><small id="townPromptSub"></small>
+      <span class="fp-key"><kbd>E</kbd> <span id="townPromptKey">benutzen</span></span><span class="fp-tap">Tippen zum Benutzen</span>
+    </div>
+    <div class="floor-help"><kbd>WASD</kbd> / <kbd>Pfeile</kbd> laufen · <kbd>E</kbd> benutzen · Bushaltestelle = andere Orte</div>
+    <div class="joy" id="townJoy" aria-hidden="true"><div class="joy-knob" id="townKnob"></div></div>
+    <button class="floor-action" id="townAction" type="button" disabled><b>Aktion</b></button>
+
+    <div class="cat-panel" id="catPanel" hidden role="dialog" aria-labelledby="catName">
+      <button class="close-x" id="catClose" type="button" aria-label="Schließen">×</button>
+      <div class="cat-head">
+        <span class="cat-face" aria-hidden="true"></span>
+        <div><b id="catName">Mimi</b><small id="catLevel">Scheu</small></div>
+      </div>
+      <div class="cat-meter" title="Zuneigung"><i id="catHearts"></i></div>
+      <p class="cat-msg" id="catMsg"></p>
+      <div class="cat-actions">
+        <button type="button" id="catPet" class="cat-btn"><span class="cb-ico">✋</span><b>Streicheln</b></button>
+        <button type="button" id="catFeed" class="cat-btn"><span class="cb-ico">🥣</span><b>Füttern</b><small>× 0</small></button>
+        <button type="button" id="catTreat" class="cat-btn"><span class="cb-ico">🐟</span><b>Leckerli</b><small>× 0</small></button>
+        <button type="button" id="catPlay" class="cat-btn"><span class="cb-ico">🧶</span><b>Spielen</b></button>
+        <button type="button" id="catFollow" class="cat-btn wide"><span class="cb-ico">🐾</span><b>Folge mir</b></button>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= PROFIL ================= -->
   <section class="view" id="view-lobby">
     <div class="game-head">
@@ -486,7 +516,7 @@
     <div class="keno-layout">
       <div class="panel keno-main">
         <div class="kn-board" id="knBoard"></div>
-        <div class="kn-draw"><small>Gezogen</small><div class="kn-balls" id="knBalls"></div><span class="kn-hits">Treffer <b id="knHits">0</b></span></div>
+        <div class="kn-draw"><small>Gezogen</small><div class="kn-balls" id="knBalls"></div><span class="kn-hits">Treffer <b id="knHits">0</b></span><span class="kn-cur">Gewinn <b id="knCur">0</b></span></div>
         <p class="kn-msg" id="knMsg" aria-live="polite"></p>
       </div>
       <aside class="panel keno-side">
@@ -606,6 +636,7 @@
         <div class="field"><label>Haarfarbe</label><div class="swatches" id="avHair"></div></div>
         <div class="field"><label>Anzug</label><div class="swatches" id="avOutfit"></div></div>
         <div class="field"><label>Krawatte</label><div class="swatches" id="avAccent"></div></div>
+        <div class="field" id="avHatField" hidden><label>Hut</label><div class="seg small" id="avHat"></div></div>
         <div class="av-row"><button class="toggle" id="avGlasses" type="button" aria-pressed="false">Sonnenbrille</button><button class="ghost-btn" id="avRandom" type="button">Zufall</button></div>
       </div>
     </div>
@@ -632,6 +663,25 @@
     <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
     <h2 id="ptTitle">Gewinntabelle</h2>
     <div id="paytableBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="modal-shop" hidden role="dialog" aria-modal="true" aria-labelledby="shopTitle">
+  <div class="modal-box shop-box">
+    <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
+    <h2 id="shopTitle">Laden</h2>
+    <p class="modal-sub" id="shopSub"></p>
+    <div class="shop-items" id="shopItems"></div>
+    <p class="shop-inv" id="shopInv"></p>
+  </div>
+</div>
+
+<div class="modal" id="modal-bus" hidden role="dialog" aria-modal="true" aria-labelledby="busTitle">
+  <div class="modal-box bus-box">
+    <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
+    <h2 id="busTitle">Neon Line 7</h2>
+    <p class="modal-sub">Wohin soll die Fahrt gehen? Die Fahrt ist kostenlos.</p>
+    <div class="bus-list" id="busList"></div>
   </div>
 </div>
 
@@ -675,6 +725,7 @@
 <script src="js/hilo.js"></script>
 <script src="js/baccarat.js"></script>
 <script src="js/floor.js"></script>
+<script src="js/town.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

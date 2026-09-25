@@ -91,6 +91,7 @@ const Dice = (() => {
     $$('.dice-field').forEach(f => f.classList.remove('won', 'lost'));
     el.sum.classList.remove('show');
     const a = U.randInt(1, 6), b = U.randInt(1, 6);
+    Store.settle('dice', Object.entries(bets).reduce((s, [k, v]) => s + (FIELDS[k].test(a, b) ? Math.floor(v * FIELDS[k].pay) : 0), 0));
     Sfx.diceShake ? Sfx.diceShake() : Sfx.card();
     rot1 = animateDie(el.d1, a, rot1, 0, 0);
     rot2 = animateDie(el.d2, b, rot2, 90, 0);

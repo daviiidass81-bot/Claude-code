@@ -84,9 +84,11 @@ const Keno = (() => {
     const pool = Array.from({ length: N }, (_, i) => i + 1);
     for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
     const res = pool.slice(0, DRAW);
-    let hits = 0;
+    Store.settle('keno', b * (PAY[picks.size][res.filter(n => picks.has(n)).length] || 0));
+    let hits = 0, idx = 0;
+    const cur = $('#knCur'); cur.textContent = '0';
     for (const n of res) {
-      await U.sleep(U.reducedMotion ? 60 : 280);
+      await U.sleep(U.reducedMotion ? 60 : idx++ >= DRAW - 2 ? 620 : 300);
       drawn.push(n);
       const c = cell(n), hit = picks.has(n);
       c.classList.add('drawn'); if (hit) { c.classList.add('hit'); hits++; }
@@ -95,6 +97,7 @@ const Keno = (() => {
       ball.textContent = n;
       el.balls.appendChild(ball);
       el.hits.textContent = hits;
+      if (hit) { const w = Math.floor(b * (PAY[picks.size][hits] || 0)); if (w && cur.textContent !== U.fmt(w)) { cur.textContent = U.fmt(w); cur.classList.remove('bump'); void cur.offsetWidth; cur.classList.add('bump'); } }
       if (hit) { Sfx.gem(hits); const cc = FX.center(c); FX.stars(cc.x, cc.y, 6, '#fff2b0'); } else Sfx.bounce(0.6);
     }
     lastHits = hits;
@@ -106,7 +109,7 @@ const Keno = (() => {
       const cc = FX.center(el.board);
       if (win > b) { FX.coins(cc.x, cc.y, Math.min(50, 10 + Math.round(mult * 2)), 1); Sfx.win(mult >= 20 ? 3 : 2); }
       else Sfx.push();
-      setMsg(I18N.t('{0} Richtige! Du gewinnst {1} Münzen.', hits, U.fmt(win)));
+      setMsg(win === b ? I18N.t('{0} Richtige – Einsatz zurück.', hits) : I18N.t('{0} Richtige! Du gewinnst {1} Münzen.', hits, U.fmt(win)));
       if (mult >= 20) Celebrate.bigWin(win, b);
     } else { Sfx.lose(); setMsg(I18N.t('{0} Richtige – leider kein Gewinn.', hits)); }
     Store.emit({ type: 'keno', hits, picks: picks.size, win, bet: b, mult });

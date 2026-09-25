@@ -31,7 +31,7 @@ const HiLo = (() => {
     const n = Blackjack.makeCard(c); n.classList.add('up', 'mini');
     const w = document.createElement('div'); w.className = 'hl-trail-item ' + (ok === true ? 'ok' : ok === false ? 'bad' : '');
     w.appendChild(n); el.trail.prepend(w);
-    while (el.trail.children.length > 7) el.trail.lastChild.remove();
+    while (el.trail.children.length > 12) el.trail.lastChild.remove();
   }
 
   async function start() {
@@ -42,7 +42,7 @@ const HiLo = (() => {
     if (!Store.bet(b)) { App.insufficient(b); return; }
     Store.hold('hilo', b);
     bet = b; mult = 1; streak = 0; skips = 3; playing = true; busy = true;
-    el.trail.innerHTML = ''; el.table.classList.remove('lost', 'won');
+    el.trail.innerHTML = ''; el.table.classList.remove('lost', 'won'); el.card.classList.remove('flash-bad'); el.mult.parentElement.classList.remove('lost');
     updateUI();
     cur = draw();
     await place(cur);
@@ -67,12 +67,15 @@ const HiLo = (() => {
       Sfx.gem(streak);
       el.mult.animate([{ transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 280 });
       setMsg(I18N.t('Richtig! Gewinn jetzt {0} Münzen.', U.fmt(Math.floor(bet * mult))));
+      Store.settle('hilo', bet * mult);
       Store.emit({ type: 'hiloStep', streak });
     } else {
       playing = false;
       Store.release('hilo');
       Sfx.lose(); FX.shake(el.table); el.table.classList.add('lost');
-      setMsg(I18N.t('Daneben! Einsatz verloren nach {0} Treffern.', streak));
+      el.card.classList.remove('flash-bad'); void el.card.offsetWidth; el.card.classList.add('flash-bad');
+      el.mult.parentElement.classList.add('lost');
+      setMsg(streak ? I18N.t('Daneben! Serie von {0} bei {1} gerissen – Einsatz verloren.', streak, fmtM(mult)) : I18N.t('Daneben! Gleich die erste Karte – Einsatz verloren.'));
       Store.emit({ type: 'hilo', win: 0, bet, streak });
     }
     busy = false; updateUI();

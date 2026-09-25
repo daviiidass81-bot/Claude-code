@@ -55,7 +55,6 @@ const Plinko = (() => {
     if (balls.length >= 40) return;
     const b = bet();
     if (!Store.bet(b)) { stopAuto(); App.insufficient(b); return; }
-    Store.hold('plinko', b);
     Store.stat('balls');
     const dirs = Array.from({ length: rows }, () => Math.random() < 0.5 ? 0 : 1);
     const pts = [];
@@ -68,7 +67,9 @@ const Plinko = (() => {
       k += dirs[r];
     }
     pts.push({ x: binX(k), y: binY + binH * 0.3, kind: 'bin', k });
-    balls.push({ pts, seg: 0, t: 0, dur: 0.3, x: pts[0].x, y: pts[0].y, trail: [], bet: b, k, rows, risk, hue: U.rand(0, 1) });
+    const due = Math.round(b * P.tables[rows][risk][k]);
+    Store.hold('plinko', due); // Ziel steht fest – bei Neuladen wird genau dieser Gewinn gutgeschrieben
+    balls.push({ pts, seg: 0, t: 0, dur: 0.3, x: pts[0].x, y: pts[0].y, trail: [], bet: b, due, k, rows, risk, hue: U.rand(0, 1) });
     setLock();
     if (!raf && active) { lastT = performance.now(); raf = requestAnimationFrame(loop); }
   }
@@ -94,7 +95,7 @@ const Plinko = (() => {
       binHit[p.k] = now;
       const m = P.tables[b.rows][b.risk][p.k];
       const win = Math.round(b.bet * m);
-      const p = Store.s.pending; if (p && p.plinko) { p.plinko = Math.max(0, p.plinko - b.bet); if (!p.plinko) Store.release('plinko'); }
+      const p = Store.s.pending; if (p && p.plinko != null) { p.plinko = Math.max(0, p.plinko - b.due); if (!p.plinko && !balls.some(o => o !== b && o.seg < o.pts.length - 1)) Store.release('plinko'); else Store.save(); }
       if (win > 0) Store.win(win, win - b.bet);
       Store.statMax('maxMult', m);
       Store.emit({ type: 'plinko', mult: m, win, bet: b.bet });

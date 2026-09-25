@@ -88,6 +88,7 @@ const Scratch = (() => {
     if (!Store.bet(p)) { App.insufficient(p); return; }
     Store.hold('scratch', p);
     price = p; outcome = makeOutcome();
+    Store.settle('scratch', outcome.win ? p * outcome.win.mult : 0);
     el.cover.style.pointerEvents = '';
     Store.stat('tickets');
     el.grid.innerHTML = outcome.grid.map(id => `<div class="sc-cell"><img alt="" src="${iconURL(id)}"></div>`).join('');

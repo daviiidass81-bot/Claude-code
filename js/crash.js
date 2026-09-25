@@ -187,6 +187,7 @@ const Crash = (() => {
     await U.sleep(900);
     if (phase !== 'launch') return;
     phase = 'fly'; t = 0;
+    { const at = autoTarget(); Store.settle('crash', at && crashAt >= at ? bet * at : 0); } // wer nicht aussteigt, verliert
     Store.stat('crashRounds');
     Sfx.rocket && Sfx.rocket(true);
     el.status.textContent = 'Die Rakete steigt!';

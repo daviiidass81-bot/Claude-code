@@ -425,6 +425,10 @@ const Slots = (() => {
     const grid = Array.from({ length: NR }, () => [randSym(), randSym(), randSym()]);
     Sfx.spinStart();
     if (!raf && active) raf = requestAnimationFrame(render);
+    if (!free) { // Ergebnis steht fest: bei Neuladen wird es ausgezahlt
+      const pre = evaluate(grid, b), psc = Math.min(5, pre.scat.length);
+      Store.settle('slots', pre.lines.reduce((s, w) => s + w.amount, 0) + (psc >= 3 ? S.scatterPays[psc][0] * b : 0));
+    }
     await startReels(grid);
 
     const ev = evaluate(grid, b);

@@ -1366,6 +1366,159 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
   .vp-pay th { font-size: 11px; }
 }
 
+/* ============================================================
+   Stadt
+   ============================================================ */
+body[data-view="town"] .wrap { max-width: none; padding: 0; }
+body[data-view="town"] { overflow: hidden; }
+#view-town { position: relative; overflow: hidden; height: calc(100vh - 61px); background: #07030c; touch-action: none; user-select: none; -webkit-user-select: none; }
+#view-town.active { animation: none; }
+#townCanvas { display: block; }
+body[data-view="town"] .toasts { top: calc(76px + env(safe-area-inset-top, 0px)); bottom: auto; left: 16px; right: auto; }
+.town-zone {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 2; padding: 7px 20px 8px; border-radius: 999px; pointer-events: none;
+  font: 15px var(--display); letter-spacing: 0.06em; color: #fff; white-space: nowrap;
+  background: linear-gradient(180deg, rgba(46, 24, 76, 0.92), rgba(20, 10, 34, 0.92)); border: 1px solid rgba(255, 106, 166, 0.5);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), 0 0 22px rgba(255, 61, 139, 0.22); text-shadow: 0 0 12px rgba(255, 61, 139, 0.8);
+}
+.town-zone::before { content: "●"; margin-right: 8px; font-size: 10px; vertical-align: 2px; color: #5dffb0; text-shadow: 0 0 8px #5dffb0; }
+
+/* Katzen-Menü */
+.cat-panel {
+  position: absolute; right: 18px; top: 70px; z-index: 5; width: min(340px, calc(100% - 32px)); padding: 16px 16px 14px; border-radius: 20px;
+  background: linear-gradient(180deg, rgba(52, 28, 84, 0.97), rgba(22, 12, 38, 0.97)); border: 1px solid rgba(255, 201, 74, 0.4);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.6), 0 0 34px rgba(255, 150, 60, 0.16); opacity: 0; transform: translateY(-10px) scale(0.97);
+  transition: opacity 0.2s, transform 0.22s cubic-bezier(.2, 1.3, .4, 1);
+}
+.cat-panel.show { opacity: 1; transform: none; }
+.cat-panel .close-x { top: 8px; right: 8px; }
+.cat-head { display: flex; align-items: center; gap: 12px; padding-right: 30px; }
+.cat-face {
+  flex: none; width: 54px; height: 54px; border-radius: 16px; background: radial-gradient(circle at 50% 60%, rgba(255, 170, 80, 0.28), rgba(255, 170, 80, 0) 70%), rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 201, 74, 0.3); position: relative;
+}
+.cat-face::after { content: ""; position: absolute; inset: 4px; background: var(--cat-icon) center / contain no-repeat; }
+.cat-head b { display: block; font: 20px var(--display); font-weight: 400; color: #fff; }
+.cat-head small { display: inline-block; margin-top: 3px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #2a0716; background: linear-gradient(90deg, #ffc94a, #ff9a3d); }
+.cat-meter { position: relative; height: 12px; margin: 14px 0 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; }
+.cat-meter i { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: inherit; background: linear-gradient(90deg, #ff6aa6, #ff3d8b 60%, #ffc94a); box-shadow: 0 0 14px rgba(255, 61, 139, 0.6); transition: width 0.5s cubic-bezier(.2, .9, .3, 1); }
+.cat-meter::after { content: "♥"; position: absolute; right: 6px; top: 50%; transform: translateY(-52%); font-size: 10px; color: #fff; opacity: 0.8; }
+.cat-msg { min-height: 2.6em; margin: 0 0 12px; font-size: 13.5px; line-height: 1.35; color: #f1e6ff; }
+.cat-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.cat-btn {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; cursor: pointer; text-align: left;
+  font: 700 14px var(--body); color: #fff; background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03)); border: 1px solid rgba(255, 255, 255, 0.14);
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+}
+.cat-btn:hover { border-color: rgba(255, 201, 74, 0.6); background: linear-gradient(180deg, rgba(255, 201, 74, 0.18), rgba(255, 201, 74, 0.05)); }
+.cat-btn:active { transform: scale(0.96); }
+.cat-btn .cb-ico { font-size: 18px; line-height: 1; }
+.cat-btn small { font-size: 12px; color: var(--muted); font-weight: 700; }
+.cat-btn.wide { grid-column: 1 / -1; }
+.cat-btn.locked { opacity: 0.5; }
+.cat-btn.locked::after { content: "🔒"; font-size: 12px; }
+#catPet { background: linear-gradient(180deg, rgba(255, 106, 166, 0.32), rgba(255, 61, 139, 0.12)); border-color: rgba(255, 106, 166, 0.55); }
+.float-text.heart { color: #ff3d8b; font-size: 26px; text-shadow: 0 0 12px rgba(255, 61, 139, 0.9), 0 2px 0 #7a0a3a; }
+.float-text.zzz { color: #c9e6ff; font-size: 18px; font-style: italic; text-shadow: 0 0 10px rgba(120, 180, 255, 0.8); }
+
+/* Läden */
+.shop-box { width: min(560px, 100%); }
+.shop-items { display: grid; gap: 10px; max-height: min(56vh, 520px); overflow: auto; margin: 6px -4px 0; padding: 4px; }
+.shop-item {
+  display: grid; grid-template-columns: 60px 1fr auto; align-items: center; gap: 14px; padding: 10px 12px 10px 10px; border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)); border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.shop-item img { width: 60px; height: 60px; border-radius: 12px; background: radial-gradient(circle at 50% 55%, rgba(157, 92, 255, 0.35), rgba(157, 92, 255, 0.04) 72%); }
+.shop-item.owned { border-color: rgba(93, 255, 176, 0.35); }
+.si-info b { display: block; font-size: 15px; color: #fff; }
+.si-info span { display: block; margin-top: 2px; font-size: 12.5px; color: var(--muted); line-height: 1.3; }
+.si-btn {
+  display: inline-flex; align-items: center; gap: 6px; min-width: 96px; justify-content: center; padding: 9px 14px; border: 0; border-radius: 12px; cursor: pointer;
+  font: 700 14px var(--body); color: #2a0716; background: linear-gradient(180deg, #ffe08a, var(--gold) 55%, #d88a10); box-shadow: 0 3px 0 #7a4400;
+}
+.si-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7a4400; }
+.si-btn:disabled { cursor: default; filter: grayscale(0.8) brightness(0.6); box-shadow: none; }
+.si-btn.wear { color: #fff; background: linear-gradient(180deg, #7a4dff, #4a1fc0); box-shadow: 0 3px 0 #22086a; }
+.si-btn .coin-icon { width: 16px; height: 16px; }
+.shop-inv { margin: 14px 0 0; font-size: 13px; color: var(--muted); text-align: center; }
+
+/* Bus */
+.bus-box { width: min(480px, 100%); }
+.bus-list { display: grid; gap: 9px; margin-top: 6px; }
+.bus-dest {
+  display: grid; grid-template-columns: 48px 1fr; align-items: center; gap: 14px; padding: 11px 14px; border-radius: 16px; cursor: pointer; text-align: left; color: #fff;
+  font: inherit; background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)); border: 1px solid rgba(255, 255, 255, 0.12); transition: transform 0.12s, border-color 0.15s, background 0.15s;
+}
+.bus-dest:hover:not(:disabled) { transform: translateX(4px); border-color: rgba(255, 106, 166, 0.65); background: linear-gradient(180deg, rgba(255, 61, 139, 0.2), rgba(255, 61, 139, 0.05)); }
+.bus-dest b { display: block; font: 16px var(--display); font-weight: 400; letter-spacing: 0.02em; }
+.bus-dest small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--muted); }
+.bd-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; font-size: 22px; color: #2a0716; background: linear-gradient(180deg, #ff8ab8, #ff3d8b); box-shadow: 0 4px 14px rgba(255, 61, 139, 0.35); }
+.bus-dest.here { opacity: 0.55; cursor: default; }
+.bus-dest.here .bd-icon { background: linear-gradient(180deg, #8affc8, #2fc080); }
+
+@media (max-width: 720px) {
+  #view-town { height: calc(100vh - 57px); }
+  body[data-view="town"] .toasts { top: calc(66px + env(safe-area-inset-top, 0px)); left: 12px; right: 12px; }
+  .town-zone { top: 10px; font-size: 13px; padding: 6px 16px; }
+  .cat-panel { left: 12px; right: 12px; top: auto; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: auto; }
+  .shop-item { grid-template-columns: 48px 1fr; }
+  .shop-item img { width: 48px; height: 48px; }
+  .si-btn { grid-column: 1 / -1; width: 100%; }
+}
+
+/* ---------- Feinschliff Runde 4 ---------- */
+.bc-spot.push { box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6); }
+.bc-road:empty::before { content: attr(data-empty); }
+/* Hi-Lo: größere Karte, klarere Zustände */
+#hlCard { --card-w: clamp(104px, 11vw, 138px); }
+.hl-trail { --card-w: 38px; flex-wrap: nowrap; overflow: hidden; justify-content: center; max-width: 100%; }
+.hl-card.flash-bad .card .front { box-shadow: 0 0 0 4px var(--bad), 0 0 40px rgba(255, 93, 108, 0.8); }
+.hl-card.flash-bad { animation: hlBad 0.5s ease-in-out; }
+@keyframes hlBad { 20%, 60% { transform: translateX(-8px) rotate(-2deg); } 40%, 80% { transform: translateX(8px) rotate(2deg); } }
+.hl-skip { border: 1.5px solid rgba(255, 201, 74, 0.7) !important; color: var(--gold) !important; background: rgba(255, 201, 74, 0.08) !important; }
+.hl-skip:disabled { border-color: rgba(255, 255, 255, 0.15) !important; color: var(--muted) !important; background: transparent !important; }
+.hl-guess { min-height: 118px; }
+.hl-stats div.lost b { color: var(--bad); }
+/* Keno: Kugeln rollen ein, laufender Gewinn */
+.kn-ball { animation: knRoll 0.42s cubic-bezier(.2, 1.4, .4, 1) both; }
+@keyframes knRoll { from { transform: translateX(60px) rotate(220deg) scale(0.6); opacity: 0; } }
+.kn-cur { font-weight: 600; color: var(--muted); } .kn-cur b { font: 18px var(--display); color: var(--mint); margin-left: 4px; }
+.kn-cur b.bump { animation: knBump 0.4s cubic-bezier(.3, 1.8, .5, 1); }
+@keyframes knBump { 50% { transform: scale(1.5); } }
+/* Video-Poker auf niedrigen Bildschirmen */
+@media (max-height: 800px) and (min-width: 721px) {
+  .vp-machine { padding-top: 12px; gap: 8px; }
+  .vp-title { font-size: 26px; }
+  .vp-pay th, .vp-pay td { padding: 1px 10px; font-size: 11.5px; }
+  #view-poker { --card-w: 92px; }
+  .vp-cards { padding: 8px; }
+}
+@media (max-width: 560px) {
+  /* Toasts oben, damit sie keine Buttons verdecken */
+  .toasts { top: calc(70px + env(safe-area-inset-top, 0px)); bottom: auto; }
+  .toast { padding: 8px 12px; }
+  @keyframes toastIn { from { transform: translateY(-130%); } }
+  @keyframes toastOut { to { transform: translateY(-130%); opacity: 0; } }
+  /* Baccarat: Chips unter die Beschriftung */
+  .bc-bet { right: auto; left: 50%; top: auto; bottom: 2px; transform: scale(0.72); }
+  .bc-spot { padding-bottom: 26px; }
+  /* Video-Poker kompakt, Geben/Ziehen immer erreichbar */
+  .vp-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .vp-box { padding: 6px 8px; }
+  .vp-coin-btn { width: 28px; height: 30px; font-size: 13px; }
+  .vp-coins { gap: 3px; }
+  .vp-winbox { grid-column: 1 / -1; grid-auto-flow: column; justify-content: center; gap: 10px; min-width: 0; }
+  .vp-controls .big-cta { grid-column: 1 / -1; position: sticky; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 4; min-width: 0; }
+  /* Roulette: Ergebnis über dem Rad statt reserviertem Leerraum */
+  .rl-wheel-panel { padding-bottom: 12px; }
+  .rl-result { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6); background: rgba(14, 6, 24, 0.92); }
+  .rl-result.empty { display: none; }
+  /* Keno: 5 Kugeln pro Reihe */
+  .kn-balls { display: grid; grid-template-columns: repeat(5, 34px); justify-content: center; }
+}
+.vp-pay thead th, .vp-pay thead td { padding-top: 5px; padding-bottom: 4px; font: 10.5px var(--body); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 226, 122, 0.7); border-bottom: 1px solid rgba(255, 201, 74, 0.35); }
+.vp-pay thead td.on { color: #fff; }
+
 </style>
 </head>
 <body data-view="floor">
@@ -1434,6 +1587,36 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
     <canvas class="minimap" id="minimap" aria-hidden="true"></canvas>
     <div class="joy" id="joy" aria-hidden="true"><div class="joy-knob" id="joyKnob"></div></div>
     <button class="floor-action" id="floorAction" type="button" disabled><b>Aktion</b></button>
+  </section>
+
+  <!-- ================= STADT ================= -->
+  <section class="view" id="view-town" aria-label="Stadt">
+    <canvas id="townCanvas"></canvas>
+    <div class="town-zone" id="townZone" aria-live="polite"></div>
+    <div class="floor-prompt" id="townPrompt" hidden>
+      <b id="townPromptName"></b><small id="townPromptSub"></small>
+      <span class="fp-key"><kbd>E</kbd> <span id="townPromptKey">benutzen</span></span><span class="fp-tap">Tippen zum Benutzen</span>
+    </div>
+    <div class="floor-help"><kbd>WASD</kbd> / <kbd>Pfeile</kbd> laufen · <kbd>E</kbd> benutzen · Bushaltestelle = andere Orte</div>
+    <div class="joy" id="townJoy" aria-hidden="true"><div class="joy-knob" id="townKnob"></div></div>
+    <button class="floor-action" id="townAction" type="button" disabled><b>Aktion</b></button>
+
+    <div class="cat-panel" id="catPanel" hidden role="dialog" aria-labelledby="catName">
+      <button class="close-x" id="catClose" type="button" aria-label="Schließen">×</button>
+      <div class="cat-head">
+        <span class="cat-face" aria-hidden="true"></span>
+        <div><b id="catName">Mimi</b><small id="catLevel">Scheu</small></div>
+      </div>
+      <div class="cat-meter" title="Zuneigung"><i id="catHearts"></i></div>
+      <p class="cat-msg" id="catMsg"></p>
+      <div class="cat-actions">
+        <button type="button" id="catPet" class="cat-btn"><span class="cb-ico">✋</span><b>Streicheln</b></button>
+        <button type="button" id="catFeed" class="cat-btn"><span class="cb-ico">🥣</span><b>Füttern</b><small>× 0</small></button>
+        <button type="button" id="catTreat" class="cat-btn"><span class="cb-ico">🐟</span><b>Leckerli</b><small>× 0</small></button>
+        <button type="button" id="catPlay" class="cat-btn"><span class="cb-ico">🧶</span><b>Spielen</b></button>
+        <button type="button" id="catFollow" class="cat-btn wide"><span class="cb-ico">🐾</span><b>Folge mir</b></button>
+      </div>
+    </div>
   </section>
 
   <!-- ================= PROFIL ================= -->
@@ -1843,7 +2026,7 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
     <div class="keno-layout">
       <div class="panel keno-main">
         <div class="kn-board" id="knBoard"></div>
-        <div class="kn-draw"><small>Gezogen</small><div class="kn-balls" id="knBalls"></div><span class="kn-hits">Treffer <b id="knHits">0</b></span></div>
+        <div class="kn-draw"><small>Gezogen</small><div class="kn-balls" id="knBalls"></div><span class="kn-hits">Treffer <b id="knHits">0</b></span><span class="kn-cur">Gewinn <b id="knCur">0</b></span></div>
         <p class="kn-msg" id="knMsg" aria-live="polite"></p>
       </div>
       <aside class="panel keno-side">
@@ -1963,6 +2146,7 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
         <div class="field"><label>Haarfarbe</label><div class="swatches" id="avHair"></div></div>
         <div class="field"><label>Anzug</label><div class="swatches" id="avOutfit"></div></div>
         <div class="field"><label>Krawatte</label><div class="swatches" id="avAccent"></div></div>
+        <div class="field" id="avHatField" hidden><label>Hut</label><div class="seg small" id="avHat"></div></div>
         <div class="av-row"><button class="toggle" id="avGlasses" type="button" aria-pressed="false">Sonnenbrille</button><button class="ghost-btn" id="avRandom" type="button">Zufall</button></div>
       </div>
     </div>
@@ -1989,6 +2173,25 @@ input[type="range"] { width: 100%; accent-color: var(--neon); }
     <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
     <h2 id="ptTitle">Gewinntabelle</h2>
     <div id="paytableBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="modal-shop" hidden role="dialog" aria-modal="true" aria-labelledby="shopTitle">
+  <div class="modal-box shop-box">
+    <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
+    <h2 id="shopTitle">Laden</h2>
+    <p class="modal-sub" id="shopSub"></p>
+    <div class="shop-items" id="shopItems"></div>
+    <p class="shop-inv" id="shopInv"></p>
+  </div>
+</div>
+
+<div class="modal" id="modal-bus" hidden role="dialog" aria-modal="true" aria-labelledby="busTitle">
+  <div class="modal-box bus-box">
+    <button class="close-x" type="button" data-close aria-label="Schließen">×</button>
+    <h2 id="busTitle">Neon Line 7</h2>
+    <p class="modal-sub">Wohin soll die Fahrt gehen? Die Fahrt ist kostenlos.</p>
+    <div class="bus-list" id="busList"></div>
   </div>
 </div>
 
@@ -2222,7 +2425,9 @@ const Store = (() => {
     },
     // Laufende Einsätze vormerken, damit ein Neuladen mitten in der Runde nichts kostet
     hold(game, amt) { const p = s.pending || (s.pending = {}); p[game] = (p[game] || 0) + amt; flush(); },
-    release(game) { if (s.pending && s.pending[game]) { delete s.pending[game]; save(); } },
+    // Steht das Ergebnis schon fest, wird beim Neuladen genau das ausgezahlt (kein Abbrechen schlechter Runden)
+    settle(game, v) { const p = s.pending; if (p && p[game] != null) { p[game] = Math.max(0, Math.floor(v)); flush(); } },
+    release(game) { if (s.pending && s.pending[game] != null) { delete s.pending[game]; save(); } },
     refundPending() {
       const p = s.pending || {}, sum = Object.values(p).reduce((a, b) => a + b, 0);
       s.pending = {};
@@ -2431,6 +2636,30 @@ const Sfx = (() => {
     scratch() { noise({ dur: 0.06, vol: 0.05, freq: 5200 + Math.random() * 2000, q: 1.5, type: 'highpass' }); },
     diceShake() { for (let i = 0; i < 6; i++) noise({ dur: 0.04, vol: 0.12, freq: 2200 + Math.random() * 1500, q: 3, at: i * 0.06 }); },
     diceLand() { noise({ dur: 0.05, vol: 0.2, freq: 1400, q: 1.5 }); tone(220, { type: 'triangle', dur: 0.06, vol: 0.12 }); },
+    // Stadt
+    meow() {
+      const b = 620 + Math.random() * 180;
+      tone(b, { type: 'triangle', dur: 0.16, vol: 0.09, slide: b * 1.45, attack: 0.03 });
+      tone(b * 1.45, { type: 'triangle', dur: 0.32, vol: 0.08, slide: b * 0.8, at: 0.15 });
+      tone(b * 2.9, { type: 'sine', dur: 0.4, vol: 0.02, slide: b * 1.6, at: 0.05 });
+    },
+    purr() {
+      for (let i = 0; i < 22; i++) noise({ dur: 0.05, vol: 0.09 * (1 - Math.abs(i - 11) / 14), freq: 140, q: 0.9, type: 'lowpass', at: i * 0.045 });
+      tone(48, { type: 'sine', dur: 1, vol: 0.05, attack: 0.2 });
+    },
+    busArrive() {
+      tone(55, { type: 'sawtooth', dur: 1.6, vol: 0.05, slide: 38, attack: 0.3 });
+      noise({ dur: 1.4, vol: 0.06, freq: 180, q: 0.6, type: 'lowpass' });
+      noise({ dur: 0.5, vol: 0.06, freq: 4500, q: 1, type: 'highpass', at: 1.3 });
+    },
+    busLeave() {
+      tone(38, { type: 'sawtooth', dur: 1.8, vol: 0.06, slide: 70, attack: 0.1 });
+      noise({ dur: 1.6, vol: 0.07, freq: 160, q: 0.6, type: 'lowpass', sweep: 420 });
+    },
+    busDoor() {
+      noise({ dur: 0.45, vol: 0.08, freq: 3800, q: 0.8, type: 'highpass', sweep: 1600 });
+      tone(N(84), { type: 'sine', dur: 0.35, vol: 0.07, at: 0.3 }); tone(N(79), { type: 'sine', dur: 0.45, vol: 0.07, at: 0.55 });
+    },
   };
 })();
 
@@ -2786,6 +3015,7 @@ const I18N_ROWS = [
 
   ['Zurück: {0} von {1} Münzen ({2})', 'Returned: {0} of {1} coins ({2})', 'Devuelto: {0} de {1} monedas ({2})', 'Rendu : {0} sur {1} pièces ({2})', 'İade: {1} jetondan {0} ({2})'],
   ['{0}! Zurück: {1} von {2} Münzen.', '{0}! Returned: {1} of {2} coins.', '¡{0}! Devuelto: {1} de {2} monedas.', '{0} ! Rendu : {1} sur {2} pièces.', '{0}! İade: {2} jetondan {1}.'],
+  ['Offene Runde abgerechnet', 'Unfinished round settled', 'Ronda pendiente liquidada', 'Manche inachevée réglée', 'Yarım kalan tur sonuçlandırıldı'],
   ['Offene Runde erstattet', 'Unfinished round refunded', 'Ronda pendiente reembolsada', 'Manche inachevée remboursée', 'Yarım kalan tur iade edildi'],
   ['{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', '{0} coins from an unfinished round were refunded.', 'Se te han devuelto {0} monedas de una ronda pendiente.', '{0} pièces d’une manche inachevée t’ont été rendues.', 'Yarım kalan bir turdan {0} jeton iade edildi.'],
   ['bestellen', 'order', 'pedir', 'commander', 'sipariş ver'],
@@ -2890,6 +3120,174 @@ const I18N_ROWS = [
   ['hinausgehen', 'go outside', 'salir', 'sortir', 'dışarı çık'],
   ['Raus', 'Exit', 'Salir', 'Sortir', 'Çık'],
   ['Die Stadt öffnet bald ihre Tore.', 'The city opens its gates soon.', 'La ciudad abrirá pronto sus puertas.', 'La ville ouvre bientôt ses portes.', 'Şehir yakında kapılarını açıyor.'],
+  // Stadt
+  ['{0} ({1}:{2}) – {3} von {4} zurück.', '{0} ({1}:{2}) – {3} of {4} back.', '{0} ({1}:{2}) – recuperas {3} de {4}.', '{0} ({1}:{2}) – {3} sur {4} récupérés.', '{0} ({1}:{2}) – {4} bahsin {3} kadarı iade.'],
+  ['S', 'P', 'J', 'J', 'O'],
+  ['B', 'B', 'B', 'B', 'B'],
+  ['U', 'T', 'E', 'É', 'E'],
+  ['Daneben! Serie von {0} bei {1} gerissen – Einsatz verloren.', 'Wrong! Streak of {0} ended at {1} – bet lost.', '¡Fallo! Racha de {0} rota en {1}: apuesta perdida.', 'Raté ! Série de {0} brisée à {1} – mise perdue.', 'Yanlış! {0} serisi {1} değerinde bitti – bahis kaybedildi.'],
+  ['Daneben! Gleich die erste Karte – Einsatz verloren.', 'Wrong on the very first card – bet lost.', 'Fallo en la primera carta: apuesta perdida.', 'Raté dès la première carte – mise perdue.', 'Daha ilk kartta yanlış – bahis kaybedildi.'],
+  ['{0} Richtige – Einsatz zurück.', '{0} hits – bet returned.', '{0} aciertos: apuesta devuelta.', '{0} bons numéros – mise rendue.', '{0} isabet – bahis iade edildi.'],
+  ['Ohne', 'None', 'Ninguno', 'Aucun', 'Yok'],
+  ['Hut', 'Hat', 'Sombrero', 'Chapeau', 'Şapka'],
+  ['Raus in die Stadt', 'Out into the city', 'Salir a la ciudad', 'Sortir en ville', 'Şehre çık'],
+  ['Nachbarschaft, Mall, Markt, Spielplatz', 'Neighborhood, mall, market, playground', 'Barrio, centro comercial, mercado, parque', 'Quartier, galerie, marché, aire de jeux', 'Mahalle, AVM, market, oyun parkı'],
+  ['Samtpfote', 'Velvet Paws', 'Patitas de terciopelo', 'Patte de velours', 'Kadife Pati'],
+  ['Streichle Katze Mimi in der Nachbarschaft.', 'Pet Mimi the cat in the neighborhood.', 'Acaricia a la gata Mimi en el barrio.', 'Caresse la chatte Mimi dans le quartier.', 'Mahallede kedi Mimi\'yi sev.'],
+  ['Beste Freunde', 'Best Friends', 'Mejores amigas', 'Meilleures amies', 'En İyi Dostlar'],
+  ['Bring Mimis Zuneigung auf 100 %.', 'Raise Mimi\'s affection to 100%.', 'Sube el cariño de Mimi al 100 %.', 'Porte l\'affection de Mimi à 100 %.', 'Mimi\'nin sevgisini %100\'e çıkar.'],
+  ['Treue Begleiterin', 'Loyal Companion', 'Compañera fiel', 'Fidèle compagne', 'Sadık Yoldaş'],
+  ['Nimm Mimi mit dem Bus an einen anderen Ort mit.', 'Take Mimi along on the bus to another place.', 'Llévate a Mimi en el autobús a otro lugar.', 'Emmène Mimi en bus vers un autre endroit.', 'Mimi\'yi otobüsle başka bir yere götür.'],
+  ['Stadtbummel', 'City Stroll', 'Paseo por la ciudad', 'Balade en ville', 'Şehir Turu'],
+  ['Besuche alle fünf Orte der Stadt.', 'Visit all five places in the city.', 'Visita los cinco lugares de la ciudad.', 'Visite les cinq lieux de la ville.', 'Şehirdeki beş yerin hepsini ziyaret et.'],
+  ['Gut behütet', 'Hats Off', 'Bien cubierto', 'Bien coiffé', 'Şapkalı'],
+  ['Kauf dir einen Hut beim Hutmacher.', 'Buy a hat at the hat shop.', 'Cómprate un sombrero en la sombrerería.', 'Achète un chapeau chez le chapelier.', 'Şapkacıdan bir şapka al.'],
+  ['Kind geblieben', 'Young at Heart', 'Niño de corazón', 'Âme d\'enfant', 'İçindeki Çocuk'],
+  ['Probiere alles auf dem Spielplatz aus.', 'Try everything on the playground.', 'Prueba todo en el parque infantil.', 'Essaie tout sur l\'aire de jeux.', 'Oyun parkındaki her şeyi dene.'],
+  ['Stadt', 'City', 'Ciudad', 'Ville', 'Şehir'],
+  ['Tippen zum Benutzen', 'Tap to use', 'Toca para usar', 'Touche pour utiliser', 'Kullanmak için dokun'],
+  ['laufen', 'walk', 'caminar', 'marcher', 'yürü'],
+  ['benutzen', 'use', 'usar', 'utiliser', 'kullan'],
+  ['Bushaltestelle = andere Orte', 'bus stop = other places', 'parada = otros lugares', 'arrêt de bus = autres lieux', 'otobüs durağı = diğer yerler'],
+  ['einsteigen', 'get on', 'subir', 'monter', 'bin'],
+  ['kümmern', 'care for', 'cuidar', 's\'occuper', 'ilgilen'],
+  ['einkaufen', 'shop', 'comprar', 'acheter', 'alışveriş'],
+  ['eintreten', 'enter', 'entrar', 'entrer', 'gir'],
+  ['Laden', 'Shop', 'Tienda', 'Boutique', 'Dükkan'],
+  ['Neon Line 7', 'Neon Line 7', 'Neon Line 7', 'Neon Line 7', 'Neon Line 7'],
+  ['Wohin soll die Fahrt gehen? Die Fahrt ist kostenlos.', 'Where to? The ride is free.', '¿A dónde vamos? El viaje es gratis.', 'Où allons-nous ? Le trajet est gratuit.', 'Nereye gidelim? Yolculuk ücretsiz.'],
+  ['Du bist hier', 'You are here', 'Estás aquí', 'Tu es ici', 'Buradasın'],
+  ['Casino-Vorplatz', 'Casino Plaza', 'Plaza del casino', 'Parvis du casino', 'Kumarhane Meydanı'],
+  ['Nachbarschaft', 'Neighborhood', 'Barrio', 'Quartier', 'Mahalle'],
+  ['Einkaufsmeile', 'Shopping Street', 'Calle comercial', 'Rue commerçante', 'Alışveriş Caddesi'],
+  ['Supermarkt', 'Supermarket', 'Supermercado', 'Supermarché', 'Süpermarket'],
+  ['Spielplatz', 'Playground', 'Parque infantil', 'Aire de jeux', 'Oyun Parkı'],
+  ['Das Casino – hier verdienst du Münzen', 'The casino – this is where you earn coins', 'El casino: aquí ganas monedas', 'Le casino – c\'est ici qu\'on gagne des pièces', 'Kumarhane – jeton burada kazanılır'],
+  ['Dein Zuhause und Katze Mimi', 'Your home and Mimi the cat', 'Tu casa y la gata Mimi', 'Ta maison et la chatte Mimi', 'Evin ve kedi Mimi'],
+  ['Hüte, Zoohandlung und Café', 'Hats, pet shop and café', 'Sombreros, tienda de mascotas y café', 'Chapeaux, animalerie et café', 'Şapkalar, pet shop ve kafe'],
+  ['Katzenfutter, Leckerli und Eis', 'Cat food, treats and ice cream', 'Comida para gatos, premios y helado', 'Croquettes, friandises et glaces', 'Kedi maması, ödül maması ve dondurma'],
+  ['Schaukel, Rutsche, Sandkasten', 'Swing, slide, sandbox', 'Columpio, tobogán, arenero', 'Balançoire, toboggan, bac à sable', 'Salıncak, kaydırak, kum havuzu'],
+  ['Bushaltestelle', 'Bus stop', 'Parada de autobús', 'Arrêt de bus', 'Otobüs durağı'],
+  ['Mit dem Bus zu anderen Orten', 'Take the bus to other places', 'En autobús a otros lugares', 'En bus vers d\'autres lieux', 'Otobüsle başka yerlere'],
+  ['Neon Nights Casino', 'Neon Nights Casino', 'Neon Nights Casino', 'Neon Nights Casino', 'Neon Nights Casino'],
+  ['Hier gibt es Münzen zu gewinnen', 'Coins can be won here', 'Aquí se ganan monedas', 'Ici, on gagne des pièces', 'Burada jeton kazanılır'],
+  ['Dein Zuhause', 'Your home', 'Tu casa', 'Ta maison', 'Evin'],
+  ['Mimis Napf steht vor der Tür', 'Mimi\'s bowl is by the door', 'El cuenco de Mimi está junto a la puerta', 'La gamelle de Mimi est devant la porte', 'Mimi\'nin kabı kapının önünde'],
+  ['Hutmacher', 'Hat Shop', 'Sombrerería', 'Chapelier', 'Şapkacı'],
+  ['Hüte für deine Figur', 'Hats for your character', 'Sombreros para tu personaje', 'Des chapeaux pour ton personnage', 'Karakterin için şapkalar'],
+  ['Zoohandlung', 'Pet Shop', 'Tienda de mascotas', 'Animalerie', 'Pet Shop'],
+  ['Spielzeug und Halsbänder für Mimi', 'Toys and collars for Mimi', 'Juguetes y collares para Mimi', 'Jouets et colliers pour Mimi', 'Mimi için oyuncak ve tasma'],
+  ['Café Luna', 'Café Luna', 'Café Luna', 'Café Luna', 'Café Luna'],
+  ['Kaffee und Kuchen', 'Coffee and cake', 'Café y pastel', 'Café et gâteau', 'Kahve ve pasta'],
+  ['Frischmarkt', 'Fresh Market', 'Mercado fresco', 'Marché frais', 'Taze Market'],
+  ['Schaukel', 'Swing', 'Columpio', 'Balançoire', 'Salıncak'],
+  ['Einmal richtig Schwung holen', 'Swing as high as you can', 'Coge buen impulso', 'Prends de l\'élan', 'İyice sallan'],
+  ['Rutsche', 'Slide', 'Tobogán', 'Toboggan', 'Kaydırak'],
+  ['Hoch und runter!', 'Up and down!', '¡Arriba y abajo!', 'Monte et descends !', 'Yukarı ve aşağı!'],
+  ['Sandkasten', 'Sandbox', 'Arenero', 'Bac à sable', 'Kum havuzu'],
+  ['Eine Sandburg bauen', 'Build a sandcastle', 'Construye un castillo de arena', 'Construis un château de sable', 'Kumdan kale yap'],
+  ['Wippe', 'Seesaw', 'Balancín', 'Tape-cul', 'Tahterevalli'],
+  ['Mit einem Kind wippen', 'Seesaw with a kid', 'Balancéate con un niño', 'Joue à la bascule avec un enfant', 'Bir çocukla tahterevalliye bin'],
+  ['Eiswagen', 'Ice Cream Truck', 'Camión de helados', 'Camion de glaces', 'Dondurma Arabası'],
+  ['Kugeln in allen Farben', 'Scoops in every color', 'Bolas de todos los colores', 'Des boules de toutes les couleurs', 'Her renkten top'],
+  ['Streicheln · Füttern · Spielen', 'Pet · Feed · Play', 'Acariciar · Alimentar · Jugar', 'Caresser · Nourrir · Jouer', 'Sev · Besle · Oyna'],
+  ['ZUHAUSE', 'HOME', 'CASA', 'MAISON', 'EV'],
+  ['EIS', 'ICE CREAM', 'HELADOS', 'GLACES', 'DONDURMA'],
+  ['HUTMACHER', 'HATS', 'SOMBREROS', 'CHAPEAUX', 'ŞAPKACI'],
+  ['ZOOHANDLUNG', 'PET SHOP', 'MASCOTAS', 'ANIMALERIE', 'PET SHOP'],
+  ['FRISCHMARKT', 'FRESH MARKET', 'MERCADO', 'MARCHÉ FRAIS', 'TAZE MARKET'],
+  ['Zuneigung', 'Affection', 'Cariño', 'Affection', 'Sevgi'],
+  ['Streicheln', 'Pet', 'Acariciar', 'Caresser', 'Sev'],
+  ['Füttern', 'Feed', 'Alimentar', 'Nourrir', 'Besle'],
+  ['Leckerli', 'Treat', 'Premio', 'Friandise', 'Ödül'],
+  ['Folge mir', 'Follow me', 'Sígueme', 'Suis-moi', 'Beni takip et'],
+  ['Hierbleiben', 'Stay here', 'Quédate aquí', 'Reste ici', 'Burada kal'],
+  ['Scheu', 'Shy', 'Tímida', 'Timide', 'Çekingen'],
+  ['Neugierig', 'Curious', 'Curiosa', 'Curieuse', 'Meraklı'],
+  ['Freundlich', 'Friendly', 'Amistosa', 'Amicale', 'Dost canlısı'],
+  ['Mimi ist jetzt: {0}', 'Mimi is now: {0}', 'Mimi ahora es: {0}', 'Mimi est maintenant : {0}', 'Mimi artık: {0}'],
+  ['Was möchtest du mit Mimi machen?', 'What would you like to do with Mimi?', '¿Qué quieres hacer con Mimi?', 'Que veux-tu faire avec Mimi ?', 'Mimi ile ne yapmak istersin?'],
+  ['Mimi wacht auf und streckt sich.', 'Mimi wakes up and stretches.', 'Mimi se despierta y se estira.', 'Mimi se réveille et s\'étire.', 'Mimi uyanıp gerindi.'],
+  ['Mimi schnurrt zufrieden.', 'Mimi purrs happily.', 'Mimi ronronea feliz.', 'Mimi ronronne de plaisir.', 'Mimi mutlulukla mırlıyor.'],
+  ['Mimi schmiegt sich an deine Hand.', 'Mimi nuzzles your hand.', 'Mimi se frota contra tu mano.', 'Mimi se frotte contre ta main.', 'Mimi elinize sokuluyor.'],
+  ['Mimi blinzelt dich glücklich an.', 'Mimi blinks at you happily.', 'Mimi te guiña los ojos, feliz.', 'Mimi te fait de doux clignements d\'yeux.', 'Mimi sana mutlulukla göz kırpıyor.'],
+  ['Du hast keine Leckerli. Der Frischmarkt verkauft welche.', 'You have no treats. The fresh market sells them.', 'No tienes premios. El mercado fresco los vende.', 'Tu n\'as pas de friandises. Le marché frais en vend.', 'Ödül maman yok. Taze Market\'te satılıyor.'],
+  ['Du hast kein Katzenfutter. Der Frischmarkt verkauft welches.', 'You have no cat food. The fresh market sells it.', 'No tienes comida para gatos. El mercado fresco la vende.', 'Tu n\'as pas de croquettes. Le marché frais en vend.', 'Kedi maman yok. Taze Market\'te satılıyor.'],
+  ['Mimi schnappt sich das Leckerli!', 'Mimi snatches the treat!', '¡Mimi atrapa el premio!', 'Mimi attrape la friandise !', 'Mimi ödülü kaptı!'],
+  ['Mimi frisst mit Genuss.', 'Mimi eats with relish.', 'Mimi come con gusto.', 'Mimi mange avec appétit.', 'Mimi iştahla yiyor.'],
+  ['Du brauchst ein Wollknäuel aus der Zoohandlung.', 'You need a ball of yarn from the pet shop.', 'Necesitas un ovillo de lana de la tienda de mascotas.', 'Il te faut une pelote de laine de l\'animalerie.', 'Pet shop\'tan bir yün yumağı lazım.'],
+  ['Mimi jagt dem Wollknäuel hinterher!', 'Mimi chases the ball of yarn!', '¡Mimi persigue el ovillo!', 'Mimi court après la pelote !', 'Mimi yün yumağının peşinde!'],
+  ['Mimi kennt dich noch nicht gut genug. Streichle und füttere sie öfter.', 'Mimi doesn\'t know you well enough yet. Pet and feed her more often.', 'Mimi aún no te conoce lo suficiente. Acaríciala y aliméntala más a menudo.', 'Mimi ne te connaît pas encore assez. Caresse-la et nourris-la plus souvent.', 'Mimi seni henüz yeterince tanımıyor. Onu daha sık sev ve besle.'],
+  ['Mimi folgt dir jetzt – auch mit dem Bus.', 'Mimi follows you now – even on the bus.', 'Mimi ahora te sigue, incluso en autobús.', 'Mimi te suit maintenant – même en bus.', 'Mimi artık seni takip ediyor – otobüste bile.'],
+  ['Mimi bleibt hier.', 'Mimi stays here.', 'Mimi se queda aquí.', 'Mimi reste ici.', 'Mimi burada kalıyor.'],
+  ['Mimi wohnt hier. Ihr Napf steht vor der Tür.', 'Mimi lives here. Her bowl is by the door.', 'Mimi vive aquí. Su cuenco está junto a la puerta.', 'Mimi vit ici. Sa gamelle est devant la porte.', 'Mimi burada yaşıyor. Kabı kapının önünde.'],
+  ['Gemütlich – aber das Geld liegt im Casino.', 'Cozy – but the money is in the casino.', 'Acogedor, pero el dinero está en el casino.', 'Douillet – mais l\'argent est au casino.', 'Rahat – ama para kumarhanede.'],
+  ['Ablegen', 'Take off', 'Quitar', 'Retirer', 'Çıkar'],
+  ['Anlegen', 'Wear', 'Poner', 'Porter', 'Tak'],
+  ['Gekauft', 'Bought', 'Comprado', 'Acheté', 'Satın alındı'],
+  ['Im Rucksack: {0} Futter · {1} Leckerli', 'In your backpack: {0} food · {1} treats', 'En la mochila: {0} comida · {1} premios', 'Dans ton sac : {0} croquettes · {1} friandises', 'Sırt çantasında: {0} mama · {1} ödül'],
+  ['Neuer Hut!', 'New hat!', '¡Sombrero nuevo!', 'Nouveau chapeau !', 'Yeni şapka!'],
+  ['{0} sitzt perfekt.', '{0} fits perfectly.', '{0} te queda perfecto.', '{0} te va à merveille.', '{0} tam oturdu.'],
+  ['Für Mimi', 'For Mimi', 'Para Mimi', 'Pour Mimi', 'Mimi için'],
+  ['{0} gekauft.', '{0} bought.', '{0} comprado.', '{0} acheté.', '{0} satın alındı.'],
+  ['{0} ist jetzt in deinem Rucksack.', '{0} is now in your backpack.', '{0} ya está en tu mochila.', '{0} est maintenant dans ton sac.', '{0} artık sırt çantanda.'],
+  ['Setz deiner Figur die Krone auf.', 'Crown your character.', 'Corona a tu personaje.', 'Couronne ton personnage.', 'Karakterine taç giydir.'],
+  ['Alles, was Mimi glücklich macht.', 'Everything that makes Mimi happy.', 'Todo lo que hace feliz a Mimi.', 'Tout ce qui rend Mimi heureuse.', 'Mimi\'yi mutlu eden her şey.'],
+  ['Kurz durchatmen zwischen zwei Runden.', 'A breather between two rounds.', 'Un respiro entre dos rondas.', 'Une pause entre deux manches.', 'İki tur arasında nefes al.'],
+  ['Alles für den Alltag – und für Mimi.', 'Everyday essentials – and things for Mimi.', 'Todo para el día a día, y para Mimi.', 'Tout pour le quotidien – et pour Mimi.', 'Günlük ihtiyaçlar – ve Mimi için.'],
+  ['Eine Kugel geht immer.', 'There\'s always room for one scoop.', 'Siempre cabe una bola.', 'Une boule, ça passe toujours.', 'Bir top her zaman gider.'],
+  ['Basecap', 'Baseball cap', 'Gorra', 'Casquette', 'Kep'],
+  ['In deiner Krawattenfarbe.', 'In your tie color.', 'Del color de tu corbata.', 'De la couleur de ta cravate.', 'Kravat renginde.'],
+  ['Mütze', 'Beanie', 'Gorro', 'Bonnet', 'Bere'],
+  ['Warm und mit Bommel.', 'Warm and with a pompom.', 'Calentito y con pompón.', 'Chaud et avec pompon.', 'Sıcak ve ponponlu.'],
+  ['Partyhut', 'Party hat', 'Gorro de fiesta', 'Chapeau de fête', 'Parti şapkası'],
+  ['Jede Nacht ist Party.', 'Every night is a party.', 'Cada noche es una fiesta.', 'Chaque nuit est une fête.', 'Her gece parti.'],
+  ['Cowboyhut', 'Cowboy hat', 'Sombrero vaquero', 'Chapeau de cowboy', 'Kovboy şapkası'],
+  ['Für echte Glücksritter.', 'For true fortune seekers.', 'Para auténticos aventureros.', 'Pour les vrais chercheurs de fortune.', 'Gerçek şans avcıları için.'],
+  ['Zylinder', 'Top hat', 'Chistera', 'Haut-de-forme', 'Silindir şapka'],
+  ['Der Klassiker der High Roller.', 'The high roller classic.', 'El clásico de los grandes apostadores.', 'Le classique des gros joueurs.', 'Büyük oyuncuların klasiği.'],
+  ['Krone', 'Crown', 'Corona', 'Couronne', 'Taç'],
+  ['Für die Königin oder den König der Nacht.', 'For the queen or king of the night.', 'Para la reina o el rey de la noche.', 'Pour la reine ou le roi de la nuit.', 'Gecenin kraliçesi ya da kralı için.'],
+  ['Wollknäuel', 'Ball of yarn', 'Ovillo de lana', 'Pelote de laine', 'Yün yumağı'],
+  ['Damit kannst du mit Mimi spielen.', 'Lets you play with Mimi.', 'Con él puedes jugar con Mimi.', 'Pour jouer avec Mimi.', 'Mimi ile oynamanı sağlar.'],
+  ['Halsband Pink', 'Pink collar', 'Collar rosa', 'Collier rose', 'Pembe tasma'],
+  ['Halsband Türkis', 'Turquoise collar', 'Collar turquesa', 'Collier turquoise', 'Turkuaz tasma'],
+  ['Halsband Gold', 'Gold collar', 'Collar dorado', 'Collier doré', 'Altın tasma'],
+  ['Mit goldenem Glöckchen.', 'With a golden bell.', 'Con cascabel dorado.', 'Avec une clochette dorée.', 'Altın çıngıraklı.'],
+  ['Nur das Beste für Mimi.', 'Only the best for Mimi.', 'Solo lo mejor para Mimi.', 'Rien que le meilleur pour Mimi.', 'Mimi için en iyisi.'],
+  ['Leckerli (5 Stück)', 'Treats (5 pieces)', 'Premios (5 unidades)', 'Friandises (5)', 'Ödül maması (5 adet)'],
+  ['Kleine Belohnung zwischendurch.', 'A little reward in between.', 'Una pequeña recompensa.', 'Une petite récompense.', 'Arada küçük bir ödül.'],
+  ['Mimis Lieblingssnack.', 'Mimi\'s favorite snack.', 'El tentempié favorito de Mimi.', 'Le goûter préféré de Mimi.', 'Mimi\'nin en sevdiği atıştırmalık.'],
+  ['Espresso', 'Espresso', 'Espresso', 'Espresso', 'Espresso'],
+  ['Frisch gebrüht.', 'Freshly brewed.', 'Recién hecho.', 'Fraîchement préparé.', 'Taze demlenmiş.'],
+  ['Der Espresso weckt dich richtig auf.', 'The espresso really wakes you up.', 'El espresso te despierta de verdad.', 'L\'espresso te réveille vraiment.', 'Espresso seni iyice uyandırdı.'],
+  ['Schokokuchen', 'Chocolate cake', 'Pastel de chocolate', 'Gâteau au chocolat', 'Çikolatalı pasta'],
+  ['Mit Kirsche obendrauf.', 'With a cherry on top.', 'Con una cereza encima.', 'Avec une cerise dessus.', 'Üstünde kiraz ile.'],
+  ['Himmlisch! Der Kuchen war sein Geld wert.', 'Heavenly! The cake was worth every coin.', '¡Divino! El pastel valió la pena.', 'Divin ! Le gâteau valait son prix.', 'Muhteşem! Pasta parasına değdi.'],
+  ['Neon-Limonade', 'Neon lemonade', 'Limonada neón', 'Limonade néon', 'Neon limonata'],
+  ['Leuchtet leicht im Dunkeln.', 'Glows slightly in the dark.', 'Brilla un poco en la oscuridad.', 'Brille légèrement dans le noir.', 'Karanlıkta hafifçe parlar.'],
+  ['Erfrischend und ein bisschen leuchtend.', 'Refreshing and a little glowing.', 'Refrescante y un poco brillante.', 'Rafraîchissant et un peu lumineux.', 'Ferahlatıcı ve biraz parlak.'],
+  ['Katzenfutter', 'Cat food', 'Comida para gatos', 'Croquettes', 'Kedi maması'],
+  ['Eine Portion für Mimi.', 'One serving for Mimi.', 'Una ración para Mimi.', 'Une portion pour Mimi.', 'Mimi için bir porsiyon.'],
+  ['Katzenfutter (5er-Pack)', 'Cat food (5-pack)', 'Comida para gatos (pack de 5)', 'Croquettes (lot de 5)', 'Kedi maması (5\'li paket)'],
+  ['Günstiger im Vorrat.', 'Cheaper in bulk.', 'Más barato en cantidad.', 'Moins cher en lot.', 'Toplu alım daha ucuz.'],
+  ['Apfel', 'Apple', 'Manzana', 'Pomme', 'Elma'],
+  ['Knackig und frisch.', 'Crisp and fresh.', 'Crujiente y fresca.', 'Croquante et fraîche.', 'Çıtır ve taze.'],
+  ['Knack! Ein saftiger Apfel.', 'Crunch! A juicy apple.', '¡Crac! Una manzana jugosa.', 'Croc ! Une pomme juteuse.', 'Kıtır! Sulu bir elma.'],
+  ['Erdbeereis', 'Strawberry ice cream', 'Helado de fresa', 'Glace à la fraise', 'Çilekli dondurma'],
+  ['Eine Kugel, pink wie Neon.', 'One scoop, pink as neon.', 'Una bola, rosa como el neón.', 'Une boule, rose comme le néon.', 'Neon gibi pembe bir top.'],
+  ['Mmh, Erdbeere!', 'Mmm, strawberry!', '¡Mmm, fresa!', 'Miam, fraise !', 'Mmm, çilek!'],
+  ['Mango-Sorbet', 'Mango sorbet', 'Sorbete de mango', 'Sorbet à la mangue', 'Mango sorbe'],
+  ['Fruchtig und kalt.', 'Fruity and cold.', 'Afrutado y frío.', 'Fruité et froid.', 'Meyveli ve soğuk.'],
+  ['Wie Urlaub in der Waffel.', 'Like a vacation in a cone.', 'Como unas vacaciones en un cucurucho.', 'Des vacances dans un cornet.', 'Külahta tatil gibi.'],
+  ['Blaubeer-Traum', 'Blueberry dream', 'Sueño de arándanos', 'Rêve de myrtille', 'Yaban mersini rüyası'],
+  ['Zwei Kugeln mit Streuseln.', 'Two scoops with sprinkles.', 'Dos bolas con virutas.', 'Deux boules avec vermicelles.', 'Renkli şekerli iki top.'],
+  ['Blaue Zunge garantiert.', 'Blue tongue guaranteed.', 'Lengua azul garantizada.', 'Langue bleue garantie.', 'Mavi dil garanti.'],
+  ['Der Sandkasten ist voller Burgen!', 'The sandbox is full of castles!', '¡El arenero está lleno de castillos!', 'Le bac à sable est plein de châteaux !', 'Kum havuzu kalelerle dolu!'],
+  ['Sandburg gebaut', 'Sandcastle built', 'Castillo de arena construido', 'Château de sable construit', 'Kumdan kale yapıldı'],
+  ['Ein Meisterwerk der Baukunst.', 'A masterpiece of architecture.', 'Una obra maestra de la arquitectura.', 'Un chef-d\'œuvre d\'architecture.', 'Bir mimari şaheser.'],
+  ['Allein wippt es sich schlecht.', 'Seesawing alone doesn\'t really work.', 'Balancearse solo no funciona.', 'Seul, la bascule ne marche pas.', 'Tahterevalliye tek başına binilmez.'],
+  ['Benutzen', 'Use', 'Usar', 'Utiliser', 'Kullan'],
   // Figur
   ['Wer bist du heute Nacht?', 'Who are you tonight?', '¿Quién eres esta noche?', 'Qui es-tu ce soir ?', 'Bu gece kimsin?'],
   ['Gestalte deine Figur für die Casino-Halle.', 'Design your character for the casino floor.', 'Diseña tu personaje para el salón.', 'Crée ton personnage pour la salle du casino.', 'Casino salonu için karakterini tasarla.'],
@@ -3841,6 +4239,48 @@ const Avatar = (() => {
 
     // ----- Haare -----
     drawHair(g, a.style, hair, dir, side, flip, hy);
+    if (a.hat) drawHat(g, a.hat, dir, side, flip, hy, accent);
+    g.restore();
+  }
+
+  /* Hüte (aus der Einkaufsmeile) */
+  const HATS = {
+    cap: { name: 'Basecap' }, tophat: { name: 'Zylinder' }, crown: { name: 'Krone' },
+    beanie: { name: 'Mütze' }, cowboy: { name: 'Cowboyhut' }, party: { name: 'Partyhut' },
+  };
+  function drawHat(g, hat, dir, side, flip, hy, accent) {
+    g.save();
+    if (side) g.scale(flip, 1);
+    const top = hy - 9;
+    if (hat === 'cap') {
+      g.fillStyle = accent; g.beginPath(); g.ellipse(0, top + 1, 11, 7, 0, Math.PI, Math.PI * 2); g.fill();
+      g.fillStyle = shade(accent, -40);
+      if (dir === 0) { g.beginPath(); g.ellipse(0, top + 2, 11, 3.5, 0, 0, Math.PI); g.fill(); }
+      else if (side) { g.beginPath(); g.ellipse(9, top + 1.5, 7, 2.5, 0, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(0, top - 5, 1.4, 0, Math.PI * 2); g.fill();
+    } else if (hat === 'tophat') {
+      g.fillStyle = '#15101c'; g.beginPath(); g.ellipse(0, top + 1, 14, 4, 0, 0, Math.PI * 2); g.fill();
+      rr(g, -8, top - 17, 16, 18, 2); g.fill();
+      g.fillStyle = accent; g.fillRect(-8, top - 4, 16, 3);
+      g.fillStyle = 'rgba(255,255,255,0.15)'; g.fillRect(-6, top - 16, 3, 12);
+    } else if (hat === 'crown') {
+      const gg = g.createLinearGradient(0, top - 12, 0, top + 2); gg.addColorStop(0, '#fff2b0'); gg.addColorStop(1, '#c98a12');
+      g.fillStyle = gg; g.beginPath(); g.moveTo(-9, top + 1); g.lineTo(-10, top - 9); g.lineTo(-5, top - 4); g.lineTo(0, top - 12); g.lineTo(5, top - 4); g.lineTo(10, top - 9); g.lineTo(9, top + 1); g.closePath(); g.fill();
+      g.fillStyle = '#ff3d8b'; g.beginPath(); g.arc(0, top - 3, 1.8, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#3be8ff'; g.beginPath(); g.arc(-5, top - 1, 1.3, 0, Math.PI * 2); g.arc(5, top - 1, 1.3, 0, Math.PI * 2); g.fill();
+    } else if (hat === 'beanie') {
+      g.fillStyle = accent; g.beginPath(); g.ellipse(0, top + 2, 11, 10, 0, Math.PI, Math.PI * 2); g.fill();
+      g.fillStyle = shade(accent, -35); g.fillRect(-11, top, 22, 4);
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(0, top - 9, 3.2, 0, Math.PI * 2); g.fill();
+    } else if (hat === 'cowboy') {
+      g.fillStyle = '#6a3e1a'; g.beginPath(); g.ellipse(0, top + 1, 17, 5, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#8a5424'; g.beginPath(); g.moveTo(-9, top + 1); g.quadraticCurveTo(-9, top - 12, 0, top - 11); g.quadraticCurveTo(9, top - 12, 9, top + 1); g.closePath(); g.fill();
+      g.fillStyle = '#3a200a'; g.fillRect(-9, top - 2, 18, 2.5);
+    } else if (hat === 'party') {
+      g.fillStyle = accent; g.beginPath(); g.moveTo(-7, top + 1); g.lineTo(0, top - 18); g.lineTo(7, top + 1); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(-4, top - 6, 8, 2); g.fillRect(-2, top - 12, 4, 2);
+      g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(0, top - 18, 2.5, 0, Math.PI * 2); g.fill();
+    }
     g.restore();
   }
 
@@ -3891,7 +4331,7 @@ const Avatar = (() => {
     return a;
   }
 
-  return { draw, SKINS, HAIRS, OUTFITS, STYLES, DEFAULT, load, shade };
+  return { draw, drawHat, HATS, SKINS, HAIRS, OUTFITS, STYLES, DEFAULT, load, shade };
 })();
 
 </script>
@@ -4323,6 +4763,10 @@ const Slots = (() => {
     const grid = Array.from({ length: NR }, () => [randSym(), randSym(), randSym()]);
     Sfx.spinStart();
     if (!raf && active) raf = requestAnimationFrame(render);
+    if (!free) { // Ergebnis steht fest: bei Neuladen wird es ausgezahlt
+      const pre = evaluate(grid, b), psc = Math.min(5, pre.scat.length);
+      Store.settle('slots', pre.lines.reduce((s, w) => s + w.amount, 0) + (psc >= 3 ? S.scatterPays[psc][0] * b : 0));
+    }
     await startReels(grid);
 
     const ev = evaluate(grid, b);
@@ -4508,7 +4952,6 @@ const Plinko = (() => {
     if (balls.length >= 40) return;
     const b = bet();
     if (!Store.bet(b)) { stopAuto(); App.insufficient(b); return; }
-    Store.hold('plinko', b);
     Store.stat('balls');
     const dirs = Array.from({ length: rows }, () => Math.random() < 0.5 ? 0 : 1);
     const pts = [];
@@ -4521,7 +4964,9 @@ const Plinko = (() => {
       k += dirs[r];
     }
     pts.push({ x: binX(k), y: binY + binH * 0.3, kind: 'bin', k });
-    balls.push({ pts, seg: 0, t: 0, dur: 0.3, x: pts[0].x, y: pts[0].y, trail: [], bet: b, k, rows, risk, hue: U.rand(0, 1) });
+    const due = Math.round(b * P.tables[rows][risk][k]);
+    Store.hold('plinko', due); // Ziel steht fest – bei Neuladen wird genau dieser Gewinn gutgeschrieben
+    balls.push({ pts, seg: 0, t: 0, dur: 0.3, x: pts[0].x, y: pts[0].y, trail: [], bet: b, due, k, rows, risk, hue: U.rand(0, 1) });
     setLock();
     if (!raf && active) { lastT = performance.now(); raf = requestAnimationFrame(loop); }
   }
@@ -4547,7 +4992,7 @@ const Plinko = (() => {
       binHit[p.k] = now;
       const m = P.tables[b.rows][b.risk][p.k];
       const win = Math.round(b.bet * m);
-      const p = Store.s.pending; if (p && p.plinko) { p.plinko = Math.max(0, p.plinko - b.bet); if (!p.plinko) Store.release('plinko'); }
+      const p = Store.s.pending; if (p && p.plinko != null) { p.plinko = Math.max(0, p.plinko - b.due); if (!p.plinko && !balls.some(o => o !== b && o.seg < o.pts.length - 1)) Store.release('plinko'); else Store.save(); }
       if (win > 0) Store.win(win, win - b.bet);
       Store.statMax('maxMult', m);
       Store.emit({ type: 'plinko', mult: m, win, bet: b.bet });
@@ -4895,7 +5340,25 @@ const Blackjack = (() => {
 
   function setMsg(t) { el.msg.textContent = t; el.msg.classList.remove('pop'); void el.msg.offsetWidth; el.msg.classList.add('pop'); }
 
+  // Was die Runde auszahlt, wenn ab jetzt alle Hände stehen – für die Abrechnung bei Neuladen
+  function standValue() {
+    const sim = shoe.slice(), draw = () => sim.pop() || { r: '10', s: '♠' };
+    const hs = hands.map(h => ({ cards: h.cards.map(c => ({ r: c.r, s: c.s })), bet: h.bet }));
+    const dc = dealer ? dealer.cards.map(c => ({ r: c.r, s: c.s })) : [];
+    if (hs.length === 1) while (hs[0].cards.length + dc.length < 4) (hs[0].cards.length <= dc.length ? hs[0].cards : dc).push(draw());
+    hs.forEach(h => { while (h.cards.length < 2) h.cards.push(draw()); });
+    const v = cs => value(cs).t;
+    if (hs.some(h => v(h.cards) <= 21) && !(hs.length === 1 && isBJ(hs[0].cards))) while (v(dc) < 17) dc.push(draw());
+    const d = v(dc), dBJ = isBJ(dc);
+    return hs.reduce((sum, h) => {
+      const p = v(h.cards), pBJ = hs.length === 1 && isBJ(h.cards);
+      if (pBJ) return sum + (dBJ ? h.bet : h.bet * 2.5);
+      if (p > 21 || dBJ) return sum;
+      return sum + (d > 21 || p > d ? h.bet * 2 : p === d ? h.bet : 0);
+    }, 0);
+  }
   function setControls() {
+    if ((phase === 'deal' || phase === 'play' || phase === 'dealer') && hands.length) Store.settle('blackjack', standValue());
     const betting = phase === 'bet';
     el.betting.hidden = !betting;
     el.actions.hidden = phase !== 'play';
@@ -4970,6 +5433,7 @@ const Blackjack = (() => {
     pending = 0; renderStack();
     setControls();
     setMsg('Karten werden ausgeteilt …');
+    Store.settle('blackjack', standValue());
     await dealTo(h); await dealTo(dealer); await dealTo(h); await dealTo(dealer, false);
 
     const up = dealer.cards[0];
@@ -5458,6 +5922,7 @@ const Roulette = (() => {
     renderBets();
     setMsg('Nichts geht mehr!');
     const result = Math.floor(Math.random() * 37);
+    Store.settle('roulette', Object.entries(bets).reduce((s, [k, v]) => s + (BETS[k].nums.includes(result) ? v * BETS[k].pay : 0), 0));
     await spinWheel(result);
     // Auswertung
     let ret = 0, straightHit = false;
@@ -5729,6 +6194,7 @@ const Crash = (() => {
     await U.sleep(900);
     if (phase !== 'launch') return;
     phase = 'fly'; t = 0;
+    { const at = autoTarget(); Store.settle('crash', at && crashAt >= at ? bet * at : 0); } // wer nicht aussteigt, verliert
     Store.stat('crashRounds');
     Sfx.rocket && Sfx.rocket(true);
     el.status.textContent = 'Die Rakete steigt!';
@@ -5936,6 +6402,7 @@ const Mines = (() => {
     const c = FX.center(t);
     FX.stars(c.x, c.y, 8, '#aef6ff');
     const m = multFor(found);
+    Store.settle('mines', bet * m);
     el.mult.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' });
     if (found === SIZE - mines) { cashOut(); return; }
     setMsg(`${found} ${found === 1 ? 'Juwel' : 'Juwelen'} – Gewinn jetzt ${U.fmt(Math.floor(bet * m))}.`);
@@ -6129,6 +6596,7 @@ const Scratch = (() => {
     if (!Store.bet(p)) { App.insufficient(p); return; }
     Store.hold('scratch', p);
     price = p; outcome = makeOutcome();
+    Store.settle('scratch', outcome.win ? p * outcome.win.mult : 0);
     el.cover.style.pointerEvents = '';
     Store.stat('tickets');
     el.grid.innerHTML = outcome.grid.map(id => `<div class="sc-cell"><img alt="" src="${iconURL(id)}"></div>`).join('');
@@ -6344,6 +6812,7 @@ const Dice = (() => {
     $$('.dice-field').forEach(f => f.classList.remove('won', 'lost'));
     el.sum.classList.remove('show');
     const a = U.randInt(1, 6), b = U.randInt(1, 6);
+    Store.settle('dice', Object.entries(bets).reduce((s, [k, v]) => s + (FIELDS[k].test(a, b) ? Math.floor(v * FIELDS[k].pay) : 0), 0));
     Sfx.diceShake ? Sfx.diceShake() : Sfx.card();
     rot1 = animateDie(el.d1, a, rot1, 0, 0);
     rot2 = animateDie(el.d2, b, rot2, 90, 0);
@@ -6434,7 +6903,7 @@ const VideoPoker = (() => {
   let coins = 5, state = 'idle', hand = [], held = [false, false, false, false, false], deck = [], bet = 0, busy = false;
 
   function renderPay(hitId = null) {
-    el.pay.innerHTML = `<tbody>${HANDS.map(h => `<tr class="${hitId === h.id ? 'hit' : ''}"><th>${I18N.t(h.name)}</th>${h.pay.map((p, i) =>
+    el.pay.innerHTML = `<thead><tr><th>${I18N.t('Münzen')}</th>${[1, 2, 3, 4, 5].map(i => `<td class="${i === coins ? 'on' : ''}">${i}</td>`).join('')}</tr></thead><tbody>${HANDS.map(h => `<tr class="${hitId === h.id ? 'hit' : ''}"><th>${I18N.t(h.name)}</th>${h.pay.map((p, i) =>
       `<td class="${i === coins - 1 ? 'on' : ''}">${U.fmt(p * coinStep.value)}</td>`).join('')}</tr>`).join('')}</tbody>`;
     $$('.vp-coin-btn', el.coins).forEach(b => b.classList.toggle('on', +b.dataset.c === coins));
   }
@@ -6508,6 +6977,7 @@ const VideoPoker = (() => {
     busy = true; state = 'dealing'; updateUI();
     newDeck();
     hand = deck.splice(0, 5); held = [false, false, false, false, false];
+    { const H0 = HANDS.find(h => h.id === evaluate(hand)); Store.settle('poker', H0 ? H0.pay[coins - 1] * coinStep.value : 0); } // Neuladen = Hand bleibt wie ausgeteilt
     $$('.vp-slot', el.cards).forEach(s => s.classList.remove('held', 'win'));
     el.win.textContent = '—'; el.machine.classList.remove('won');
     Sfx.card();
@@ -6674,9 +7144,11 @@ const Keno = (() => {
     const pool = Array.from({ length: N }, (_, i) => i + 1);
     for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
     const res = pool.slice(0, DRAW);
-    let hits = 0;
+    Store.settle('keno', b * (PAY[picks.size][res.filter(n => picks.has(n)).length] || 0));
+    let hits = 0, idx = 0;
+    const cur = $('#knCur'); cur.textContent = '0';
     for (const n of res) {
-      await U.sleep(U.reducedMotion ? 60 : 280);
+      await U.sleep(U.reducedMotion ? 60 : idx++ >= DRAW - 2 ? 620 : 300);
       drawn.push(n);
       const c = cell(n), hit = picks.has(n);
       c.classList.add('drawn'); if (hit) { c.classList.add('hit'); hits++; }
@@ -6685,6 +7157,7 @@ const Keno = (() => {
       ball.textContent = n;
       el.balls.appendChild(ball);
       el.hits.textContent = hits;
+      if (hit) { const w = Math.floor(b * (PAY[picks.size][hits] || 0)); if (w && cur.textContent !== U.fmt(w)) { cur.textContent = U.fmt(w); cur.classList.remove('bump'); void cur.offsetWidth; cur.classList.add('bump'); } }
       if (hit) { Sfx.gem(hits); const cc = FX.center(c); FX.stars(cc.x, cc.y, 6, '#fff2b0'); } else Sfx.bounce(0.6);
     }
     lastHits = hits;
@@ -6696,7 +7169,7 @@ const Keno = (() => {
       const cc = FX.center(el.board);
       if (win > b) { FX.coins(cc.x, cc.y, Math.min(50, 10 + Math.round(mult * 2)), 1); Sfx.win(mult >= 20 ? 3 : 2); }
       else Sfx.push();
-      setMsg(I18N.t('{0} Richtige! Du gewinnst {1} Münzen.', hits, U.fmt(win)));
+      setMsg(win === b ? I18N.t('{0} Richtige – Einsatz zurück.', hits) : I18N.t('{0} Richtige! Du gewinnst {1} Münzen.', hits, U.fmt(win)));
       if (mult >= 20) Celebrate.bigWin(win, b);
     } else { Sfx.lose(); setMsg(I18N.t('{0} Richtige – leider kein Gewinn.', hits)); }
     Store.emit({ type: 'keno', hits, picks: picks.size, win, bet: b, mult });
@@ -6756,7 +7229,7 @@ const HiLo = (() => {
     const n = Blackjack.makeCard(c); n.classList.add('up', 'mini');
     const w = document.createElement('div'); w.className = 'hl-trail-item ' + (ok === true ? 'ok' : ok === false ? 'bad' : '');
     w.appendChild(n); el.trail.prepend(w);
-    while (el.trail.children.length > 7) el.trail.lastChild.remove();
+    while (el.trail.children.length > 12) el.trail.lastChild.remove();
   }
 
   async function start() {
@@ -6767,7 +7240,7 @@ const HiLo = (() => {
     if (!Store.bet(b)) { App.insufficient(b); return; }
     Store.hold('hilo', b);
     bet = b; mult = 1; streak = 0; skips = 3; playing = true; busy = true;
-    el.trail.innerHTML = ''; el.table.classList.remove('lost', 'won');
+    el.trail.innerHTML = ''; el.table.classList.remove('lost', 'won'); el.card.classList.remove('flash-bad'); el.mult.parentElement.classList.remove('lost');
     updateUI();
     cur = draw();
     await place(cur);
@@ -6792,12 +7265,15 @@ const HiLo = (() => {
       Sfx.gem(streak);
       el.mult.animate([{ transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 280 });
       setMsg(I18N.t('Richtig! Gewinn jetzt {0} Münzen.', U.fmt(Math.floor(bet * mult))));
+      Store.settle('hilo', bet * mult);
       Store.emit({ type: 'hiloStep', streak });
     } else {
       playing = false;
       Store.release('hilo');
       Sfx.lose(); FX.shake(el.table); el.table.classList.add('lost');
-      setMsg(I18N.t('Daneben! Einsatz verloren nach {0} Treffern.', streak));
+      el.card.classList.remove('flash-bad'); void el.card.offsetWidth; el.card.classList.add('flash-bad');
+      el.mult.parentElement.classList.add('lost');
+      setMsg(streak ? I18N.t('Daneben! Serie von {0} bei {1} gerissen – Einsatz verloren.', streak, fmtM(mult)) : I18N.t('Daneben! Gleich die erste Karte – Einsatz verloren.'));
       Store.emit({ type: 'hilo', win: 0, bet, streak });
     }
     busy = false; updateUI();
@@ -6928,6 +7404,30 @@ const Baccarat = (() => {
   }
   function showVal(elV, cs) { elV.textContent = total(cs); elV.hidden = false; elV.animate([{ transform: 'scale(1.4)' }, { transform: 'scale(1)' }], { duration: 250 }); }
 
+  // Kompletter Coup nach Punto-Banco-Regeln – steht fest, bevor die erste Karte fällt
+  function coup() {
+    const P = [drawCard()], B = [drawCard()];
+    P.push(drawCard()); B.push(drawCard());
+    let p3 = null;
+    if (total(P) < 8 && total(B) < 8) {
+      if (total(P) <= 5) { P.push(drawCard()); p3 = val(P[2]); }
+      const bt = total(B);
+      const bankerDraws = p3 === null ? bt <= 5
+        : bt <= 2 || (bt === 3 && p3 !== 8) || (bt === 4 && p3 >= 2 && p3 <= 7) || (bt === 5 && p3 >= 4 && p3 <= 7) || (bt === 6 && (p3 === 6 || p3 === 7));
+      if (bankerDraws) B.push(drawCard());
+    }
+    const pt = total(P), bt = total(B);
+    return { P, B, pt, bt, res: pt > bt ? 'player' : bt > pt ? 'banker' : 'tie' };
+  }
+  function payout(res) {
+    let ret = 0;
+    for (const [k, v] of Object.entries(bets)) {
+      if (k === res) ret += Math.floor(v * PAY[k]);
+      else if (res === 'tie' && k !== 'tie') ret += v; // bei Unentschieden: Spieler-/Bankwetten zurück
+    }
+    return ret;
+  }
+
   async function play() {
     if (busy) return;
     Sfx.init();
@@ -6937,51 +7437,48 @@ const Baccarat = (() => {
     Store.hold('baccarat', t);
     Store.stat('baccRounds');
     busy = true; lastBets = { ...bets }; render();
-    el.pCards.innerHTML = ''; el.bCards.innerHTML = ''; el.pVal.hidden = el.bVal.hidden = true;
-    el.table.classList.remove('p-win', 'b-win', 't-win');
-    $$('.bc-spot').forEach(s => s.classList.remove('won', 'lost'));
-    const P = [], B = [];
-    setMsg(I18N.t('Karten werden ausgeteilt …'));
-    await deal1(el.pCards, P, drawCard()); await deal1(el.bCards, B, drawCard());
-    await deal1(el.pCards, P, drawCard()); showVal(el.pVal, P);
-    await deal1(el.bCards, B, drawCard()); showVal(el.bVal, B);
-    let pt = total(P), bt = total(B);
-    if (pt < 8 && bt < 8) {
-      let p3 = null;
-      if (pt <= 5) { await U.sleep(250); setMsg(I18N.t('Spieler zieht eine dritte Karte')); await deal1(el.pCards, P, drawCard()); p3 = val(P[2]); pt = total(P); showVal(el.pVal, P); }
-      let bankerDraws;
-      if (p3 === null) bankerDraws = bt <= 5;
-      else bankerDraws = bt <= 2 || (bt === 3 && p3 !== 8) || (bt === 4 && p3 >= 2 && p3 <= 7) || (bt === 5 && p3 >= 4 && p3 <= 7) || (bt === 6 && (p3 === 6 || p3 === 7));
-      if (bankerDraws) { await U.sleep(250); setMsg(I18N.t('Bank zieht eine dritte Karte')); await deal1(el.bCards, B, drawCard()); bt = total(B); showVal(el.bVal, B); }
-    }
-    await U.sleep(350);
-    const res = pt > bt ? 'player' : bt > pt ? 'banker' : 'tie';
-    let ret = 0;
-    for (const [k, v] of Object.entries(bets)) {
-      if (k === res) ret += Math.floor(v * PAY[k]);
-      else if (res === 'tie' && k !== 'tie') ret += v; // bei Unentschieden: Spieler-/Bankwetten zurück
-    }
+    const C = coup(), ret = payout(C.res);
+    Store.settle('baccarat', ret);
+    try {
+      el.pCards.innerHTML = ''; el.bCards.innerHTML = ''; el.pVal.hidden = el.bVal.hidden = true;
+      el.table.classList.remove('p-win', 'b-win', 't-win');
+      $$('.bc-spot').forEach(s => s.classList.remove('won', 'lost', 'push'));
+      const P = [], B = [];
+      setMsg(I18N.t('Karten werden ausgeteilt …'));
+      await deal1(el.pCards, P, C.P[0]); await deal1(el.bCards, B, C.B[0]);
+      await deal1(el.pCards, P, C.P[1]); showVal(el.pVal, P);
+      await deal1(el.bCards, B, C.B[1]); showVal(el.bVal, B);
+      if (C.P[2]) { await U.sleep(250); setMsg(I18N.t('Spieler zieht eine dritte Karte')); await deal1(el.pCards, P, C.P[2]); showVal(el.pVal, P); }
+      if (C.B[2]) { await U.sleep(250); setMsg(I18N.t('Bank zieht eine dritte Karte')); await deal1(el.bCards, B, C.B[2]); showVal(el.bVal, B); }
+      await U.sleep(350);
+    } catch (e) { console.error(e); }
+    const { res, pt, bt } = C;
+    // erst auszahlen, dann aufräumen – so geht nie ein Einsatz verloren
     Store.release('baccarat');
-    for (const k of Object.keys(bets)) spot(k).classList.add(k === res ? 'won' : res === 'tie' && k !== 'tie' ? '' : 'lost');
-    el.table.classList.add(res === 'player' ? 'p-win' : res === 'banker' ? 'b-win' : 't-win');
-    const label = res === 'player' ? I18N.t('Spieler gewinnt') : res === 'banker' ? I18N.t('Bank gewinnt') : I18N.t('Unentschieden');
     const net = ret - t;
     if (ret > 0) Store.win(ret, net);
-    if (net > 0) {
-      const c = FX.center(spot(res));
-      FX.coins(c.x, c.y, Math.min(45, 10 + Math.round(ret / t * 4)), 1);
-      Sfx.win(res === 'tie' ? 3 : 2);
-      setMsg(I18N.t('{0} ({1}:{2}) – du gewinnst {3} Münzen!', label, pt, bt, U.fmt(ret)));
-    } else if (ret > 0) { Sfx.push(); setMsg(I18N.t('{0} ({1}:{2}) – Einsatz zurück.', label, pt, bt)); }
-    else { Sfx.lose(); setMsg(I18N.t('{0} ({1}:{2}).', label, pt, bt)); }
-    road.push(res[0]); if (road.length > 48) road.shift();
-    renderRoad();
-    Store.emit({ type: 'baccarat', res, win: ret, bet: t, tieWin: res === 'tie' && !!bets.tie, net });
-    await U.sleep(700);
-    bets = {}; busy = false; render();
+    try {
+      for (const k of Object.keys(bets)) spot(k).classList.add(k === res ? 'won' : res === 'tie' && k !== 'tie' ? 'push' : 'lost');
+      el.table.classList.add(res === 'player' ? 'p-win' : res === 'banker' ? 'b-win' : 't-win');
+      const label = res === 'player' ? I18N.t('Spieler gewinnt') : res === 'banker' ? I18N.t('Bank gewinnt') : I18N.t('Unentschieden');
+      if (net > 0) {
+        const c = FX.center(spot(res));
+        FX.coins(c.x, c.y, Math.min(45, 10 + Math.round(ret / t * 4)), 1);
+        Sfx.win(res === 'tie' ? 3 : 2);
+        setMsg(I18N.t('{0} ({1}:{2}) – du gewinnst {3} Münzen!', label, pt, bt, U.fmt(ret)));
+      } else if (net === 0) { Sfx.push(); setMsg(I18N.t('{0} ({1}:{2}) – Einsatz zurück.', label, pt, bt)); }
+      else if (ret > 0) { Sfx.lose(); setMsg(I18N.t('{0} ({1}:{2}) – {3} von {4} zurück.', label, pt, bt, U.fmt(ret), U.fmt(t))); }
+      else { Sfx.lose(); setMsg(I18N.t('{0} ({1}:{2}).', label, pt, bt)); }
+      road.push(res[0]); if (road.length > 48) road.shift();
+      renderRoad();
+      Store.emit({ type: 'baccarat', res, win: ret, bet: t, tieWin: res === 'tie' && !!bets.tie, net });
+      await U.sleep(700);
+    } finally { bets = {}; busy = false; render(); }
   }
   function renderRoad() {
-    el.road.innerHTML = road.map(r => `<i class="${r}">${r === 'p' ? 'S' : r === 'b' ? 'B' : 'U'}</i>`).join('');
+    const L = { p: [I18N.t('S'), I18N.t('Spieler')], b: [I18N.t('B'), I18N.t('Bank')], t: [I18N.t('U'), I18N.t('Unentschieden')] };
+    el.road.dataset.empty = `${L.p[0]} · ${L.b[0]} · ${L.t[0]}`;
+    el.road.innerHTML = road.map(r => `<i class="${r}" title="${L[r][1]}">${L[r][0]}</i>`).join('');
   }
 
   $$('.bc-spot').forEach(s => {
@@ -6995,8 +7492,8 @@ const Baccarat = (() => {
     if (!t || t > Store.s.balance) { Sfx.error(); return; }
     Sfx.chip(); bets = { ...lastBets }; render();
   });
-  I18N.onChange(render);
-  buildShoe(); render();
+  I18N.onChange(() => { render(); renderRoad(); });
+  buildShoe(); render(); renderRoad();
 
   return {
     show() { render(); if (!road.length) setMsg(I18N.t('Setze auf Spieler, Bank oder Unentschieden.')); },
@@ -7111,14 +7608,14 @@ const Floor = (() => {
   add({ kind: 'scratch', x: 1180, y: 1040, fw: 170, fh: 56, vh: 110, game: 'scratch', label: 'Rubbellose', sub: 'Bis 100× pro Los', ix: 1180, iy: 1092, glow: '#ffc94a' });
   add({ kind: 'cashier', x: 1480, y: 1040, fw: 210, fh: 56, vh: 120, game: 'lobby', label: 'Kasse & Profil', sub: 'Statistik · Erfolge', ix: 1480, iy: 1092, glow: '#9d5cff' });
   [[230, 470], [1570, 470], [230, 880], [1570, 880], [690, 880], [1110, 880], [230, 1250], [1570, 1250], [690, 1250], [1110, 1250]].forEach(([x, y]) => add({ kind: 'pillar', x, y, fw: 40, fh: 26, vh: 150 }));
-  [[60, 250], [1740, 360], [60, 1250], [1740, 1250], [760, 1640], [1040, 1640], [60, 640], [1740, 640], [60, 1640], [1740, 1640]].forEach(([x, y], i) => add({ kind: 'plant', x, y, fw: 34, fh: 22, vh: 70, v: i }));
+  [[60, 250], [1740, 360], [60, 1250], [1740, 1250], [744, 1664], [1056, 1664], [60, 640], [1740, 640], [60, 1640], [1740, 1640]].forEach(([x, y], i) => add({ kind: 'plant', x, y, fw: y === 1664 ? 26 : 34, fh: y === 1664 ? 16 : 22, vh: 70, v: i }));
   // Neue Reihe: Video-Poker, Keno, Hi-Lo, Baccarat
   [150, 240, 330].forEach((x, i) => {
     add({ kind: 'vpoker', x, y: 1430, fw: 72, fh: 44, vh: 124, game: 'poker', label: 'Jacks or Better', sub: 'Video-Poker', ix: x, iy: 1480, glow: '#3be8ff', seed: i * 2.3 });
     add({ kind: 'stool', x, y: 1468, c: '#3be8ff', nocoll: true });
   });
   add({ kind: 'keno', x: 590, y: 1430, fw: 170, fh: 56, vh: 140, game: 'keno', label: 'Neon Keno', sub: '10 aus 40', ix: 590, iy: 1482, glow: '#9d5cff' });
-  add({ kind: 'hilo', x: 1150, y: 1450, fw: 200, fh: 96, vh: 40, game: 'hilo', label: 'Hi-Lo', sub: 'Höher oder niedriger', ix: 1150, iy: 1500, glow: '#5dffb0' });
+  add({ kind: 'hilo', x: 1130, y: 1470, fw: 200, fh: 96, vh: 40, game: 'hilo', label: 'Hi-Lo', sub: 'Höher oder niedriger', ix: 1130, iy: 1520, glow: '#5dffb0' });
   add({ kind: 'baccarat', x: 1480, y: 1460, fw: 290, fh: 124, vh: 40, game: 'baccarat', label: 'Royal Baccarat', sub: 'Spieler · Bank · Unentschieden', ix: 1480, iy: 1512, glow: '#ffc94a' });
   add({ kind: 'door', x: 900, y: WH - 6, fw: 0, fh: 0, vh: 90, sortY: WH + 50, game: 'exit', label: 'Ausgang', sub: 'Zur Stadt', ix: 900, iy: WH - 80, glow: '#3be8ff' });
   [[820, 1560], [820, 1450], [980, 1560], [980, 1450]].forEach(([x, y]) => add({ kind: 'post', x, y, fw: 12, fh: 10, vh: 34 }));
@@ -7134,7 +7631,7 @@ const Floor = (() => {
     { x: 1370, y: 579, a: { skin: 4, hair: 0, style: 'bald', outfit: '#16121f', accent: '#ffc94a' }, opts: { bowtie: true } },
     { x: 1470, y: 206, a: { skin: 1, hair: 5, style: 'mohawk', outfit: '#1c1826', accent: '#3be8ff' }, opts: { bowtie: true } },
     { x: 1480, y: 990, a: { skin: 3, hair: 1, style: 'long', outfit: '#3a1f78', accent: '#ffc94a', glasses: true }, opts: {} },
-    { x: 1150, y: 1370, a: { skin: 1, hair: 6, style: 'bun', outfit: '#16121f', accent: '#5dffb0' }, opts: { bowtie: true } },
+    { x: 1130, y: 1390, a: { skin: 1, hair: 6, style: 'bun', outfit: '#16121f', accent: '#5dffb0' }, opts: { bowtie: true } },
     { x: 1480, y: 1356, a: { skin: 2, hair: 0, style: 'short', outfit: '#16121f', accent: '#ffc94a', glasses: false }, opts: { bowtie: true } },
   ].map(d => Object.assign(d, { dir: 0, phase: Math.random() * 6, npc: true, fixed: true }));
   const guests = Array.from({ length: 7 }, (_, i) => ({ x: 400 + i * 160, y: 900 + (i % 3) * 60, dir: 0, phase: 0, moving: false, a: rndAvatar(),
@@ -7341,7 +7838,7 @@ const Floor = (() => {
     for (const o of interactives) if (o.kind === 'slot' || o.kind === 'plinko') pool(o.x, o.y + 20, 90, hexRgb(o.glow), 0.12 + 0.04 * Math.sin(time * 2 + (o.seed || 0)));
     pool(330, 1060, 150, '255,93,61', 0.08); pool(620, 1060, 130, '59,232,255', 0.08);
     pool(1180, 1060, 150, '255,201,74', 0.07); pool(1480, 1060, 160, '157,92,255', 0.07);
-    pool(240, 1450, 200, '59,232,255', 0.08); pool(590, 1450, 140, '157,92,255', 0.08); pool(1150, 1430, 170, '93,255,176', 0.05); pool(1480, 1430, 220, '255,201,74', 0.06);
+    pool(240, 1450, 200, '59,232,255', 0.08); pool(590, 1450, 140, '157,92,255', 0.08); pool(1130, 1450, 170, '93,255,176', 0.05); pool(1480, 1430, 220, '255,201,74', 0.06);
     pool(900, WH - 40, 180, '59,232,255', 0.1);
     pool(900, 300, 220, '255,201,74', 0.08 + (Wheel.ready() ? 0.05 * Math.sin(time * 3) : 0));
     g.globalCompositeOperation = 'source-over';
@@ -7884,7 +8381,7 @@ const Floor = (() => {
     });
     g.beginPath(); g.ellipse(x, top + 80, 30, 12, 0, 0, Math.PI * 2); g.stroke();
     [[x - 90, top + 26], [x - 76, top + 24], [x + 60, top + 24], [x + 74, top + 26]].forEach(([cx, cy]) => { g.fillStyle = '#fff'; rr(cx, cy - 16, 11, 15, 1.5); g.fill(); });
-    glowText('BACCARAT', x, top + d - 14, 10, '#ffc94a', 6);
+    glowText('BACCARAT', x, top + d - 14, 12, '#ffe7a0', 10);
   }
 
   function drawDoor(o) {
@@ -8134,6 +8631,1312 @@ const Bar = (() => {
       Sfx.win(1);
       Toast.show(d + ' aufs Haus!', `Der Barkeeper steckt dir ${tip} Münzen zu.`, '♪', 'ach');
     },
+  };
+})();
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   Die Stadt: fünf begrenzte Orte, Bus-Reisen, Läden und Katze Mimi.
+   Geld verdient man nur im Casino – hier wird es ausgegeben.
+   ============================================================ */
+const Town = (() => {
+  const canvas = $('#townCanvas'), g = canvas.getContext('2d');
+  const view = $('#view-town');
+  const promptEl = $('#townPrompt'), promptName = $('#townPromptName'), promptSub = $('#townPromptSub'), promptKey = $('#townPromptKey');
+  const actionBtn = $('#townAction'), joyEl = $('#townJoy'), knobEl = $('#townKnob'), zoneEl = $('#townZone');
+  const CELL = 20, PR = 11;
+  let W = 0, H = 0, dpr = 1, zoom = 1, camX = 0, camY = 0;
+  let active = false, raf = null, last = 0, time = 0, frame = 0, lock = false;
+  let near = null, pendingInteract = null, stepAcc = 0;
+  const keys = new Set();
+  const joy = { id: null, dx: 0, dy: 0, cx: 0, cy: 0 };
+  const player = { x: 0, y: 0, dir: 0, phase: 0, moving: false, path: null, speed: 200, alpha: 1, pose: null };
+  let avatar = Avatar.load();
+  let Z = null; // aktueller Ort
+  const bus = { x: -9999, state: 'gone', t: 0, doors: 0 };
+
+  /* ---------- Hilfen ---------- */
+  function rr(x, y, w, h, r) { g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h); }
+  const sh = Avatar.shade;
+  function hexRgb(h) { const n = parseInt(h.slice(1), 16); return `${n >> 16},${(n >> 8) & 255},${n & 255}`; }
+  const hexA = (h, a) => `rgba(${hexRgb(h)},${a})`;
+  function sign(txt, x, y, size, color, blur = 12, font = 'Bungee') {
+    txt = I18N.t(txt); size = Math.max(size, 10.5 / zoom);
+    g.font = `${size}px "${font}", Impact, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.shadowColor = color; g.shadowBlur = blur; g.fillStyle = '#fff'; g.fillText(txt, x, y);
+    g.shadowBlur = blur * 0.5; g.fillStyle = color; g.globalAlpha = 0.35; g.fillText(txt, x, y); g.globalAlpha = 1; g.shadowBlur = 0;
+  }
+  function shadow(x, y, rx, ry, a = 0.4) { g.fillStyle = `rgba(0,0,0,${a})`; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.fill(); }
+  function pool(x, y, r, rgb, a) {
+    const pg = g.createRadialGradient(x, y, 0, x, y, r);
+    pg.addColorStop(0, `rgba(${rgb},${a})`); pg.addColorStop(1, `rgba(${rgb},0)`);
+    g.fillStyle = pg; g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  const rnd = seed => { let s = seed; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; };
+
+  /* ---------- Muster ---------- */
+  const patterns = {};
+  function pat(name, T, paint) {
+    if (patterns[name]) return patterns[name];
+    const c = document.createElement('canvas'); c.width = c.height = T;
+    paint(c.getContext('2d'), T);
+    return (patterns[name] = g.createPattern(c, 'repeat'));
+  }
+  const grassPat = () => pat('grass', 96, (t, T) => {
+    t.fillStyle = '#1f4a2c'; t.fillRect(0, 0, T, T);
+    const r = rnd(7);
+    for (let i = 0; i < 260; i++) { t.fillStyle = r() < 0.5 ? 'rgba(90,170,90,0.25)' : 'rgba(10,40,20,0.35)'; t.fillRect(r() * T, r() * T, 1.5, 3 + r() * 3); }
+  });
+  const pavePat = () => pat('pave', 48, (t, T) => {
+    t.fillStyle = '#4a4458'; t.fillRect(0, 0, T, T);
+    t.strokeStyle = 'rgba(20,16,30,0.55)'; t.lineWidth = 1.5;
+    for (let y = 0; y <= T; y += 24) { t.beginPath(); t.moveTo(0, y); t.lineTo(T, y); t.stroke(); }
+    for (let row = 0; row < 2; row++) for (let x = row * 12; x <= T; x += 24) { t.beginPath(); t.moveTo(x, row * 24); t.lineTo(x, row * 24 + 24); t.stroke(); }
+    const r = rnd(3); for (let i = 0; i < 80; i++) { t.fillStyle = `rgba(255,255,255,${r() * 0.05})`; t.fillRect(r() * T, r() * T, 2, 2); }
+  });
+  const plazaPat = () => pat('plaza', 80, (t, T) => {
+    t.fillStyle = '#3a2a4a'; t.fillRect(0, 0, T, T);
+    t.fillStyle = '#453256'; t.fillRect(0, 0, T / 2, T / 2); t.fillRect(T / 2, T / 2, T / 2, T / 2);
+    t.strokeStyle = 'rgba(255,201,74,0.12)'; t.strokeRect(0.5, 0.5, T - 1, T - 1);
+  });
+  const sandPat = () => pat('sand', 64, (t, T) => {
+    t.fillStyle = '#c9a86a'; t.fillRect(0, 0, T, T);
+    const r = rnd(11); for (let i = 0; i < 300; i++) { t.fillStyle = r() < 0.5 ? 'rgba(255,240,200,0.3)' : 'rgba(120,90,40,0.25)'; t.fillRect(r() * T, r() * T, 1.5, 1.5); }
+  });
+  const rubberPat = () => pat('rubber', 64, (t, T) => {
+    t.fillStyle = '#6a2a4a'; t.fillRect(0, 0, T, T);
+    const r = rnd(5); for (let i = 0; i < 200; i++) { t.fillStyle = ['rgba(255,61,139,0.35)', 'rgba(59,232,255,0.3)', 'rgba(255,201,74,0.3)'][i % 3]; t.fillRect(r() * T, r() * T, 2, 2); }
+  });
+  const asphaltPat = () => pat('asph', 64, (t, T) => {
+    t.fillStyle = '#26222e'; t.fillRect(0, 0, T, T);
+    const r = rnd(13); for (let i = 0; i < 220; i++) { t.fillStyle = `rgba(255,255,255,${r() * 0.05})`; t.fillRect(r() * T, r() * T, 1.5, 1.5); }
+  });
+
+  /* ---------- Gemeinsame Straße unten ---------- */
+  const ROAD_Y = 860, WALK_MAX = 846;
+  function drawStreet(ww) {
+    g.fillStyle = pavePat(); g.fillRect(0, 780, ww, ROAD_Y - 780);
+    g.fillStyle = '#8a8298'; g.fillRect(0, ROAD_Y - 6, ww, 6);
+    g.fillStyle = asphaltPat(); g.fillRect(0, ROAD_Y, ww, 200);
+    g.fillStyle = 'rgba(255,230,140,0.7)';
+    for (let x = 20; x < ww; x += 90) g.fillRect(x, ROAD_Y + 62, 46, 5);
+    g.fillStyle = 'rgba(255,255,255,0.12)'; g.fillRect(0, ROAD_Y + 130, ww, 3);
+  }
+
+  /* ---------- Objekt-Zeichner ---------- */
+  function drawTree(o) {
+    const { x, y } = o, s = o.s || 1;
+    shadow(x + 6, y - 2, 34 * s, 11 * s, 0.35);
+    g.fillStyle = '#4a2c16'; g.fillRect(x - 5 * s, y - 34 * s, 10 * s, 34 * s);
+    const sway = Math.sin(time * 0.9 + x) * 1.5;
+    [[0, -70, 34], [-20, -56, 24], [20, -54, 26], [0, -92, 24]].forEach(([dx, dy, r], i) => {
+      const cx = x + dx * s + sway, cy = y + dy * s, R = r * s;
+      const tg = g.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.1, cx, cy, R);
+      tg.addColorStop(0, i === 3 ? '#5fb86a' : '#4aa05a'); tg.addColorStop(1, '#16402a');
+      g.fillStyle = tg; g.beginPath(); g.arc(cx, cy, R, 0, Math.PI * 2); g.fill();
+    });
+    if (o.lights) {
+      for (let i = 0; i < 9; i++) {
+        const a = i * 0.7 + 0.3, on = (Math.floor(time * 3) + i) % 3 !== 0;
+        g.fillStyle = on ? ['#ff3d8b', '#ffc94a', '#3be8ff'][i % 3] : 'rgba(255,255,255,0.2)';
+        g.beginPath(); g.arc(x + Math.cos(a * 2.3) * 26 * s, y - 70 * s + Math.sin(a * 2.3) * 22 * s, 2.2, 0, Math.PI * 2); g.fill();
+      }
+    }
+  }
+  function drawPalm(o) {
+    const { x, y } = o;
+    shadow(x + 10, y - 2, 30, 9, 0.35);
+    g.strokeStyle = '#7a5226'; g.lineWidth = 9; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(x, y - 2); g.quadraticCurveTo(x + 12, y - 60, x + 4, y - 118); g.stroke();
+    g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = 2;
+    for (let i = 1; i < 9; i++) { const t = i / 9, px = x + 12 * 2 * t * (1 - t) + 4 * t * t, py = y - 2 - 116 * t; g.beginPath(); g.moveTo(px - 4, py); g.lineTo(px + 4, py - 2); g.stroke(); }
+    for (let i = 0; i < 7; i++) {
+      const a = -Math.PI / 2 + (i - 3) * 0.55 + Math.sin(time * 0.8 + i) * 0.04, len = 52;
+      g.strokeStyle = i % 2 ? '#2a8a3a' : '#3fb04a'; g.lineWidth = 6;
+      g.beginPath(); g.moveTo(x + 4, y - 118); g.quadraticCurveTo(x + 4 + Math.cos(a) * len * 0.6, y - 118 + Math.sin(a) * len * 0.3 - 16, x + 4 + Math.cos(a) * len, y - 118 + Math.sin(a) * len * 0.7 + 18); g.stroke();
+    }
+  }
+  function drawLamp(o) {
+    const { x, y } = o;
+    shadow(x, y, 9, 3.5, 0.35);
+    g.fillStyle = '#2a2436'; g.fillRect(x - 2.5, y - 92, 5, 90);
+    g.fillStyle = '#1a1622'; rr(x - 7, y - 6, 14, 6, 2); g.fill();
+    g.fillStyle = '#3a3448'; g.fillRect(x - 2, y - 94, 20, 4);
+    const gl = g.createRadialGradient(x + 16, y - 88, 0, x + 16, y - 88, 26);
+    gl.addColorStop(0, 'rgba(255,230,160,0.95)'); gl.addColorStop(0.3, 'rgba(255,200,110,0.4)'); gl.addColorStop(1, 'rgba(255,200,110,0)');
+    g.fillStyle = gl; g.beginPath(); g.arc(x + 16, y - 88, 26, 0, Math.PI * 2); g.fill();
+  }
+  function drawBench(o) {
+    const { x, y } = o;
+    shadow(x, y - 2, 30, 6, 0.3);
+    g.fillStyle = '#2a2436'; g.fillRect(x - 26, y - 14, 4, 14); g.fillRect(x + 22, y - 14, 4, 14);
+    g.fillStyle = '#8a5424'; for (let i = 0; i < 3; i++) g.fillRect(x - 30, y - 18 - i * 6, 60, 4);
+    g.fillStyle = '#6a3e1a'; g.fillRect(x - 30, y - 34, 60, 5);
+  }
+  function drawHedge(o) {
+    const { x, y, w } = o;
+    shadow(x, y, w / 2 + 6, 8, 0.3);
+    const hg = g.createLinearGradient(0, y - 34, 0, y);
+    hg.addColorStop(0, '#3f8a4a'); hg.addColorStop(1, '#173a22');
+    g.fillStyle = hg; rr(x - w / 2, y - 30, w, 30, 12); g.fill();
+    g.fillStyle = 'rgba(160,255,140,0.12)';
+    for (let i = 0; i < w / 14; i++) { g.beginPath(); g.arc(x - w / 2 + 8 + i * 14, y - 28 + (i % 2) * 3, 7, 0, Math.PI * 2); g.fill(); }
+  }
+  function drawFence(o) {
+    const { x, y, w } = o;
+    g.fillStyle = '#e8e0f0';
+    for (let px = x - w / 2; px <= x + w / 2; px += 14) { g.beginPath(); g.moveTo(px - 3, y); g.lineTo(px - 3, y - 22); g.lineTo(px, y - 26); g.lineTo(px + 3, y - 22); g.lineTo(px + 3, y); g.closePath(); g.fill(); }
+    g.fillRect(x - w / 2, y - 18, w, 3); g.fillRect(x - w / 2, y - 8, w, 3);
+  }
+  function drawFlowers(o) {
+    const { x, y, w } = o;
+    g.fillStyle = '#3a2412'; rr(x - w / 2, y - 12, w, 12, 4); g.fill();
+    const r = rnd(Math.floor(x));
+    for (let i = 0; i < w / 7; i++) {
+      const fx = x - w / 2 + 4 + r() * (w - 8), fy = y - 8 - r() * 8;
+      g.fillStyle = '#2a7a3a'; g.fillRect(fx - 0.7, fy, 1.4, 6);
+      g.fillStyle = ['#ff3d8b', '#ffc94a', '#ffffff', '#c77dff'][i % 4]; g.beginPath(); g.arc(fx, fy, 3, 0, Math.PI * 2); g.fill();
+    }
+  }
+  function drawBusStop(o) {
+    const { x, y } = o;
+    shadow(x, y - 2, 70, 12, 0.35);
+    g.fillStyle = '#2a2436'; g.fillRect(x - 60, y - 70, 4, 70); g.fillRect(x + 56, y - 70, 4, 70);
+    g.fillStyle = 'rgba(160,220,255,0.18)'; g.fillRect(x - 58, y - 66, 116, 50);
+    g.strokeStyle = 'rgba(200,240,255,0.5)'; g.lineWidth = 1.5; g.strokeRect(x - 58, y - 66, 116, 50);
+    g.fillStyle = '#ff3d8b'; rr(x - 66, y - 80, 132, 12, 4); g.fill();
+    g.fillStyle = '#8a5424'; g.fillRect(x - 40, y - 24, 80, 6);
+    g.fillStyle = '#1a1622'; g.fillRect(x - 36, y - 18, 3, 18); g.fillRect(x + 33, y - 18, 3, 18);
+    // Schild
+    g.fillStyle = '#2a2436'; g.fillRect(x + 74, y - 90, 4, 90);
+    g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(x + 76, y - 96, 13, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#1a0826'; g.font = `${Math.max(10, 10 / zoom)}px Bungee, Impact, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('H', x + 76, y - 95);
+    sign('BUS', x, y - 74, 9, '#ffffff', 4);
+  }
+  function drawBuilding(o) {
+    const { x, y, w, h, roof = '#2a1e3a', wall = '#4a3a5e', d = 40 } = o;
+    shadow(x, y - 4, w / 2 + 16, 16, 0.4);
+    // Dach (Oberseite)
+    const rg = g.createLinearGradient(0, y - h - d, 0, y - h);
+    rg.addColorStop(0, sh(roof, 25)); rg.addColorStop(1, roof);
+    g.fillStyle = rg; g.fillRect(x - w / 2, y - h - d, w, d);
+    g.fillStyle = 'rgba(255,255,255,0.08)'; g.fillRect(x - w / 2, y - h - d, w, 3);
+    // Front
+    const fg = g.createLinearGradient(0, y - h, 0, y);
+    fg.addColorStop(0, sh(wall, 12)); fg.addColorStop(1, sh(wall, -22));
+    g.fillStyle = fg; g.fillRect(x - w / 2, y - h, w, h);
+    g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(x - w / 2, y - h, w, 4);
+    // Fenster
+    if (o.windows !== false) {
+      const cols = Math.max(2, Math.floor(w / 60)), rows = Math.max(1, Math.floor((h - 70) / 56));
+      const r = rnd(Math.floor(x + y));
+      for (let rI = 0; rI < rows; rI++) for (let c = 0; c < cols; c++) {
+        const wx = x - w / 2 + (c + 0.5) * w / cols - 14, wy = y - h + 18 + rI * 56;
+        const lit = r() < 0.72;
+        g.fillStyle = '#140c1e'; g.fillRect(wx - 2, wy - 2, 32, 34);
+        g.fillStyle = lit ? (r() < 0.5 ? '#ffd88a' : '#ffb870') : '#2a2a48'; g.fillRect(wx, wy, 28, 30);
+        if (lit) { g.fillStyle = 'rgba(255,220,150,0.18)'; g.fillRect(wx - 6, wy - 6, 40, 42); }
+        g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(wx + 13, wy, 2, 30); g.fillRect(wx, wy + 14, 28, 2);
+      }
+    }
+    if (o.door) {
+      const dx = x + (o.doorX || 0);
+      g.fillStyle = '#1a0e10'; rr(dx - 18, y - 56, 36, 56, [8, 8, 0, 0]); g.fill();
+      g.fillStyle = o.doorColor || '#6a3a14'; rr(dx - 15, y - 53, 30, 53, [6, 6, 0, 0]); g.fill();
+      g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(dx + 9, y - 26, 2, 0, Math.PI * 2); g.fill();
+      const gl = g.createRadialGradient(dx, y - 66, 0, dx, y - 66, 30); gl.addColorStop(0, 'rgba(255,220,150,0.6)'); gl.addColorStop(1, 'rgba(255,220,150,0)');
+      g.fillStyle = gl; g.fillRect(dx - 30, y - 96, 60, 60);
+    }
+  }
+  function drawHouse(o) {
+    const { x, y, w = 220, c = '#8a4a5a' } = o;
+    const h = 150;
+    shadow(x, y - 4, w / 2 + 14, 14, 0.4);
+    // Satteldach
+    g.fillStyle = sh(c, -55);
+    g.beginPath(); g.moveTo(x - w / 2 - 12, y - h + 10); g.lineTo(x, y - h - 60); g.lineTo(x + w / 2 + 12, y - h + 10); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.07)';
+    for (let i = 0; i < 6; i++) { g.beginPath(); g.moveTo(x - w / 2 - 12 + i * 22, y - h + 10 - i * 2); g.lineTo(x + w / 2 + 12 - i * 22, y - h + 10 - i * 2); g.lineWidth = 1; g.strokeStyle = 'rgba(0,0,0,0.2)'; g.stroke(); }
+    // Wand
+    const fg = g.createLinearGradient(0, y - h, 0, y);
+    fg.addColorStop(0, sh(c, 30)); fg.addColorStop(1, sh(c, -10));
+    g.fillStyle = fg; g.fillRect(x - w / 2, y - h + 10, w, h - 10);
+    // Fenster
+    [[-w / 2 + 40, -110], [w / 2 - 40, -110], [-w / 2 + 40, -60], [w / 2 - 40, -60]].forEach(([dx, dy], i) => {
+      const lit = (i + Math.floor(x)) % 3 !== 0;
+      g.fillStyle = '#f0e6f4'; g.fillRect(x + dx - 20, y + dy - 18, 40, 36);
+      g.fillStyle = lit ? '#ffd88a' : '#2a2a48'; g.fillRect(x + dx - 17, y + dy - 15, 34, 30);
+      g.fillStyle = '#f0e6f4'; g.fillRect(x + dx - 1, y + dy - 15, 2, 30); g.fillRect(x + dx - 17, y + dy - 1, 34, 2);
+      if (lit) { g.fillStyle = 'rgba(255,220,150,0.16)'; g.fillRect(x + dx - 30, y + dy - 26, 60, 52); }
+    });
+    // Tür
+    g.fillStyle = sh(c, -60); rr(x - 18, y - 62, 36, 62, [10, 10, 0, 0]); g.fill();
+    g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(x + 10, y - 30, 2.2, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#b0a8c0'; g.fillRect(x - 26, y - 4, 52, 4);
+    if (o.home) {
+      sign('ZUHAUSE', x, y - h - 20, 10, '#ffc94a', 8);
+      // Katzennapf
+      g.fillStyle = '#ff3d8b'; g.beginPath(); g.ellipse(x + 50, y + 14, 12, 5, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = Store.s.cat && Store.s.cat.bowl > 0 ? '#8a5424' : '#3a1020'; g.beginPath(); g.ellipse(x + 50, y + 12, 8, 3, 0, 0, Math.PI * 2); g.fill();
+    }
+    if (o.num) { g.fillStyle = '#fff'; g.font = '700 11px Rubik, sans-serif'; g.textAlign = 'center'; g.fillText(String(o.num), x, y - 72); }
+  }
+  function drawMailbox(o) {
+    const { x, y } = o;
+    shadow(x, y, 8, 3);
+    g.fillStyle = '#4a4458'; g.fillRect(x - 2, y - 30, 4, 30);
+    g.fillStyle = '#2f6bff'; rr(x - 11, y - 44, 22, 16, [8, 8, 2, 2]); g.fill();
+    g.fillStyle = '#e0103a'; g.fillRect(x + 9, y - 46, 3, 10);
+  }
+  function drawCar(o) {
+    const { x, y, c = '#e0103a' } = o;
+    shadow(x, y - 2, 52, 10, 0.4);
+    const bg = g.createLinearGradient(0, y - 40, 0, y);
+    bg.addColorStop(0, sh(c, 30)); bg.addColorStop(1, sh(c, -40));
+    g.fillStyle = bg; rr(x - 50, y - 26, 100, 22, 8); g.fill();
+    g.fillStyle = sh(c, -10); rr(x - 30, y - 42, 60, 18, [10, 10, 2, 2]); g.fill();
+    g.fillStyle = 'rgba(160,220,255,0.55)'; rr(x - 26, y - 39, 24, 13, 3); g.fill(); rr(x + 2, y - 39, 24, 13, 3); g.fill();
+    g.fillStyle = '#111'; [[-32, 0], [32, 0]].forEach(([dx]) => { g.beginPath(); g.arc(x + dx, y - 4, 8, 0, Math.PI * 2); g.fill(); });
+    g.fillStyle = '#888'; [[-32], [32]].forEach(([dx]) => { g.beginPath(); g.arc(x + dx, y - 4, 3.5, 0, Math.PI * 2); g.fill(); });
+    g.fillStyle = '#fff6c8'; g.fillRect(x + 46, y - 20, 4, 5); g.fillStyle = '#ff3d3d'; g.fillRect(x - 50, y - 20, 4, 5);
+    if (o.taxi) { g.fillStyle = '#ffc94a'; rr(x - 10, y - 50, 20, 8, 2); g.fill(); g.fillStyle = '#1a0826'; g.font = '700 6px Rubik, sans-serif'; g.textAlign = 'center'; g.fillText('TAXI', x, y - 45); }
+  }
+  function drawFountain(o) {
+    const { x, y } = o;
+    shadow(x, y - 4, 110, 26, 0.35);
+    g.fillStyle = '#6a6278'; g.beginPath(); g.ellipse(x, y - 24, 104, 38, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#4a4458'; g.fillRect(x - 104, y - 24, 208, 14);
+    g.beginPath(); g.ellipse(x, y - 10, 104, 38, 0, 0, Math.PI); g.fill();
+    const wg = g.createRadialGradient(x, y - 26, 10, x, y - 26, 96);
+    wg.addColorStop(0, '#3be8ff'); wg.addColorStop(1, '#1a4a8a');
+    g.fillStyle = wg; g.beginPath(); g.ellipse(x, y - 26, 92, 30, 0, 0, Math.PI * 2); g.fill();
+    for (let i = 0; i < 6; i++) { const a = time * 0.8 + i; g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1.2; g.beginPath(); g.ellipse(x, y - 26, 20 + ((time * 20 + i * 15) % 80), (20 + ((time * 20 + i * 15) % 80)) * 0.33, 0, 0, Math.PI * 2); g.stroke(); void a; }
+    g.fillStyle = '#8a8298'; g.fillRect(x - 8, y - 90, 16, 64);
+    g.fillStyle = '#a8a0b8'; g.beginPath(); g.ellipse(x, y - 90, 30, 9, 0, 0, Math.PI * 2); g.fill();
+    for (let i = 0; i < 16; i++) {
+      const t = ((time * 1.4 + i / 16) % 1), a = i / 16 * Math.PI * 2;
+      const px = x + Math.cos(a) * 30 * t, py = y - 96 - Math.sin(Math.PI * t) * 40 + t * 60;
+      g.fillStyle = `rgba(200,245,255,${0.8 - t * 0.6})`; g.beginPath(); g.arc(px, py, 2.4, 0, Math.PI * 2); g.fill();
+    }
+  }
+  function drawCasinoFront(o) {
+    const { x, y } = o, w = 1100, h = 250;
+    // Fassade
+    const fg = g.createLinearGradient(0, y - h, 0, y);
+    fg.addColorStop(0, '#2a1438'); fg.addColorStop(1, '#140a1e');
+    g.fillStyle = fg; g.fillRect(x - w / 2, y - h, w, h);
+    g.fillStyle = '#1a0c24'; g.fillRect(x - w / 2, y - h - 30, w, 30);
+    // Säulen & Lichtbänder
+    for (let i = 0; i < 9; i++) {
+      const px = x - w / 2 + 60 + i * (w - 120) / 8;
+      g.fillStyle = '#3a2250'; g.fillRect(px - 10, y - h + 20, 20, h - 20);
+      const a = 0.6 + 0.4 * Math.sin(time * 2 + i);
+      g.fillStyle = `rgba(255,61,139,${a})`; g.shadowColor = '#ff3d8b'; g.shadowBlur = 12; g.fillRect(px - 2, y - h + 24, 4, h - 40); g.shadowBlur = 0;
+    }
+    // Lauflichter an der Kante
+    for (let i = 0; i < 60; i++) { const on = (Math.floor(time * 6) + i) % 3 === 0; g.fillStyle = on ? '#fff6c8' : 'rgba(255,201,74,0.3)'; g.beginPath(); g.arc(x - w / 2 + 10 + i * (w - 20) / 59, y - h - 6, 2.5, 0, Math.PI * 2); g.fill(); }
+    sign('NEON NIGHTS', x, y - h + 60, 46, '#ff3d8b', 26, 'Bungee Inline');
+    sign('CASINO', x, y - h + 110, 22, '#3be8ff', 16);
+    // Eingang
+    g.fillStyle = '#0a0612'; g.fillRect(x - 90, y - 110, 180, 110);
+    const dg = g.createLinearGradient(x - 80, 0, x + 80, 0);
+    dg.addColorStop(0, 'rgba(255,201,74,0.25)'); dg.addColorStop(0.5, 'rgba(255,240,190,0.5)'); dg.addColorStop(1, 'rgba(255,201,74,0.25)');
+    g.fillStyle = dg; g.fillRect(x - 80, y - 100, 160, 100);
+    g.fillStyle = '#c98a12'; g.fillRect(x - 92, y - 114, 184, 6); g.fillRect(x - 2, y - 100, 4, 100);
+    // Vordach
+    g.fillStyle = '#5a1030'; g.beginPath(); g.moveTo(x - 130, y - 118); g.lineTo(x + 130, y - 118); g.lineTo(x + 150, y - 90); g.lineTo(x - 150, y - 90); g.closePath(); g.fill();
+    for (let i = 0; i < 14; i++) { g.fillStyle = (Math.floor(time * 5) + i) % 2 ? '#fff6c8' : '#ffc94a'; g.beginPath(); g.arc(x - 140 + i * 21.5, y - 92, 2.5, 0, Math.PI * 2); g.fill(); }
+    // Plakate
+    [[-380, 'SLOTS', '#ffc94a'], [-220, 'ROULETTE', '#5dffb0'], [220, 'POKER', '#3be8ff'], [380, 'BLACKJACK', '#ff7ab4']].forEach(([dx, t, c]) => {
+      g.fillStyle = '#0c0616'; rr(x + dx - 64, y - 150, 128, 70, 8); g.fill();
+      g.strokeStyle = c; g.lineWidth = 2; g.shadowColor = c; g.shadowBlur = 10; rr(x + dx - 64, y - 150, 128, 70, 8); g.stroke(); g.shadowBlur = 0;
+      sign(t, x + dx, y - 115, 14, c, 10);
+    });
+  }
+  function drawStoreFront(o) {
+    const { x, y, w, title, color, icon } = o, h = 170;
+    shadow(x, y - 4, w / 2 + 10, 12, 0.35);
+    const fg = g.createLinearGradient(0, y - h, 0, y);
+    fg.addColorStop(0, sh(o.wall || '#3a2a4a', 20)); fg.addColorStop(1, sh(o.wall || '#3a2a4a', -20));
+    g.fillStyle = fg; g.fillRect(x - w / 2, y - h, w, h);
+    g.fillStyle = sh(o.wall || '#3a2a4a', -40); g.fillRect(x - w / 2, y - h - 26, w, 26);
+    // Markise
+    const stripes = 8, sw = w / stripes;
+    for (let i = 0; i < stripes; i++) { g.fillStyle = i % 2 ? '#f4eefa' : color; g.beginPath(); g.moveTo(x - w / 2 + i * sw, y - h + 40); g.lineTo(x - w / 2 + (i + 1) * sw, y - h + 40); g.lineTo(x - w / 2 + (i + 1) * sw, y - h + 62); g.quadraticCurveTo(x - w / 2 + (i + 0.5) * sw, y - h + 72, x - w / 2 + i * sw, y - h + 62); g.closePath(); g.fill(); }
+    // Schaufenster
+    const sg = g.createLinearGradient(0, y - h + 70, 0, y);
+    sg.addColorStop(0, 'rgba(255,230,170,0.55)'); sg.addColorStop(1, 'rgba(255,200,120,0.25)');
+    g.fillStyle = '#140c1e'; g.fillRect(x - w / 2 + 14, y - h + 76, w - 28, h - 80);
+    g.fillStyle = sg; g.fillRect(x - w / 2 + 18, y - h + 80, w - 36, h - 84);
+    if (icon) icon(x, y - 50);
+    // Tür
+    g.fillStyle = 'rgba(20,12,30,0.8)'; g.fillRect(x - 20, y - 64, 40, 64);
+    g.fillStyle = 'rgba(160,220,255,0.3)'; g.fillRect(x - 17, y - 60, 34, 60);
+    sign(title, x, y - h + 20, 15, color, 12);
+  }
+
+  /* ---------- Spielplatz ---------- */
+  const play = { swing: 0, swingT: -99, slideT: -99, castles: [] };
+  function drawSwing(o) {
+    const { x, y } = o;
+    shadow(x, y, 70, 12, 0.3);
+    g.strokeStyle = '#c9a8ff'; g.lineWidth = 6; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(x - 70, y); g.lineTo(x - 55, y - 110); g.lineTo(x - 40, y);
+    g.moveTo(x + 40, y); g.lineTo(x + 55, y - 110); g.lineTo(x + 70, y); g.stroke();
+    g.strokeStyle = '#ff3d8b'; g.lineWidth = 7; g.beginPath(); g.moveTo(x - 58, y - 108); g.lineTo(x + 58, y - 108); g.stroke();
+    [-26, 26].forEach((dx, i) => {
+      const active = i === 0 && time - play.swingT < 5;
+      const amp = active ? Math.sin((time - play.swingT) * 3.2) * 0.5 * Math.min(1, (5 - (time - play.swingT)) / 1.5) : Math.sin(time * 1.2 + i) * 0.05;
+      const ex = x + dx + Math.sin(amp) * 70, ey = y - 108 + Math.cos(amp) * 78;
+      g.strokeStyle = '#8a8298'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(x + dx - 9, y - 108); g.lineTo(ex - 9, ey); g.moveTo(x + dx + 9, y - 108); g.lineTo(ex + 9, ey); g.stroke();
+      g.fillStyle = '#ffc94a'; rr(ex - 12, ey - 3, 24, 6, 2); g.fill();
+      if (active) { o.seat = { x: ex, y: ey + 16 }; }
+    });
+  }
+  function drawSlide(o) {
+    const { x, y } = o;
+    shadow(x, y, 80, 14, 0.3);
+    g.fillStyle = '#3a2250'; g.fillRect(x - 60, y - 96, 6, 96); g.fillRect(x - 30, y - 96, 6, 96);
+    g.strokeStyle = '#c9a8ff'; g.lineWidth = 3; for (let i = 0; i < 6; i++) { g.beginPath(); g.moveTo(x - 58, y - 12 - i * 15); g.lineTo(x - 26, y - 12 - i * 15); g.stroke(); }
+    g.fillStyle = '#5a3a90'; g.fillRect(x - 62, y - 104, 42, 10);
+    const sg = g.createLinearGradient(x - 20, 0, x + 80, 0);
+    sg.addColorStop(0, '#ff6aa6'); sg.addColorStop(1, '#ffc94a');
+    g.fillStyle = sg; g.beginPath(); g.moveTo(x - 22, y - 104); g.lineTo(x - 4, y - 104); g.quadraticCurveTo(x + 50, y - 40, x + 84, y - 8); g.lineTo(x + 70, y); g.quadraticCurveTo(x + 36, y - 30, x - 22, y - 92); g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,0.45)'; g.lineWidth = 2; g.beginPath(); g.moveTo(x - 14, y - 100); g.quadraticCurveTo(x + 40, y - 38, x + 76, y - 6); g.stroke();
+  }
+  function drawSandbox(o) {
+    const { x, y } = o;
+    g.fillStyle = '#8a5424'; rr(x - 90, y - 60, 180, 64, 6); g.fill();
+    g.fillStyle = sandPat(); rr(x - 82, y - 54, 164, 52, 4); g.fill();
+    g.fillStyle = '#ff3d8b'; g.beginPath(); g.moveTo(x + 60, y - 30); g.lineTo(x + 72, y - 30); g.lineTo(x + 70, y - 18); g.lineTo(x + 62, y - 18); g.closePath(); g.fill();
+    g.strokeStyle = '#3be8ff'; g.lineWidth = 2; g.beginPath(); g.moveTo(x + 50, y - 22); g.lineTo(x + 40, y - 40); g.stroke();
+    play.castles.forEach(c => {
+      const cx = x + c.dx, cy = y - 16;
+      g.fillStyle = '#d8b878'; g.fillRect(cx - 12, cy - 16, 24, 16); g.fillRect(cx - 14, cy - 22, 7, 8); g.fillRect(cx + 7, cy - 22, 7, 8); g.fillRect(cx - 4, cy - 26, 8, 12);
+      g.fillStyle = '#ff3d8b'; g.beginPath(); g.moveTo(cx, cy - 26); g.lineTo(cx, cy - 36); g.lineTo(cx + 8, cy - 32); g.closePath(); g.fill();
+    });
+  }
+  function drawSeesaw(o) {
+    const { x, y } = o;
+    shadow(x, y, 70, 10, 0.3);
+    const a = Math.sin(time * (o.busy ? 2.4 : 0.6)) * (o.busy ? 0.28 : 0.05);
+    g.fillStyle = '#3a2250'; g.beginPath(); g.moveTo(x - 12, y); g.lineTo(x, y - 24); g.lineTo(x + 12, y); g.closePath(); g.fill();
+    g.save(); g.translate(x, y - 24); g.rotate(a);
+    g.fillStyle = '#3be8ff'; rr(-72, -4, 144, 8, 3); g.fill();
+    g.fillStyle = '#ffc94a'; g.fillRect(-66, -14, 4, 10); g.fillRect(62, -14, 4, 10);
+    g.restore();
+  }
+  function drawIceTruck(o) {
+    const { x, y } = o;
+    shadow(x, y - 2, 90, 14, 0.4);
+    g.fillStyle = '#f4eefa'; rr(x - 86, y - 90, 150, 84, 10); g.fill();
+    g.fillStyle = '#ff6aa6'; rr(x + 60, y - 64, 36, 58, 8); g.fill();
+    g.fillStyle = 'rgba(160,220,255,0.6)'; rr(x + 66, y - 58, 24, 20, 4); g.fill();
+    g.fillStyle = '#1a0e24'; rr(x - 70, y - 78, 110, 44, 6); g.fill();
+    g.fillStyle = '#ffc94a'; g.fillRect(x - 70, y - 38, 110, 5);
+    ['#ff6aa6', '#ffc94a', '#5dffb0', '#c9a8ff'].forEach((c, i) => { g.fillStyle = c; g.beginPath(); g.arc(x - 52 + i * 26, y - 60, 9, Math.PI, 0); g.fill(); g.fillStyle = '#d8a060'; g.beginPath(); g.moveTo(x - 60 + i * 26, y - 60); g.lineTo(x - 44 + i * 26, y - 60); g.lineTo(x - 52 + i * 26, y - 44); g.closePath(); g.fill(); });
+    g.fillStyle = '#111'; [[-56], [40]].forEach(([dx]) => { g.beginPath(); g.arc(x + dx, y - 6, 11, 0, Math.PI * 2); g.fill(); });
+    // Riesen-Eistüte auf dem Dach
+    g.fillStyle = '#d8a060'; g.beginPath(); g.moveTo(x - 20, y - 100); g.lineTo(x + 4, y - 100); g.lineTo(x - 8, y - 72); g.closePath(); g.fill();
+    g.fillStyle = '#ff6aa6'; g.beginPath(); g.arc(x - 8, y - 106, 13, 0, Math.PI * 2); g.fill();
+    sign('EIS', x - 8, y - 126, 12, '#ff6aa6', 10);
+  }
+
+  function drawCart(o) {
+    const { x, y } = o;
+    shadow(x, y, 20, 5, 0.3);
+    g.strokeStyle = '#b0a8c0'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(x - 18, y - 30); g.lineTo(x + 14, y - 30); g.lineTo(x + 10, y - 10); g.lineTo(x - 14, y - 10); g.closePath(); g.stroke();
+    for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(x - 18 + i * 8, y - 30); g.lineTo(x - 14 + i * 6, y - 10); g.stroke(); }
+    g.beginPath(); g.moveTo(x + 14, y - 30); g.lineTo(x + 20, y - 36); g.stroke();
+    g.fillStyle = '#222'; [[-10], [8]].forEach(([dx]) => { g.beginPath(); g.arc(x + dx, y - 4, 3, 0, Math.PI * 2); g.fill(); });
+  }
+
+  const DRAW = { tree: drawTree, palm: drawPalm, lamp: drawLamp, bench: drawBench, hedge: drawHedge, fence: drawFence, flowers: drawFlowers, busstop: drawBusStop,
+    building: drawBuilding, house: drawHouse, mailbox: drawMailbox, car: drawCar, fountain: drawFountain, casino: drawCasinoFront, store: drawStoreFront,
+    swing: drawSwing, slide: drawSlide, sandbox: drawSandbox, seesaw: drawSeesaw, icetruck: drawIceTruck, cart: drawCart };
+
+  /* ---------- Orte ---------- */
+  const shopIcon = kind => (x, y) => {
+    if (kind === 'hats') { const hats = ['tophat', 'crown', 'cowboy']; hats.forEach((h, i) => { g.save(); g.translate(x - 50 + i * 50, y + 10); g.scale(1.6, 1.6); Avatar.drawHat(g, h, 0, false, 1, 0, '#ff3d8b'); g.restore(); }); }
+    else if (kind === 'pets') { drawCatShape(x - 30, y + 18, 1, 0, false, 'sit', 1.1, null); g.fillStyle = '#ff3d8b'; g.beginPath(); g.arc(x + 36, y + 8, 12, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#ffc2e4'; g.lineWidth = 1.5; for (let i = 0; i < 4; i++) { g.beginPath(); g.arc(x + 36, y + 8, 4 + i * 2.5, i, i + 2.4); g.stroke(); } }
+    else if (kind === 'cafe') { g.fillStyle = '#f4eefa'; rr(x - 16, y - 6, 32, 28, 6); g.fill(); g.strokeStyle = '#f4eefa'; g.lineWidth = 4; g.beginPath(); g.arc(x + 18, y + 6, 8, -1.2, 1.2); g.stroke(); g.fillStyle = '#6a3e1a'; g.fillRect(x - 12, y - 4, 24, 6); for (let i = 0; i < 3; i++) { g.strokeStyle = `rgba(255,255,255,${0.4 + 0.2 * Math.sin(time * 2 + i)})`; g.lineWidth = 2; g.beginPath(); g.moveTo(x - 8 + i * 8, y - 12); g.quadraticCurveTo(x - 4 + i * 8, y - 22, x - 8 + i * 8, y - 30); g.stroke(); } }
+    else if (kind === 'market') { ['#e0103a', '#ffc94a', '#5dffb0', '#ff8a3d', '#3be8ff'].forEach((c, i) => { g.fillStyle = c; g.beginPath(); g.arc(x - 60 + i * 30, y + 12, 11, 0, Math.PI * 2); g.fill(); }); }
+  };
+
+  const ZONES = {
+    plaza: {
+      name: 'Casino-Vorplatz', w: 1600, top: 330, spawn: [1250, 820], ground: 'plaza',
+      objects: () => [
+        { kind: 'casino', x: 800, y: 330, fw: 1100, fh: 40, sortY: 300, game: 'casino', label: 'Neon Nights Casino', sub: 'Hier gibt es Münzen zu gewinnen', ix: 800, iy: 380, glow: '#ff3d8b', vh: 250 },
+        { kind: 'fountain', x: 800, y: 620, fw: 210, fh: 60 },
+        { kind: 'palm', x: 300, y: 480, fw: 20, fh: 14 }, { kind: 'palm', x: 1300, y: 480, fw: 20, fh: 14 },
+        { kind: 'palm', x: 150, y: 720, fw: 20, fh: 14 }, { kind: 'palm', x: 1450, y: 720, fw: 20, fh: 14 },
+        { kind: 'lamp', x: 520, y: 760, fw: 10, fh: 8 }, { kind: 'lamp', x: 1080, y: 760, fw: 10, fh: 8 },
+        { kind: 'bench', x: 560, y: 520, fw: 64, fh: 14 }, { kind: 'bench', x: 1040, y: 520, fw: 64, fh: 14 },
+        { kind: 'flowers', x: 300, y: 560, w: 160, fw: 160, fh: 14 }, { kind: 'flowers', x: 1300, y: 560, w: 160, fw: 160, fh: 14 },
+        { kind: 'car', x: 420, y: 930, c: '#ffc94a', taxi: true, nocoll: true },
+        { kind: 'busstop', x: 1250, y: 800, fw: 130, fh: 20, game: 'bus', label: 'Bushaltestelle', sub: 'Mit dem Bus zu anderen Orten', ix: 1250, iy: 830, glow: '#ffc94a' },
+      ],
+      lights: [[800, 400, 300, '255,61,139', 0.16], [520, 690, 140, '255,210,140', 0.18], [1080, 690, 140, '255,210,140', 0.18], [800, 600, 180, '59,232,255', 0.1]],
+      npcs: 5,
+    },
+    neighborhood: {
+      name: 'Nachbarschaft', w: 1500, top: 330, spawn: [1250, 820], ground: 'grass',
+      objects: () => [
+        { kind: 'house', x: 220, y: 330, w: 220, c: '#7a4a8a', fw: 240, fh: 40, num: 3 },
+        { kind: 'house', x: 560, y: 330, w: 220, c: '#c05a6a', fw: 240, fh: 40, home: true, game: 'home', label: 'Dein Zuhause', sub: 'Mimis Napf steht vor der Tür', ix: 560, iy: 380, glow: '#ffc94a' },
+        { kind: 'house', x: 900, y: 330, w: 220, c: '#3a7a8a', fw: 240, fh: 40, num: 7 },
+        { kind: 'house', x: 1240, y: 330, w: 220, c: '#8a7a3a', fw: 240, fh: 40, num: 9 },
+        { kind: 'fence', x: 390, y: 470, w: 120, fw: 120, fh: 8 }, { kind: 'fence', x: 730, y: 470, w: 120, fw: 120, fh: 8 },
+        { kind: 'hedge', x: 1070, y: 480, w: 140, fw: 140, fh: 22 },
+        { kind: 'tree', x: 100, y: 600, fw: 22, fh: 14, s: 1.1 }, { kind: 'tree', x: 1400, y: 610, fw: 22, fh: 14, s: 1.2, lights: true },
+        { kind: 'tree', x: 760, y: 640, fw: 22, fh: 14 },
+        { kind: 'flowers', x: 470, y: 420, w: 80, fw: 80, fh: 12 }, { kind: 'flowers', x: 650, y: 420, w: 80, fw: 80, fh: 12 },
+        { kind: 'mailbox', x: 470, y: 470, fw: 16, fh: 10 },
+        { kind: 'bench', x: 1000, y: 700, fw: 64, fh: 14 },
+        { kind: 'lamp', x: 300, y: 770, fw: 10, fh: 8 }, { kind: 'lamp', x: 900, y: 770, fw: 10, fh: 8 },
+        { kind: 'car', x: 620, y: 940, c: '#2f6bff', nocoll: true },
+        { kind: 'busstop', x: 1250, y: 800, fw: 130, fh: 20, game: 'bus', label: 'Bushaltestelle', sub: 'Mit dem Bus zu anderen Orten', ix: 1250, iy: 830, glow: '#ffc94a' },
+      ],
+      lights: [[560, 420, 160, '255,210,140', 0.14], [300, 700, 140, '255,210,140', 0.18], [900, 700, 140, '255,210,140', 0.18]],
+      npcs: 3, cat: { area: [80, 400, 1150, 760], home: [610, 395] },
+    },
+    mall: {
+      name: 'Einkaufsmeile', w: 1500, top: 330, spawn: [1250, 820], ground: 'plaza',
+      objects: () => [
+        { kind: 'store', x: 250, y: 330, w: 330, title: 'HUTMACHER', color: '#ff3d8b', wall: '#3a2a5a', icon: shopIcon('hats'), fw: 330, fh: 40, game: 'shop:hats', label: 'Hutmacher', sub: 'Hüte für deine Figur', ix: 250, iy: 380, glow: '#ff3d8b', vh: 170 },
+        { kind: 'store', x: 750, y: 330, w: 330, title: 'ZOOHANDLUNG', color: '#5dffb0', wall: '#1f4a4a', icon: shopIcon('pets'), fw: 330, fh: 40, game: 'shop:pets', label: 'Zoohandlung', sub: 'Spielzeug und Halsbänder für Mimi', ix: 750, iy: 380, glow: '#5dffb0', vh: 170 },
+        { kind: 'store', x: 1250, y: 330, w: 330, title: 'CAFÉ LUNA', color: '#ffc94a', wall: '#4a2a1a', icon: shopIcon('cafe'), fw: 330, fh: 40, game: 'shop:cafe', label: 'Café Luna', sub: 'Kaffee und Kuchen', ix: 1250, iy: 380, glow: '#ffc94a', vh: 170 },
+        { kind: 'tree', x: 500, y: 560, fw: 22, fh: 14, lights: true }, { kind: 'tree', x: 1000, y: 560, fw: 22, fh: 14, lights: true },
+        { kind: 'bench', x: 750, y: 600, fw: 64, fh: 14 }, { kind: 'bench', x: 250, y: 640, fw: 64, fh: 14 },
+        { kind: 'lamp', x: 380, y: 770, fw: 10, fh: 8 }, { kind: 'lamp', x: 1000, y: 770, fw: 10, fh: 8 },
+        { kind: 'flowers', x: 750, y: 700, w: 200, fw: 200, fh: 14 },
+        { kind: 'busstop', x: 1250, y: 800, fw: 130, fh: 20, game: 'bus', label: 'Bushaltestelle', sub: 'Mit dem Bus zu anderen Orten', ix: 1250, iy: 830, glow: '#ffc94a' },
+      ],
+      lights: [[250, 420, 180, '255,61,139', 0.12], [750, 420, 180, '93,255,176', 0.1], [1250, 420, 180, '255,201,74', 0.12], [380, 700, 140, '255,210,140', 0.18], [1000, 700, 140, '255,210,140', 0.18]],
+      npcs: 6,
+    },
+    market: {
+      name: 'Supermarkt', w: 1500, top: 330, spawn: [1250, 820], ground: 'asphalt',
+      objects: () => [
+        { kind: 'store', x: 560, y: 330, w: 760, title: 'FRISCHMARKT', color: '#5dffb0', wall: '#2a3a4a', icon: shopIcon('market'), fw: 760, fh: 40, game: 'shop:market', label: 'Frischmarkt', sub: 'Katzenfutter, Leckerli und Eis', ix: 560, iy: 380, glow: '#5dffb0', vh: 170 },
+        { kind: 'car', x: 300, y: 560, c: '#e0103a' }, { kind: 'car', x: 560, y: 560, c: '#e8e4ef' }, { kind: 'car', x: 1000, y: 560, c: '#1fbf6a' },
+        { kind: 'cart', x: 820, y: 470, fw: 36, fh: 10 }, { kind: 'cart', x: 850, y: 478, fw: 36, fh: 10 }, { kind: 'cart', x: 150, y: 700, fw: 36, fh: 10 },
+        { kind: 'tree', x: 1250, y: 520, fw: 22, fh: 14 }, { kind: 'tree', x: 1400, y: 640, fw: 22, fh: 14 },
+        { kind: 'lamp', x: 440, y: 740, fw: 10, fh: 8 }, { kind: 'lamp', x: 880, y: 740, fw: 10, fh: 8 },
+        { kind: 'busstop', x: 1250, y: 800, fw: 130, fh: 20, game: 'bus', label: 'Bushaltestelle', sub: 'Mit dem Bus zu anderen Orten', ix: 1250, iy: 830, glow: '#ffc94a' },
+      ],
+      lights: [[560, 420, 300, '93,255,176', 0.1], [440, 670, 150, '255,210,140', 0.18], [880, 670, 150, '255,210,140', 0.18]],
+      npcs: 4, parking: true,
+    },
+    playground: {
+      name: 'Spielplatz', w: 1500, top: 200, spawn: [1250, 820], ground: 'grass',
+      objects: () => [
+        { kind: 'fence', x: 700, y: 210, w: 1200, fw: 1200, fh: 8 },
+        { kind: 'swing', x: 300, y: 420, fw: 150, fh: 20, game: 'swing', label: 'Schaukel', sub: 'Einmal richtig Schwung holen', ix: 274, iy: 460, glow: '#c9a8ff' },
+        { kind: 'slide', x: 650, y: 420, fw: 140, fh: 30, game: 'slide', label: 'Rutsche', sub: 'Hoch und runter!', ix: 620, iy: 460, glow: '#ff6aa6' },
+        { kind: 'sandbox', x: 1000, y: 440, fw: 180, fh: 64, game: 'sand', label: 'Sandkasten', sub: 'Eine Sandburg bauen', ix: 1000, iy: 480, glow: '#ffc94a' },
+        { kind: 'seesaw', x: 420, y: 650, fw: 150, fh: 16, game: 'seesaw', label: 'Wippe', sub: 'Mit einem Kind wippen', ix: 420, iy: 690, glow: '#3be8ff' },
+        { kind: 'icetruck', x: 900, y: 700, fw: 180, fh: 30, game: 'shop:ice', label: 'Eiswagen', sub: 'Kugeln in allen Farben', ix: 860, iy: 740, glow: '#ff6aa6' },
+        { kind: 'tree', x: 120, y: 330, fw: 22, fh: 14, s: 1.2 }, { kind: 'tree', x: 1380, y: 330, fw: 22, fh: 14, s: 1.2 },
+        { kind: 'tree', x: 120, y: 720, fw: 22, fh: 14 },
+        { kind: 'bench', x: 1250, y: 560, fw: 64, fh: 14 }, { kind: 'bench', x: 700, y: 560, fw: 64, fh: 14 },
+        { kind: 'lamp', x: 560, y: 770, fw: 10, fh: 8 },
+        { kind: 'busstop', x: 1250, y: 800, fw: 130, fh: 20, game: 'bus', label: 'Bushaltestelle', sub: 'Mit dem Bus zu anderen Orten', ix: 1250, iy: 830, glow: '#ffc94a' },
+      ],
+      lights: [[560, 700, 150, '255,210,140', 0.18], [650, 400, 200, '255,106,166', 0.07]],
+      npcs: 4, kids: true, rubber: [180, 300, 1100, 420],
+    },
+  };
+  const ZONE_ORDER = ['plaza', 'neighborhood', 'mall', 'market', 'playground'];
+  const ZONE_INFO = {
+    plaza: { icon: '♛', desc: 'Das Casino – hier verdienst du Münzen' },
+    neighborhood: { icon: '⌂', desc: 'Dein Zuhause und Katze Mimi' },
+    mall: { icon: '◆', desc: 'Hüte, Zoohandlung und Café' },
+    market: { icon: '●', desc: 'Katzenfutter, Leckerli und Eis' },
+    playground: { icon: '★', desc: 'Schaukel, Rutsche, Sandkasten' },
+  };
+
+  /* ---------- Ort laden ---------- */
+  let objects = [], interactives = [], npcs = [], blocked = null, COLS = 0, ROWS = 0, WW = 1500, WH = 1000, TOP = 330;
+  function loadZone(id, at) {
+    Z = ZONES[id]; Z.id = id;
+    WW = Z.w; WH = 1000; TOP = Z.top;
+    objects = Z.objects().map(o => Object.assign({ fw: 0, fh: 0 }, o, { sortY: o.sortY != null ? o.sortY : o.y }));
+    interactives = objects.filter(o => o.game);
+    COLS = Math.ceil(WW / CELL); ROWS = Math.ceil(WH / CELL);
+    blocked = new Uint8Array(COLS * ROWS);
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      const x = c * CELL + CELL / 2, y = r * CELL + CELL / 2;
+      if (outside(x, y, 4)) { blocked[r * COLS + c] = 1; continue; }
+      for (const o of objects) {
+        if (o.nocoll || !o.fw) continue;
+        const q = rectOf(o);
+        if (x > q.x - PR && x < q.x + q.w + PR && y > q.y - PR && y < q.y + q.h + PR) { blocked[r * COLS + c] = 1; break; }
+      }
+    }
+    const [sx, sy] = at || Z.spawn;
+    player.x = sx; player.y = sy; player.path = null; player.pose = null;
+    npcs = makeNpcs(Z);
+    if (Z.cat) Cat.enter(Z.cat); else Cat.leave();
+    Store.s.town = { zone: id }; Store.save();
+    zoneEl.textContent = Z.name;
+    zoneEl.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 400 });
+    updateCamera(true);
+  }
+  function outside(x, y, pad = 0) { return y < TOP + 26 + pad || y > WALK_MAX - pad || x < 24 + pad || x > WW - 24 - pad; }
+  function rectOf(o) { return { x: o.x - o.fw / 2, y: o.y - o.fh, w: o.fw, h: o.fh }; }
+  function collides(x, y) {
+    if (outside(x, y)) return true;
+    for (const o of objects) {
+      if (o.nocoll || !o.fw) continue;
+      const q = rectOf(o), cx = U.clamp(x, q.x, q.x + q.w), cy = U.clamp(y, q.y, q.y + q.h);
+      if ((x - cx) ** 2 + (y - cy) ** 2 < PR * PR) return true;
+    }
+    return false;
+  }
+  const free = (c, r) => c >= 0 && r >= 0 && c < COLS && r < ROWS && !blocked[r * COLS + c];
+  function nearestFree(c, r) {
+    if (free(c, r)) return [c, r];
+    for (let d = 1; d < 12; d++) for (let dy = -d; dy <= d; dy++) for (let dx = -d; dx <= d; dx++) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) !== d) continue;
+      if (free(c + dx, r + dy)) return [c + dx, r + dy];
+    }
+    return null;
+  }
+  function los(x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0), n = Math.ceil(d / 8); for (let i = 1; i <= n; i++) { const t = i / n; if (collides(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t)) return false; } return true; }
+  function findPath(sx, sy, tx, ty) {
+    const s = nearestFree(Math.floor(sx / CELL), Math.floor(sy / CELL)), e = nearestFree(Math.floor(tx / CELL), Math.floor(ty / CELL));
+    if (!s || !e) return null;
+    const N = COLS * ROWS, gS = new Float32Array(N).fill(1e9), from = new Int32Array(N).fill(-1), closed = new Uint8Array(N), heap = [];
+    const push = (i, f) => { heap.push([f, i]); let k = heap.length - 1; while (k > 0) { const p = (k - 1) >> 1; if (heap[p][0] <= heap[k][0]) break; [heap[p], heap[k]] = [heap[k], heap[p]]; k = p; } };
+    const pop = () => { const top = heap[0], end = heap.pop(); if (heap.length) { heap[0] = end; let k = 0; for (;;) { const l = 2 * k + 1, r = l + 1; let m = k; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === k) break; [heap[m], heap[k]] = [heap[k], heap[m]]; k = m; } } return top; };
+    const si = s[1] * COLS + s[0], ei = e[1] * COLS + e[0];
+    const hf = i => { const c = i % COLS, r = (i / COLS) | 0, dx = Math.abs(c - e[0]), dy = Math.abs(r - e[1]); return dx + dy - 0.586 * Math.min(dx, dy); };
+    gS[si] = 0; push(si, hf(si));
+    let found = false, guard = 0;
+    while (heap.length && guard++ < 20000) {
+      const [, i] = pop(); if (closed[i]) continue; closed[i] = 1;
+      if (i === ei) { found = true; break; }
+      const c = i % COLS, r = (i / COLS) | 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        const nc = c + dx, nr = r + dy;
+        if (!free(nc, nr) || (dx && dy && (!free(c + dx, r) || !free(c, r + dy)))) continue;
+        const ni = nr * COLS + nc, cost = gS[i] + (dx && dy ? 1.414 : 1);
+        if (cost < gS[ni]) { gS[ni] = cost; from[ni] = i; push(ni, cost + hf(ni)); }
+      }
+    }
+    if (!found) return null;
+    const pts = [];
+    for (let i = ei; i !== -1; i = from[i]) pts.push({ x: (i % COLS) * CELL + CELL / 2, y: ((i / COLS) | 0) * CELL + CELL / 2 });
+    pts.reverse();
+    if (!collides(tx, ty)) pts[pts.length - 1] = { x: tx, y: ty };
+    const out = []; let cur = { x: sx, y: sy }, k = 0;
+    while (k < pts.length) { let far = k; for (let j = pts.length - 1; j > k; j--) if (los(cur.x, cur.y, pts[j].x, pts[j].y)) { far = j; break; } out.push(pts[far]); cur = pts[far]; k = far + 1; }
+    return out;
+  }
+
+  /* ---------- Figuren ---------- */
+  const rndAv = () => ({ skin: U.randInt(0, 4), hair: U.randInt(0, 6), style: U.pick(['short', 'long', 'bun', 'mohawk', 'bald']), outfit: U.pick(['#2f5fe0', '#1f8f6a', '#c98a12', '#e0206e', '#6a2fe0', '#8a8298', '#3a7a8a']),
+    accent: U.pick(['#ffc94a', '#ff3d8b', '#3be8ff', '#ffffff']), glasses: Math.random() < 0.2, hat: Math.random() < 0.25 ? U.pick(['cap', 'beanie', 'cowboy']) : null });
+  function makeNpcs(z) {
+    const list = [];
+    for (let i = 0; i < z.npcs; i++) {
+      let x, y, n = 0; do { x = U.rand(80, WW - 80); y = U.rand(TOP + 80, WALK_MAX - 20); } while (collides(x, y) && n++ < 50);
+      const kid = z.kids && i < 3;
+      list.push({ x, y, dir: 0, phase: Math.random() * 6, moving: false, path: null, wait: U.rand(0, 3), speed: kid ? U.rand(90, 120) : U.rand(50, 75), a: rndAv(), kid });
+    }
+    return list;
+  }
+  function stepChar(ch, dt, vx, vy, free = false) {
+    const len = Math.hypot(vx, vy);
+    if (len < 0.01) { ch.moving = false; return; }
+    const sp = ch.speed * dt * Math.min(1, len), mx = vx / len * sp, my = vy / len * sp;
+    if (free || !collides(ch.x + mx, ch.y)) ch.x += mx;
+    if (free || !collides(ch.x, ch.y + my)) ch.y += my;
+    ch.moving = true; ch.phase += dt * 11 * Math.min(1, len);
+    if (Math.abs(vx) > Math.abs(vy)) ch.dir = vx < 0 ? 1 : 2; else ch.dir = vy < 0 ? 3 : 0;
+  }
+  function followPath(ch, dt, free = false) {
+    if (!ch.path || !ch.path.length) { ch.path = null; return false; }
+    const p = ch.path[0], dx = p.x - ch.x, dy = p.y - ch.y, d = Math.hypot(dx, dy);
+    if (d < 4) { ch.path.shift(); if (!ch.path.length) { ch.path = null; return false; } return true; }
+    const ox = ch.x, oy = ch.y;
+    stepChar(ch, dt * Math.min(1, d / Math.max(1, ch.speed * dt)), dx, dy, free);
+    if (!free && Math.hypot(ch.x - ox, ch.y - oy) < 0.05) { ch.path = null; return false; }
+    return true;
+  }
+  function updateNpcs(dt) {
+    for (const n of npcs) {
+      if (n.path) { if (!followPath(n, dt, true)) n.moving = false; continue; }
+      n.moving = false; n.wait -= dt; n.phase += dt * 2;
+      if (n.wait > 0) continue;
+      let tx, ty;
+      if (Math.random() < 0.4 && interactives.length) { const o = U.pick(interactives.filter(o => o.game !== 'bus')); if (o) { tx = o.ix + U.pick([-40, 0, 40]); ty = o.iy + U.rand(6, 20); } }
+      if (tx == null) { tx = U.rand(60, WW - 60); ty = U.rand(TOP + 60, WALK_MAX - 10); }
+      n.path = findPath(n.x, n.y, tx, ty); n.wait = U.rand(2, 7);
+    }
+    // Abstand halten
+    const all = [player, ...npcs];
+    for (let i = 1; i < all.length; i++) for (let j = 0; j < all.length; j++) {
+      if (i === j) continue;
+      const a = all[i], b = all[j], dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy) || 0.01;
+      if (d < 22) { const nx = a.x + dx / d * (22 - d) * 0.5, ny = a.y + dy / d * (22 - d) * 0.5; if (!collides(nx, ny)) { a.x = nx; a.y = ny; } }
+    }
+  }
+
+  function updatePlayer(dt) {
+    if (lock || player.pose) { player.moving = false; return; }
+    let vx = 0, vy = 0;
+    if (keys.has('ArrowLeft') || keys.has('KeyA')) vx -= 1;
+    if (keys.has('ArrowRight') || keys.has('KeyD')) vx += 1;
+    if (keys.has('ArrowUp') || keys.has('KeyW')) vy -= 1;
+    if (keys.has('ArrowDown') || keys.has('KeyS')) vy += 1;
+    if (joy.id !== null) { vx = joy.dx; vy = joy.dy; }
+    if (vx || vy) { player.path = null; pendingInteract = null; stepChar(player, dt, vx, vy); }
+    else if (player.path) {
+      if (!followPath(player, dt)) { player.moving = false; if (pendingInteract) { const o = pendingInteract; pendingInteract = null; if (distTo(o) < 64) interact(o); } }
+    } else player.moving = false;
+    if (player.moving) { stepAcc += dt; if (stepAcc > 0.28) { stepAcc = 0; Sfx.step(); } }
+    let best = null, bd = 64;
+    for (const o of interactives) { const d = distTo(o); if (d < bd) { bd = d; best = o; } }
+    const cd = Cat.dist(player);
+    if (cd < 58 && cd < bd) best = Cat.target();
+    near = best;
+  }
+  const distTo = o => Math.hypot(player.x - o.ix, player.y - o.iy);
+
+  /* ---------- Katze Mimi ---------- */
+  function drawCatShape(x, y, dir, phase, moving, state, s = 1, collar) {
+    g.save(); g.translate(x, y); g.scale(dir < 0 ? -s : s, s);
+    g.fillStyle = 'rgba(0,0,0,0.35)'; g.beginPath(); g.ellipse(0, 0, 18, 5, 0, 0, Math.PI * 2); g.fill();
+    const fur = '#f0923a', dark = '#b85a14', light = '#ffd0a0';
+    if (state === 'sleep') {
+      g.fillStyle = fur; g.beginPath(); g.ellipse(0, -9, 17, 10, 0, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = dark; g.lineWidth = 2; for (let i = 0; i < 3; i++) { g.beginPath(); g.arc(-4 + i * 5, -14, 5, 0.3, 1.5); g.stroke(); }
+      g.strokeStyle = fur; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); g.arc(4, -6, 13, 0.2, 1.9); g.stroke();
+      g.fillStyle = fur; g.beginPath(); g.arc(-12, -9, 8, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.moveTo(-18, -13); g.lineTo(-17, -21); g.lineTo(-12, -15); g.fill(); g.beginPath(); g.moveTo(-10, -16); g.lineTo(-7, -22); g.lineTo(-5, -14); g.fill();
+      g.strokeStyle = '#3a1a08'; g.lineWidth = 1.2; g.beginPath(); g.arc(-14, -9, 2, 0.2, Math.PI - 0.2); g.stroke(); g.beginPath(); g.arc(-9, -9, 2, 0.2, Math.PI - 0.2); g.stroke();
+      g.restore(); return;
+    }
+    const sit = state === 'sit' || state === 'eat' || state === 'petted';
+    const legSw = moving ? Math.sin(phase * 1.4) * 4 : 0;
+    // Schwanz
+    const tw = Math.sin(time * (state === 'petted' ? 6 : 2) + x) * 0.5;
+    g.strokeStyle = fur; g.lineWidth = 5; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(12, sit ? -8 : -14); g.quadraticCurveTo(24, -20 + tw * 6, 20 + tw * 8, sit ? -30 : -34); g.stroke();
+    g.strokeStyle = dark; g.lineWidth = 5; g.beginPath(); g.moveTo(20 + tw * 8, sit ? -30 : -34); g.lineTo(19 + tw * 8, sit ? -34 : -38); g.stroke();
+    // Beine
+    g.fillStyle = dark;
+    if (!sit) { [[-9, legSw], [-4, -legSw], [6, -legSw], [11, legSw]].forEach(([lx, o]) => { g.fillRect(lx - 2 + o * 0.3, -10, 4, 10); }); }
+    // Körper
+    const bg = g.createLinearGradient(0, -24, 0, -4);
+    bg.addColorStop(0, fur); bg.addColorStop(1, dark);
+    g.fillStyle = bg; g.beginPath();
+    if (sit) g.ellipse(3, -12, 12, 12, 0, 0, Math.PI * 2); else g.ellipse(1, -16, 16, 8, 0, 0, Math.PI * 2);
+    g.fill();
+    g.strokeStyle = dark; g.lineWidth = 2;
+    for (let i = 0; i < 3; i++) { g.beginPath(); if (sit) g.arc(4 + i * 4, -18, 6, 3.6, 4.6); else g.moveTo(-4 + i * 6, -23), g.lineTo(-2 + i * 6, -17); g.stroke(); }
+    if (sit) { g.fillStyle = light; g.beginPath(); g.ellipse(-3, -6, 6, 5, 0, 0, Math.PI * 2); g.fill(); }
+    // Kopf
+    const hx = sit ? -8 : -15, hy = sit ? -26 : -22, bob = state === 'eat' ? Math.abs(Math.sin(time * 6)) * 3 + 4 : 0;
+    g.fillStyle = fur;
+    g.beginPath(); g.moveTo(hx - 8, hy - 4 + bob); g.lineTo(hx - 7, hy - 14 + bob); g.lineTo(hx - 2, hy - 7 + bob); g.fill();
+    g.beginPath(); g.moveTo(hx + 8, hy - 4 + bob); g.lineTo(hx + 7, hy - 14 + bob); g.lineTo(hx + 2, hy - 7 + bob); g.fill();
+    g.fillStyle = '#ff9ab0'; g.beginPath(); g.moveTo(hx - 6.5, hy - 6 + bob); g.lineTo(hx - 6, hy - 11 + bob); g.lineTo(hx - 3.5, hy - 7 + bob); g.fill();
+    g.fillStyle = fur; g.beginPath(); g.arc(hx, hy + bob, 9, 0, Math.PI * 2); g.fill();
+    g.fillStyle = light; g.beginPath(); g.ellipse(hx - 1, hy + 4 + bob, 5, 3.5, 0, 0, Math.PI * 2); g.fill();
+    // Augen
+    if (state === 'petted') {
+      g.strokeStyle = '#3a1a08'; g.lineWidth = 1.4;
+      g.beginPath(); g.arc(hx - 4, hy - 1 + bob, 2, Math.PI + 0.3, -0.3); g.stroke(); g.beginPath(); g.arc(hx + 3, hy - 1 + bob, 2, Math.PI + 0.3, -0.3); g.stroke();
+    } else {
+      const blink = (time % 4) < 0.12;
+      g.fillStyle = '#7aff6a';
+      if (blink) { g.fillRect(hx - 6, hy - 1 + bob, 4, 1.2); g.fillRect(hx + 1, hy - 1 + bob, 4, 1.2); }
+      else { g.beginPath(); g.ellipse(hx - 4, hy - 1 + bob, 2.2, 2.6, 0, 0, Math.PI * 2); g.ellipse(hx + 3, hy - 1 + bob, 2.2, 2.6, 0, 0, Math.PI * 2); g.fill();
+        g.fillStyle = '#111'; g.fillRect(hx - 4.5, hy - 3 + bob, 1, 4); g.fillRect(hx + 2.5, hy - 3 + bob, 1, 4); }
+    }
+    g.fillStyle = '#ff6a8a'; g.beginPath(); g.moveTo(hx - 2, hy + 2 + bob); g.lineTo(hx + 1, hy + 2 + bob); g.lineTo(hx - 0.5, hy + 4 + bob); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = 0.7;
+    for (const s2 of [-1, 1]) for (let i = 0; i < 2; i++) { g.beginPath(); g.moveTo(hx - 0.5, hy + 3 + bob); g.lineTo(hx - 0.5 + s2 * 11, hy + 1 + i * 3 + bob); g.stroke(); }
+    if (collar) { g.strokeStyle = collar; g.lineWidth = 2.5; g.beginPath(); g.arc(hx, hy + bob, 8.5, 0.6, 2.5); g.stroke(); g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(hx - 1, hy + 8.5 + bob, 1.8, 0, Math.PI * 2); g.fill(); }
+    g.restore();
+  }
+
+  const Cat = (() => {
+    const c = { x: 600, y: 520, dir: 1, phase: 0, moving: false, state: 'sit', until: 0, tx: 0, ty: 0, present: false, follow: false, area: null, home: null, yarn: null, lastMeow: 0 };
+    const S = () => Store.s.cat || (Store.s.cat = { name: 'Mimi', aff: 0, pets: 0, fed: 0, bowl: 0 });
+    const tgt = { game: 'cat', label: 'Mimi', sub: 'Streicheln · Füttern · Spielen', glow: '#ffc94a' };
+    function enter(cfg) {
+      c.present = true; c.area = cfg.area; c.home = cfg.home;
+      if (c.follow) { c.x = player.x - 30; c.y = player.y; } else { c.x = cfg.home[0] + 30; c.y = cfg.home[1] + 60; }
+      c.state = 'sit'; c.until = time + 2;
+    }
+    function leave() { if (!c.follow) c.present = false; }
+    const level = () => { const a = S().aff; return a >= 80 ? 'Beste Freunde' : a >= 50 ? 'Freundlich' : a >= 20 ? 'Neugierig' : 'Scheu'; };
+    function set(state, dur) { c.state = state; c.until = time + dur; }
+    function goTo(x, y, run) { c.tx = x; c.ty = y; c.state = run ? 'run' : 'walk'; }
+    function update(dt) {
+      if (!c.present) return;
+      c.phase += dt * 10;
+      const sp = c.state === 'run' ? 170 : c.state === 'chase' ? 190 : 55;
+      if (c.follow && !['petted', 'eat', 'chase'].includes(c.state)) {
+        const d = Math.hypot(player.x - c.x, player.y - c.y);
+        if (d > 70) goTo(player.x + (c.x < player.x ? -34 : 34), player.y + 4, d > 140);
+        else if (c.state === 'walk' || c.state === 'run') set('sit', 1.5);
+      }
+      if (c.state === 'walk' || c.state === 'run' || c.state === 'chase') {
+        const tx = c.state === 'chase' && c.yarn ? c.yarn.x : c.tx, ty = c.state === 'chase' && c.yarn ? c.yarn.y : c.ty;
+        const dx = tx - c.x, dy = ty - c.y, d = Math.hypot(dx, dy);
+        if (d < 6) {
+          if (c.state === 'chase' && c.yarn) {
+            c.yarn.hits = (c.yarn.hits || 0) + 1;
+            if (c.yarn.hits < 3) { throwYarn(); Sfx.bounce(0.7); } else { c.yarn = null; set('sit', 2); addAff(10, false); hearts(6); }
+          } else set(Math.random() < 0.3 && !c.follow ? 'sleep' : 'sit', U.rand(3, 8));
+        } else {
+          const nx = c.x + dx / d * sp * dt, ny = c.y + dy / d * sp * dt;
+          c.x = nx; c.y = ny; c.dir = dx < 0 ? -1 : 1; c.moving = true;
+        }
+      } else c.moving = false;
+      if (c.yarn) { c.yarn.x += c.yarn.vx * dt; c.yarn.y += c.yarn.vy * dt; c.yarn.vx *= 0.96; c.yarn.vy *= 0.96; c.yarn.rot += dt * c.yarn.vx * 0.1; }
+      if ((c.state === 'sit' || c.state === 'sleep') && time > c.until && !c.follow) {
+        const [x0, y0, x1, y1] = c.area;
+        goTo(U.rand(x0, x1), U.rand(y0, y1), false);
+      }
+      if ((c.state === 'petted' || c.state === 'eat') && time > c.until) set('sit', 2);
+      if (c.state === 'sleep' && Math.random() < dt * 0.8) FX.floatText(...toScreen(c.x - 14, c.y - 40), 'z', 'zzz');
+      if (time - c.lastMeow > 14 && Math.hypot(player.x - c.x, player.y - c.y) < 160 && c.state !== 'sleep' && Math.random() < dt) { c.lastMeow = time; Sfx.meow && Sfx.meow(); }
+    }
+    function throwYarn() {
+      const [x0, y0, x1, y1] = c.area || [player.x - 150, player.y - 100, player.x + 150, player.y + 60];
+      const tx = U.clamp(c.x + U.rand(-180, 180), x0, x1), ty = U.clamp(c.y + U.rand(-100, 100), y0, y1);
+      c.yarn = c.yarn || { x: player.x, y: player.y - 10, rot: 0, hits: 0 };
+      c.yarn.vx = (tx - c.yarn.x) * 1.6; c.yarn.vy = (ty - c.yarn.y) * 1.6;
+      c.state = 'chase';
+    }
+    function hearts(n) { const [sx, sy] = toScreen(c.x, c.y - 44); for (let i = 0; i < n; i++) setTimeout(() => FX.floatText(sx + U.rand(-16, 16), sy, '♥', 'heart'), i * 120); }
+    function addAff(n, quiet) {
+      const s = S(), before = level();
+      s.aff = Math.min(100, s.aff + n); Store.save();
+      Store.emit({ type: 'cat', aff: s.aff });
+      Panel.render();
+      if (!quiet && level() !== before) Toast.show(I18N.t(s.name), I18N.t('Mimi ist jetzt: {0}', I18N.t(level())), '♥', 'ach');
+    }
+    function pet() {
+      if (c.state === 'sleep') { set('sit', 1); Sfx.meow && Sfx.meow(); Panel.say(I18N.t('Mimi wacht auf und streckt sich.')); return; }
+      if (c.state === 'petted') return;
+      c.dir = player.x < c.x ? -1 : 1;
+      set('petted', 2.2); Sfx.purr && Sfx.purr(); hearts(4);
+      const s = S(); s.pets = (s.pets || 0) + 1;
+      addAff(3); Store.emit({ type: 'catPet', pets: s.pets });
+      Panel.say(U.pick([I18N.t('Mimi schnurrt zufrieden.'), I18N.t('Mimi schmiegt sich an deine Hand.'), I18N.t('Mimi blinzelt dich glücklich an.')]));
+    }
+    function feed(kind) {
+      const inv = Inv.get();
+      const key = kind === 'treat' ? 'treats' : 'food';
+      if (!inv[key]) { Sfx.error(); Panel.say(kind === 'treat' ? I18N.t('Du hast keine Leckerli. Der Frischmarkt verkauft welche.') : I18N.t('Du hast kein Katzenfutter. Der Frischmarkt verkauft welches.')); return; }
+      inv[key]--; Store.save();
+      c.dir = player.x < c.x ? -1 : 1;
+      set('eat', kind === 'treat' ? 1.8 : 3.4); Sfx.coin(-12);
+      addAff(kind === 'treat' ? 8 : 15); hearts(kind === 'treat' ? 3 : 5);
+      S().fed = (S().fed || 0) + 1;
+      Panel.say(kind === 'treat' ? I18N.t('Mimi schnappt sich das Leckerli!') : I18N.t('Mimi frisst mit Genuss.'));
+    }
+    function playYarn() {
+      if (!Inv.get().yarn) { Sfx.error(); Panel.say(I18N.t('Du brauchst ein Wollknäuel aus der Zoohandlung.')); return; }
+      if (c.state === 'chase') return;
+      c.yarn = { x: player.x, y: player.y - 10, rot: 0, hits: 0 };
+      throwYarn(); Sfx.click();
+      Panel.say(I18N.t('Mimi jagt dem Wollknäuel hinterher!'));
+    }
+    function toggleFollow() {
+      if (S().aff < 50) { Sfx.error(); Panel.say(I18N.t('Mimi kennt dich noch nicht gut genug. Streichle und füttere sie öfter.')); return; }
+      c.follow = !c.follow; Sfx.meow && Sfx.meow();
+      Panel.say(c.follow ? I18N.t('Mimi folgt dir jetzt – auch mit dem Bus.') : I18N.t('Mimi bleibt hier.'));
+      if (!c.follow && Z && !Z.cat) { c.present = false; Panel.close(); }
+      Panel.render();
+    }
+    function draw() {
+      if (!c.present) return;
+      if (c.yarn) {
+        g.save(); g.translate(c.yarn.x, c.yarn.y); g.rotate(c.yarn.rot);
+        g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(0, 6, 7, 2.5, 0, 0, Math.PI * 2); g.fill();
+        g.fillStyle = '#ff3d8b'; g.beginPath(); g.arc(0, 0, 7, 0, Math.PI * 2); g.fill();
+        g.strokeStyle = '#ffc2e4'; g.lineWidth = 1.2; for (let i = 0; i < 3; i++) { g.beginPath(); g.arc(0, 0, 3 + i * 1.8, i, i + 2.6); g.stroke(); }
+        g.restore();
+      }
+      drawCatShape(c.x, c.y, c.dir, c.phase, c.moving, c.state === 'run' || c.state === 'walk' || c.state === 'chase' ? 'walk' : c.state, 1.35, Inv.get().collar);
+      if (near === tgt) {
+        g.strokeStyle = `rgba(255,201,74,${0.5 + 0.3 * Math.sin(time * 5)})`; g.lineWidth = 2; g.beginPath(); g.ellipse(c.x, c.y + 1, 32, 10, 0, 0, Math.PI * 2); g.stroke();
+      }
+    }
+    return {
+      enter, leave, update, draw, pet, feed, playYarn, toggleFollow, level, S,
+      dist: p => c.present ? Math.hypot(p.x - c.x, p.y - c.y) : 1e9,
+      target: () => Object.assign(tgt, { x: c.x, y: c.y, ix: c.x, iy: c.y, vh: 40, label: S().name }),
+      get y() { return c.y; }, get present() { return c.present; }, get follow() { return c.follow; }, get state() { return c.state; },
+    };
+  })();
+
+  /* ---------- Katzen-Menü ---------- */
+  const Panel = (() => {
+    const el = $('#catPanel'), msg = $('#catMsg');
+    function render() {
+      const s = Cat.S(), inv = Inv.get();
+      $('#catName').textContent = s.name;
+      $('#catLevel').textContent = I18N.t(Cat.level());
+      $('#catHearts').style.width = s.aff + '%';
+      $('#catFeed').querySelector('small').textContent = '× ' + inv.food;
+      $('#catTreat').querySelector('small').textContent = '× ' + inv.treats;
+      $('#catPlay').classList.toggle('locked', !inv.yarn);
+      $('#catFollow').querySelector('b').textContent = Cat.follow ? I18N.t('Hierbleiben') : I18N.t('Folge mir');
+      $('#catFollow').classList.toggle('locked', s.aff < 50);
+    }
+    return {
+      open() { render(); el.hidden = false; msg.textContent = I18N.t('Was möchtest du mit Mimi machen?'); requestAnimationFrame(() => el.classList.add('show')); },
+      close() { el.classList.remove('show'); setTimeout(() => { el.hidden = true; }, 220); },
+      get open_() { return !el.hidden; },
+      render, say(t) { msg.textContent = t; },
+    };
+  })();
+  $('#catPet').addEventListener('click', () => { Sfx.init(); Cat.pet(); });
+  $('#catFeed').addEventListener('click', () => { Sfx.init(); Cat.feed('food'); });
+  $('#catTreat').addEventListener('click', () => { Sfx.init(); Cat.feed('treat'); });
+  $('#catPlay').addEventListener('click', () => { Sfx.init(); Cat.playYarn(); });
+  $('#catFollow').addEventListener('click', () => { Sfx.init(); Cat.toggleFollow(); });
+  $('#catClose').addEventListener('click', () => { Sfx.click(); Panel.close(); });
+
+  /* ---------- Inventar & Läden ---------- */
+  const Inv = {
+    get() { return Store.s.inv || (Store.s.inv = { food: 0, treats: 0, yarn: false, collar: null, hats: [] }); },
+  };
+  const SHOPS = {
+    hats: { title: 'Hutmacher', sub: 'Setz deiner Figur die Krone auf.', items: [
+      { id: 'hat:cap', name: 'Basecap', desc: 'In deiner Krawattenfarbe.', price: 300, hat: 'cap' },
+      { id: 'hat:beanie', name: 'Mütze', desc: 'Warm und mit Bommel.', price: 400, hat: 'beanie' },
+      { id: 'hat:party', name: 'Partyhut', desc: 'Jede Nacht ist Party.', price: 500, hat: 'party' },
+      { id: 'hat:cowboy', name: 'Cowboyhut', desc: 'Für echte Glücksritter.', price: 900, hat: 'cowboy' },
+      { id: 'hat:tophat', name: 'Zylinder', desc: 'Der Klassiker der High Roller.', price: 1500, hat: 'tophat' },
+      { id: 'hat:crown', name: 'Krone', desc: 'Für die Königin oder den König der Nacht.', price: 5000, hat: 'crown' },
+    ] },
+    pets: { title: 'Zoohandlung', sub: 'Alles, was Mimi glücklich macht.', items: [
+      { id: 'yarn', name: 'Wollknäuel', desc: 'Damit kannst du mit Mimi spielen.', price: 150, once: true },
+      { id: 'collar:#ff3d8b', name: 'Halsband Pink', desc: 'Mit goldenem Glöckchen.', price: 200, collar: '#ff3d8b' },
+      { id: 'collar:#3be8ff', name: 'Halsband Türkis', desc: 'Mit goldenem Glöckchen.', price: 200, collar: '#3be8ff' },
+      { id: 'collar:#ffc94a', name: 'Halsband Gold', desc: 'Nur das Beste für Mimi.', price: 400, collar: '#ffc94a' },
+      { id: 'treats', name: 'Leckerli (5 Stück)', desc: 'Kleine Belohnung zwischendurch.', price: 60, add: { treats: 5 } },
+    ] },
+    cafe: { title: 'Café Luna', sub: 'Kurz durchatmen zwischen zwei Runden.', items: [
+      { id: 'coffee', name: 'Espresso', desc: 'Frisch gebrüht.', price: 15, treat: 'Der Espresso weckt dich richtig auf.' },
+      { id: 'cake', name: 'Schokokuchen', desc: 'Mit Kirsche obendrauf.', price: 30, treat: 'Himmlisch! Der Kuchen war sein Geld wert.' },
+      { id: 'lemonade', name: 'Neon-Limonade', desc: 'Leuchtet leicht im Dunkeln.', price: 20, treat: 'Erfrischend und ein bisschen leuchtend.' },
+    ] },
+    market: { title: 'Frischmarkt', sub: 'Alles für den Alltag – und für Mimi.', items: [
+      { id: 'food', name: 'Katzenfutter', desc: 'Eine Portion für Mimi.', price: 40, add: { food: 1 } },
+      { id: 'food5', name: 'Katzenfutter (5er-Pack)', desc: 'Günstiger im Vorrat.', price: 180, add: { food: 5 } },
+      { id: 'treats', name: 'Leckerli (5 Stück)', desc: 'Mimis Lieblingssnack.', price: 55, add: { treats: 5 } },
+      { id: 'apple', name: 'Apfel', desc: 'Knackig und frisch.', price: 5, treat: 'Knack! Ein saftiger Apfel.' },
+    ] },
+    ice: { title: 'Eiswagen', sub: 'Eine Kugel geht immer.', items: [
+      { id: 'ice1', name: 'Erdbeereis', desc: 'Eine Kugel, pink wie Neon.', price: 12, treat: 'Mmh, Erdbeere!' },
+      { id: 'ice2', name: 'Mango-Sorbet', desc: 'Fruchtig und kalt.', price: 12, treat: 'Wie Urlaub in der Waffel.' },
+      { id: 'ice3', name: 'Blaubeer-Traum', desc: 'Zwei Kugeln mit Streuseln.', price: 20, treat: 'Blaue Zunge garantiert.' },
+    ] },
+  };
+  function itemIcon(it) {
+    const c = document.createElement('canvas'); c.width = c.height = 96; const t = c.getContext('2d');
+    if (it.hat) { t.translate(48, 70); t.scale(2.6, 2.6); Avatar.drawHat(t, it.hat, 0, false, 1, 0, avatar.accent || '#ffc94a'); }
+    else if (it.collar) { t.strokeStyle = it.collar; t.lineWidth = 9; t.beginPath(); t.arc(48, 44, 26, 0.3, Math.PI * 2 - 0.3); t.stroke(); t.fillStyle = '#ffc94a'; t.beginPath(); t.arc(48, 76, 9, 0, Math.PI * 2); t.fill(); }
+    else if (it.id === 'yarn') { t.fillStyle = '#ff3d8b'; t.beginPath(); t.arc(48, 50, 28, 0, Math.PI * 2); t.fill(); t.strokeStyle = '#ffc2e4'; t.lineWidth = 3; for (let i = 0; i < 5; i++) { t.beginPath(); t.arc(48, 50, 8 + i * 4, i, i + 2.6); t.stroke(); } }
+    else if (it.id.startsWith('food')) { t.fillStyle = '#ff3d8b'; t.beginPath(); t.ellipse(48, 64, 34, 14, 0, 0, Math.PI * 2); t.fill(); t.fillStyle = '#8a5424'; t.beginPath(); t.ellipse(48, 58, 26, 9, 0, 0, Math.PI * 2); t.fill(); t.fillStyle = '#ffc94a'; t.font = '20px serif'; t.textAlign = 'center'; t.fillText('♥', 48, 40); }
+    else if (it.id === 'treats') { for (let i = 0; i < 5; i++) { t.fillStyle = ['#ffc94a', '#ff8a3d', '#e0a060'][i % 3]; t.beginPath(); t.ellipse(28 + (i % 3) * 20, 40 + Math.floor(i / 3) * 22, 11, 7, i, 0, Math.PI * 2); t.fill(); } }
+    else if (it.id.startsWith('ice')) { const col = { ice1: '#ff6aa6', ice2: '#ffc94a', ice3: '#6a8aff' }[it.id]; t.fillStyle = '#d8a060'; t.beginPath(); t.moveTo(30, 48); t.lineTo(66, 48); t.lineTo(48, 90); t.closePath(); t.fill(); t.fillStyle = col; t.beginPath(); t.arc(48, 42, 20, 0, Math.PI * 2); t.fill(); if (it.id === 'ice3') { t.beginPath(); t.arc(48, 22, 15, 0, Math.PI * 2); t.fill(); } }
+    else if (it.id === 'coffee') { t.fillStyle = '#f4eefa'; t.fillRect(28, 38, 36, 36); t.strokeStyle = '#f4eefa'; t.lineWidth = 6; t.beginPath(); t.arc(68, 54, 9, -1.3, 1.3); t.stroke(); t.fillStyle = '#6a3e1a'; t.fillRect(31, 40, 30, 8); }
+    else if (it.id === 'cake') { t.fillStyle = '#5a2a14'; t.beginPath(); t.moveTo(20, 70); t.lineTo(76, 70); t.lineTo(76, 46); t.lineTo(20, 58); t.closePath(); t.fill(); t.fillStyle = '#f4eefa'; t.fillRect(20, 56, 56, 4); t.fillStyle = '#e0103a'; t.beginPath(); t.arc(60, 44, 6, 0, Math.PI * 2); t.fill(); }
+    else if (it.id === 'lemonade') { t.fillStyle = 'rgba(160,255,200,0.8)'; t.beginPath(); t.moveTo(32, 26); t.lineTo(64, 26); t.lineTo(58, 80); t.lineTo(38, 80); t.closePath(); t.fill(); t.fillStyle = '#ffc94a'; t.beginPath(); t.arc(62, 28, 9, 0, Math.PI * 2); t.fill(); }
+    else if (it.id === 'apple') { t.fillStyle = '#e0103a'; t.beginPath(); t.arc(48, 54, 22, 0, Math.PI * 2); t.fill(); t.fillStyle = '#3fb04a'; t.beginPath(); t.ellipse(56, 28, 8, 4, -0.5, 0, Math.PI * 2); t.fill(); }
+    return c.toDataURL();
+  }
+  function owned(it) {
+    const inv = Inv.get();
+    if (it.hat) return inv.hats.includes(it.hat);
+    if (it.collar) return inv.collarsOwned && inv.collarsOwned.includes(it.collar);
+    if (it.once) return !!inv[it.id];
+    return false;
+  }
+  function openShop(key) {
+    const sh = SHOPS[key];
+    $('#shopTitle').textContent = sh.title; $('#shopSub').textContent = sh.sub;
+    renderShop(key);
+    App.openModal('modal-shop');
+  }
+  function renderShop(key) {
+    const sh = SHOPS[key], inv = Inv.get();
+    const box = $('#shopItems');
+    box.innerHTML = '';
+    sh.items.forEach(it => {
+      const own = owned(it);
+      const wearing = (it.hat && avatar.hat === it.hat) || (it.collar && inv.collar === it.collar);
+      const d = document.createElement('div');
+      d.className = 'shop-item' + (own ? ' owned' : '');
+      d.innerHTML = `<img alt="" src="${itemIcon(it)}"><div class="si-info"><b></b><span></span></div><button type="button" class="si-btn"></button>`;
+      d.querySelector('b').textContent = it.name; d.querySelector('span').textContent = it.desc;
+      const btn = d.querySelector('button');
+      if (own && (it.hat || it.collar)) { btn.textContent = wearing ? I18N.t('Ablegen') : I18N.t('Anlegen'); btn.classList.add('wear'); }
+      else if (own) { btn.textContent = I18N.t('Gekauft'); btn.disabled = true; }
+      else { btn.innerHTML = `<span class="coin-icon" aria-hidden="true"></span>${U.fmt(it.price)}`; btn.disabled = Store.s.balance < it.price; }
+      btn.addEventListener('click', () => buy(key, it));
+      box.appendChild(d);
+    });
+    const inv2 = Inv.get();
+    $('#shopInv').textContent = I18N.t('Im Rucksack: {0} Futter · {1} Leckerli', inv2.food, inv2.treats);
+  }
+  function buy(key, it) {
+    Sfx.init();
+    const inv = Inv.get();
+    if (owned(it)) {
+      if (it.hat) { avatar.hat = avatar.hat === it.hat ? null : it.hat; Store.s.avatar = { ...Avatar.load(), hat: avatar.hat }; Store.save(); Floor.refreshAvatar(); Sfx.chip(); }
+      if (it.collar) { inv.collar = inv.collar === it.collar ? null : it.collar; Store.save(); Sfx.chip(); }
+      renderShop(key); return;
+    }
+    if (Store.s.balance < it.price) { App.insufficient(it.price); return; }
+    Store.s.balance -= it.price; Store.s.stats.spent = (Store.s.stats.spent || 0) + it.price; Store.save();
+    Store.emit({ type: 'balance', delta: -it.price });
+    Sfx.coin(4);
+    if (it.hat) { inv.hats.push(it.hat); avatar.hat = it.hat; Store.s.avatar = { ...Avatar.load(), hat: it.hat }; Floor.refreshAvatar(); Toast.show(I18N.t('Neuer Hut!'), I18N.t('{0} sitzt perfekt.', I18N.t(it.name)), '♛', 'ach'); }
+    else if (it.collar) { inv.collarsOwned = inv.collarsOwned || []; inv.collarsOwned.push(it.collar); inv.collar = it.collar; Toast.show(I18N.t('Für Mimi'), I18N.t('{0} gekauft.', I18N.t(it.name)), '♥', 'ach'); }
+    else if (it.once) { inv[it.id] = true; Toast.show(I18N.t('Gekauft'), I18N.t('{0} ist jetzt in deinem Rucksack.', I18N.t(it.name)), '✓'); }
+    else if (it.add) { for (const [k, v] of Object.entries(it.add)) inv[k] = (inv[k] || 0) + v; Toast.show(I18N.t('Gekauft'), I18N.t('{0} ist jetzt in deinem Rucksack.', I18N.t(it.name)), '✓'); }
+    else if (it.treat) { Toast.show(I18N.t(it.name), I18N.t(it.treat), '♪'); FX.stars(window.innerWidth / 2, window.innerHeight / 2, 10); }
+    Store.save();
+    Store.emit({ type: 'shop', item: it.id });
+    renderShop(key);
+  }
+
+  /* ---------- Bus ---------- */
+  function openBus() {
+    const box = $('#busList');
+    box.innerHTML = ZONE_ORDER.map(id => {
+      const z = ZONES[id], here = Z && Z.id === id;
+      return `<button type="button" class="bus-dest${here ? ' here' : ''}" data-zone="${id}" ${here ? 'disabled' : ''}><span class="bd-icon">${ZONE_INFO[id].icon}</span><span><b>${z.name}</b><small>${here ? I18N.t('Du bist hier') : ZONE_INFO[id].desc}</small></span></button>`;
+    }).join('');
+    $$('.bus-dest', box).forEach(b => b.addEventListener('click', () => { Sfx.click(); App.closeModal(); setTimeout(() => ride(b.dataset.zone), 260); }));
+    App.openModal('modal-bus');
+  }
+  async function ride(to) {
+    if (lock) return;
+    lock = true; player.path = null; Panel.close();
+    const stop = interactives.find(o => o.game === 'bus');
+    // Bus fährt ein
+    bus.state = 'in'; bus.t = time; bus.x = -300; bus.stopX = stop.x; Sfx.busArrive && Sfx.busArrive();
+    await waitBus('stopped');
+    await U.sleep(350);
+    for (let i = 0; i < 10; i++) { player.alpha = 1 - i / 10; await U.sleep(30); }
+    player.alpha = 0;
+    await U.sleep(250);
+    bus.state = 'out'; bus.t = time; Sfx.busLeave && Sfx.busLeave();
+    await U.sleep(900);
+    await fadeScreen(true);
+    loadZone(to);
+    const ns = interactives.find(o => o.game === 'bus');
+    player.x = ns.ix; player.y = ns.iy; player.alpha = 0;
+    if (Cat.follow) Cat.enter({ area: Z.cat ? Z.cat.area : [player.x - 200, TOP + 60, player.x + 60, WALK_MAX - 10], home: Z.cat ? Z.cat.home : [player.x, player.y] });
+    bus.state = 'stopped'; bus.x = ns.x; bus.stopX = ns.x; bus.doors = 1;
+    updateCamera(true);
+    await fadeScreen(false);
+    for (let i = 0; i < 10; i++) { player.alpha = i / 10; await U.sleep(30); }
+    player.alpha = 1; player.y += 14;
+    await U.sleep(250);
+    bus.state = 'out'; bus.t = time; Sfx.busLeave && Sfx.busLeave();
+    lock = false;
+    Store.emit({ type: 'travel', zone: to, withCat: Cat.follow && to !== 'neighborhood' });
+  }
+  function waitBus(state) { return new Promise(res => { const chk = () => { if (bus.state === state) res(); else setTimeout(chk, 50); }; chk(); }); }
+  function fadeScreen(on) {
+    const f = $('#fade');
+    return new Promise(res => {
+      if (on) { f.hidden = false; f.classList.remove('out'); void f.offsetWidth; f.classList.add('in'); setTimeout(res, 260); }
+      else { f.classList.remove('in'); f.classList.add('out'); setTimeout(() => { f.hidden = true; res(); }, 320); }
+    });
+  }
+  function updateBus(dt) {
+    if (bus.state === 'in') {
+      const u = Math.min(1, (time - bus.t) / 1.8);
+      bus.x = -300 + (bus.stopX + 300) * U.easeOutCubic(u);
+      if (u >= 1) { bus.state = 'stopped'; bus.doors = 0; Sfx.busDoor && Sfx.busDoor(); }
+    } else if (bus.state === 'stopped') { bus.doors = Math.min(1, bus.doors + dt * 3); }
+    else if (bus.state === 'out') {
+      bus.doors = Math.max(0, bus.doors - dt * 4);
+      const u = (time - bus.t) / 2.2;
+      bus.x = bus.stopX + Math.pow(u, 2) * 1400;
+      if (bus.x > WW + 400) bus.state = 'gone';
+    }
+  }
+  function drawBus() {
+    if (bus.state === 'gone') return;
+    const x = bus.x, y = ROAD_Y + 96;
+    shadow(x, y + 2, 170, 16, 0.45);
+    const bg = g.createLinearGradient(0, y - 110, 0, y);
+    bg.addColorStop(0, '#ff6aa6'); bg.addColorStop(1, '#a0105a');
+    g.fillStyle = bg; rr(x - 170, y - 100, 340, 92, 14); g.fill();
+    g.fillStyle = '#5a0a30'; rr(x - 170, y - 108, 340, 14, [12, 12, 0, 0]); g.fill();
+    g.fillStyle = 'rgba(160,220,255,0.75)';
+    for (let i = 0; i < 6; i++) rr(x - 150 + i * 44, y - 88, 36, 30, 4), g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.25)'; for (let i = 0; i < 6; i++) g.fillRect(x - 146 + i * 44, y - 86, 8, 26);
+    // Tür (öffnet sich)
+    const dx = x + 110, open = bus.doors;
+    g.fillStyle = '#2a0a1a'; g.fillRect(dx - 20, y - 90, 40, 82);
+    g.fillStyle = 'rgba(160,220,255,0.6)'; g.fillRect(dx - 20, y - 90, 20 - open * 16, 82); g.fillRect(dx + open * 16, y - 90, 20 - open * 16, 82);
+    g.fillStyle = '#ffc94a'; g.fillRect(x - 170, y - 50, 340, 6);
+    g.font = '700 14px Bungee, Impact, sans-serif'; g.fillStyle = '#fff'; g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillText('NEON LINE 7', x - 150, y - 32);
+    g.fillStyle = '#fff6c8'; rr(x + 160, y - 44, 10, 12, 3); g.fill();
+    g.fillStyle = '#111'; [[-110], [100]].forEach(([wx]) => { g.beginPath(); g.arc(x + wx, y - 6, 17, 0, Math.PI * 2); g.fill(); g.fillStyle = '#8a8298'; g.beginPath(); g.arc(x + wx, y - 6, 7, 0, Math.PI * 2); g.fill(); g.fillStyle = '#111'; });
+    const hl = g.createRadialGradient(x + 175, y - 38, 0, x + 175, y - 38, 90); hl.addColorStop(0, 'rgba(255,240,190,0.4)'); hl.addColorStop(1, 'rgba(255,240,190,0)');
+    g.fillStyle = hl; g.fillRect(x + 170, y - 130, 120, 180);
+  }
+
+  /* ---------- Interaktion ---------- */
+  function interact(o) {
+    if (!o || lock) return;
+    Sfx.init(); Sfx.click();
+    if (o.game === 'cat') { Panel.open(); return; }
+    if (o.game === 'bus') { openBus(); return; }
+    if (o.game === 'casino') { goCasino(); return; }
+    if (o.game === 'home') { Toast.show(I18N.t('Dein Zuhause'), Cat.present || Cat.follow ? I18N.t('Mimi wohnt hier. Ihr Napf steht vor der Tür.') : I18N.t('Gemütlich – aber das Geld liegt im Casino.'), '⌂'); return; }
+    if (o.game.startsWith('shop:')) { openShop(o.game.slice(5)); return; }
+    if (o.game === 'swing') { usePlay('swing', o); return; }
+    if (o.game === 'slide') { usePlay('slide', o); return; }
+    if (o.game === 'sand') { usePlay('sand', o); return; }
+    if (o.game === 'seesaw') { usePlay('seesaw', o); return; }
+  }
+  async function usePlay(kind, o) {
+    if (player.pose) return;
+    const used = Store.s.played_pg || (Store.s.played_pg = {});
+    used[kind] = 1; Store.save();
+    Store.emit({ type: 'playground', kind, all: ['swing', 'slide', 'sand', 'seesaw'].every(k => used[k]) });
+    if (kind === 'swing') {
+      play.swingT = time; player.pose = { kind: 'swing', o };
+      Sfx.win(1);
+      await U.sleep(5000); player.pose = null; player.y = o.iy + 6;
+    } else if (kind === 'slide') {
+      player.pose = { kind: 'slide', t0: time, o };
+      await U.sleep(2400); player.pose = null; player.x = o.x + 90; player.y = o.y + 20;
+      if (collides(player.x, player.y)) { player.x = o.ix; player.y = o.iy; }
+      Sfx.win(1);
+    } else if (kind === 'sand') {
+      if (play.castles.length >= 4) { Toast.show(I18N.t('Sandkasten'), I18N.t('Der Sandkasten ist voller Burgen!'), '★'); return; }
+      player.pose = { kind: 'dig', t0: time };
+      for (let i = 0; i < 6; i++) { Sfx.scratch(); await U.sleep(200); }
+      play.castles.push({ dx: -60 + play.castles.length * 36 });
+      player.pose = null;
+      Toast.show(I18N.t('Sandburg gebaut'), I18N.t('Ein Meisterwerk der Baukunst.'), '★');
+    } else if (kind === 'seesaw') {
+      const kid = npcs.find(n => n.kid);
+      if (!kid) { Toast.show(I18N.t('Wippe'), I18N.t('Allein wippt es sich schlecht.'), '·'); return; }
+      o.busy = true; player.pose = { kind: 'seesaw', o };
+      kid.path = null; kid.x = o.x + 66; kid.y = o.y + 4; kid.wait = 5;
+      await U.sleep(4000); o.busy = false; player.pose = null;
+    }
+  }
+  function goCasino() {
+    lock = true;
+    fadeScreen(true).then(() => {
+      Floor.placeAt('exit');
+      location.hash = 'floor';
+      lock = false;
+      setTimeout(() => fadeScreen(false), 60);
+    });
+  }
+
+  /* ---------- Zeichnen ---------- */
+  function drawGround() {
+    const gp = Z.ground === 'grass' ? grassPat() : Z.ground === 'asphalt' ? asphaltPat() : plazaPat();
+    g.fillStyle = '#0a0612'; g.fillRect(0, 0, WW, WH);
+    g.fillStyle = gp; g.fillRect(0, TOP - 40, WW, 780 - TOP + 40);
+    if (Z.id === 'neighborhood') { g.fillStyle = pavePat(); g.fillRect(0, 520, WW, 60); g.fillRect(520, TOP, 80, 200); }
+    if (Z.id === 'plaza') { g.fillStyle = '#8a1030'; g.fillRect(760, TOP, 80, 360); g.fillStyle = '#c98a12'; g.fillRect(758, TOP, 3, 360); g.fillRect(839, TOP, 3, 360); }
+    if (Z.parking) { g.strokeStyle = 'rgba(255,255,255,0.4)'; g.lineWidth = 3; for (let x = 180; x < 1200; x += 130) { g.beginPath(); g.moveTo(x, 490); g.lineTo(x, 600); g.stroke(); } }
+    if (Z.rubber) { const [x0, y0, x1, y1] = Z.rubber; g.fillStyle = rubberPat(); rr(x0, y0, x1 - x0, y1 - y0 + 60, 30); g.fill(); }
+    // Himmel/Hintergrund über dem Ort
+    const sky = g.createLinearGradient(0, 0, 0, TOP);
+    sky.addColorStop(0, '#07041a'); sky.addColorStop(1, '#2a0e3a');
+    g.fillStyle = sky; g.fillRect(0, 0, WW, TOP - 40);
+    for (let i = 0; i < 70; i++) { const r = rnd(i + 3); g.fillStyle = `rgba(255,255,255,${0.2 + r() * 0.6})`; g.fillRect(r() * WW, r() * (TOP - 60), 1.5, 1.5); }
+    drawSkyline();
+    drawStreet(WW);
+  }
+  function drawSkyline() {
+    const r = rnd(42 + ZONE_ORDER.indexOf(Z.id));
+    for (let x = 0; x < WW; x += 70 + r() * 40) {
+      const h = 60 + r() * 140, w = 50 + r() * 50;
+      g.fillStyle = '#140a24'; g.fillRect(x, TOP - 40 - h, w, h);
+      for (let i = 0; i < h / 18; i++) for (let j = 0; j < w / 16; j++) if (r() < 0.3) { g.fillStyle = r() < 0.5 ? 'rgba(255,210,140,0.6)' : 'rgba(59,232,255,0.5)'; g.fillRect(x + 5 + j * 16, TOP - 40 - h + 8 + i * 18, 6, 8); }
+    }
+    g.fillStyle = 'rgba(255,61,139,0.25)'; g.fillRect(0, TOP - 42, WW, 2);
+  }
+  function drawChar(ch, isPlayer) {
+    if (isPlayer && player.alpha <= 0) return;
+    g.save(); if (isPlayer) g.globalAlpha = player.alpha;
+    let { x, y, dir, phase, moving } = ch;
+    if (isPlayer && player.pose) {
+      const p = player.pose;
+      if (p.kind === 'swing' && p.o.seat) { x = p.o.seat.x; y = p.o.seat.y; dir = 0; moving = false; }
+      if (p.kind === 'slide') {
+        const t = Math.min(1, (time - p.t0) / 2.4), o = p.o;
+        if (t < 0.45) { const u = t / 0.45; x = o.x - 42; y = o.y + 6 - u * 104; dir = 3; moving = true; phase = time * 12; }
+        else { const u = (t - 0.45) / 0.55; x = o.x - 12 + u * 90; y = o.y - 96 + u * 104 + Math.sin(u * Math.PI) * -6 ; dir = 2; moving = false; }
+      }
+      if (p.kind === 'dig') { dir = 3; moving = true; phase = time * 18; }
+      if (p.kind === 'seesaw') { const a = Math.sin(time * 2.4) * 0.28; x = p.o.x - 62; y = p.o.y - 22 - Math.sin(a) * 60 + 26; dir = 2; moving = false; }
+    }
+    Avatar.draw(g, x, y, ch.a || avatar, dir, phase, moving, {});
+    if (isPlayer) {
+      const name = (avatar.name || 'Gast').slice(0, 14);
+      g.font = '600 11px Rubik, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      const tw = g.measureText(name).width + 14;
+      g.fillStyle = 'rgba(10,4,20,0.75)'; rr(x - tw / 2, y - (avatar.hat ? 100 : 88), tw, 17, 8.5); g.fill();
+      g.fillStyle = '#ffe7a0'; g.fillText(name, x, y - (avatar.hat ? 91.5 : 79.5));
+    }
+    g.restore();
+  }
+  function render() {
+    g.setTransform(dpr * zoom, 0, 0, dpr * zoom, -camX * dpr * zoom, -camY * dpr * zoom);
+    drawGround();
+    g.globalCompositeOperation = 'lighter';
+    (Z.lights || []).forEach(([x, y, r, c, a]) => pool(x, y, r, c, a));
+    g.globalCompositeOperation = 'source-over';
+    if (near && near.game !== 'cat') {
+      const a = 0.55 + 0.35 * Math.sin(time * 5);
+      g.strokeStyle = hexA(near.glow || '#ffc94a', a); g.lineWidth = 2.5; g.beginPath(); g.ellipse(near.ix, near.iy, 30, 10, 0, 0, Math.PI * 2); g.stroke();
+    }
+    const list = [];
+    for (const o of objects) list.push({ y: o.sortY, f: () => DRAW[o.kind](o) });
+    for (const n of npcs) list.push({ y: n.y, f: () => drawChar(n) });
+    list.push({ y: Cat.y, f: () => Cat.draw() });
+    const pY = player.pose && player.pose.kind === 'swing' ? player.pose.o.y + 30 : player.y;
+    list.push({ y: pY, f: () => drawChar(player, true) });
+    list.push({ y: ROAD_Y + 100, f: drawBus });
+    list.sort((a, b) => a.y - b.y);
+    for (const it of list) it.f();
+    // Nachtlicht
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.8);
+    vg.addColorStop(0, 'rgba(10,4,30,0)'); vg.addColorStop(1, 'rgba(10,4,30,0.7)');
+    g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  }
+  function toScreen(x, y) { const r = canvas.getBoundingClientRect(); return [r.left + (x - camX) * zoom, r.top + (y - camY) * zoom]; }
+
+  function updateCamera(snap) {
+    const vw = W / zoom, vh = H / zoom;
+    const tx = U.clamp(player.x - vw / 2, 0, Math.max(0, WW - vw));
+    const ty = U.clamp(player.y - vh * 0.52, Math.max(0, TOP - 300), Math.max(0, WH - 40 - vh));
+    if (snap) { camX = tx; camY = ty; } else { camX += (tx - camX) * 0.12; camY += (ty - camY) * 0.12; }
+    if (vw > WW) camX = (WW - vw) / 2;
+  }
+  function updatePrompt() {
+    if (!near || lock || player.pose) { promptEl.hidden = true; promptEl.__for = null; actionBtn.disabled = true; return; }
+    promptEl.hidden = false;
+    if (promptEl.__for !== near) {
+      promptEl.__for = near; promptName.textContent = near.label; promptSub.textContent = near.sub || '';
+      promptKey.textContent = near.game === 'bus' ? 'einsteigen' : near.game === 'cat' ? 'kümmern' : near.game.startsWith('shop:') ? 'einkaufen' : near.game === 'casino' ? 'eintreten' : 'benutzen';
+      actionBtn.querySelector('b').textContent = near.game === 'bus' ? 'Bus' : near.game === 'cat' ? 'Mimi' : near.game.startsWith('shop:') ? 'Laden' : near.game === 'casino' ? 'Casino' : 'Benutzen';
+    }
+    const sx = (near.x - camX) * zoom, sy = (near.y - (near.vh || 60) - 40 - camY) * zoom;
+    promptEl.style.transform = `translate(${Math.round(U.clamp(sx, 110, W - 110))}px, ${Math.round(Math.max(promptEl.offsetHeight + 12, sy))}px) translate(-50%, -100%)`;
+    actionBtn.disabled = false;
+  }
+  function loop(now) {
+    if (!active) { raf = null; return; }
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000 || 0)); last = now; time += dt; frame++;
+    updatePlayer(dt); updateNpcs(dt); Cat.update(dt); updateBus(dt);
+    updateCamera(false); render(); updatePrompt();
+    raf = requestAnimationFrame(loop);
+  }
+  function resize() {
+    const r = view.getBoundingClientRect();
+    W = Math.round(r.width); H = Math.round(window.innerHeight - r.top);
+    if (W < 10 || H < 10) return;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    view.style.height = H + 'px';
+    zoom = U.clamp(Math.min(W / 1150, H / 800), 0.72, 1.25);
+    for (const k in patterns) delete patterns[k];
+    updateCamera(true);
+  }
+
+  /* ---------- Eingaben ---------- */
+  function screenToWorld(cx, cy) { const r = canvas.getBoundingClientRect(); return { x: (cx - r.left) / zoom + camX, y: (cy - r.top) / zoom + camY }; }
+  function hit(p) {
+    if (Cat.dist(p) < 30) return Cat.target();
+    let best = null;
+    for (const o of interactives) {
+      const hw = Math.max(o.fw, 60) / 2 + 6, top = o.y - (o.vh || 80) - 30;
+      if (p.x > o.x - hw && p.x < o.x + hw && p.y > top && p.y < o.y + 14) if (!best || o.sortY > best.sortY) best = o;
+    }
+    return best;
+  }
+  canvas.addEventListener('pointerdown', e => {
+    if (lock || player.pose) return;
+    Sfx.init();
+    const p = screenToWorld(e.clientX, e.clientY), o = hit(p);
+    if (o) {
+      if (near === o && (o.game === 'cat' || distTo(o) < 64)) { interact(o); return; }
+      player.path = findPath(player.x, player.y, o.ix, o.iy); pendingInteract = o;
+    } else { player.path = findPath(player.x, player.y, p.x, p.y); pendingInteract = null; }
+  });
+  canvas.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') canvas.style.cursor = hit(screenToWorld(e.clientX, e.clientY)) ? 'pointer' : 'default'; });
+  joyEl.addEventListener('pointerdown', e => { e.preventDefault(); Sfx.init(); joy.id = e.pointerId; joyEl.setPointerCapture(e.pointerId); const r = joyEl.getBoundingClientRect(); joy.cx = r.left + r.width / 2; joy.cy = r.top + r.height / 2; moveJoy(e); });
+  function moveJoy(e) {
+    if (e.pointerId !== joy.id) return;
+    const R = joyEl.clientWidth / 2; let dx = e.clientX - joy.cx, dy = e.clientY - joy.cy; const d = Math.hypot(dx, dy);
+    if (d > R) { dx *= R / d; dy *= R / d; }
+    joy.dx = dx / R; joy.dy = dy / R; if (Math.hypot(joy.dx, joy.dy) < 0.18) joy.dx = joy.dy = 0;
+    knobEl.style.transform = `translate(${dx}px, ${dy}px)`;
+  }
+  joyEl.addEventListener('pointermove', moveJoy);
+  const endJoy = e => { if (e.pointerId !== joy.id) return; joy.id = null; joy.dx = joy.dy = 0; knobEl.style.transform = ''; };
+  joyEl.addEventListener('pointerup', endJoy); joyEl.addEventListener('pointercancel', endJoy);
+  actionBtn.addEventListener('click', () => interact(near));
+  promptEl.addEventListener('click', () => interact(near));
+  window.addEventListener('keyup', e => keys.delete(e.code));
+  window.addEventListener('blur', () => keys.clear());
+  window.addEventListener('resize', () => { if (active) resize(); });
+
+  // Casino-Ausgang führt auf den Vorplatz
+  Floor.exitToTown = () => { Store.s.town = { zone: 'plaza', fromCasino: true }; Store.save(); App.enter('town'); };
+
+  return {
+    show() {
+      active = true; avatar = Avatar.load();
+      const st = Store.s.town || { zone: 'plaza' };
+      const z = ZONES[st.zone] ? st.zone : 'plaza';
+      requestAnimationFrame(() => {
+        resize();
+        if (!Z || Z.id !== z || st.fromCasino) loadZone(z, z === 'plaza' && st.fromCasino ? [800, 400] : null);
+        if (st.fromCasino) { st.fromCasino = false; Store.save(); }
+        if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); }
+      });
+    },
+    hide() { active = false; keys.clear(); Panel.close(); },
+    key(e) {
+      const move = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyW', 'KeyA', 'KeyS', 'KeyD'];
+      if (move.includes(e.code)) { e.preventDefault(); keys.add(e.code); return true; }
+      if (e.code === 'KeyE' || e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); if (near) interact(near); return true; }
+      if (e.code === 'Escape' && Panel.open_) { Panel.close(); return true; }
+      return false;
+    },
+    refreshAvatar() { avatar = Avatar.load(); },
+    get zones() { return ZONES; },
+    get player() { return player; },
+    get cat() { return Cat; },
   };
 })();
 
@@ -8470,6 +10273,42 @@ const Icons = (() => {
       card(-12, -0.2, '9'); card(12, 0.18, 'K');
       [['#2f7bff', 30], ['#e0103a', 66]].forEach(([c, cx]) => { g.fillStyle = c; g.beginPath(); g.ellipse(cx, 80, 14, 6, 0, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.stroke(); });
     }
+    else if (kind === 'cat') {
+      const fur = arg === 'gold' ? '#ffb347' : '#f0a860';
+      g.fillStyle = fur;
+      g.beginPath(); g.moveTo(20, 40); g.lineTo(26, 12); g.lineTo(42, 30); g.closePath(); g.fill();
+      g.beginPath(); g.moveTo(76, 40); g.lineTo(70, 12); g.lineTo(54, 30); g.closePath(); g.fill();
+      const fg = g.createRadialGradient(40, 44, 4, 48, 52, 32); fg.addColorStop(0, '#ffd8a0'); fg.addColorStop(1, '#d07a30');
+      g.fillStyle = fg; g.beginPath(); g.ellipse(48, 54, 30, 26, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ff9ab8'; [[27, 26], [69, 26]].forEach(([ex]) => { g.beginPath(); g.moveTo(ex - 3, 34); g.lineTo(ex + (ex < 48 ? 0 : 0), 20); g.lineTo(ex + 4 * (ex < 48 ? 1 : -1) + (ex < 48 ? 5 : -5), 32); g.closePath(); g.fill(); });
+      g.fillStyle = '#2a1a0a'; g.beginPath(); g.ellipse(37, 50, 4, 5.5, 0, 0, Math.PI * 2); g.ellipse(59, 50, 4, 5.5, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(38.5, 48, 1.6, 0, Math.PI * 2); g.arc(60.5, 48, 1.6, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ff6a8a'; g.beginPath(); g.moveTo(44, 60); g.lineTo(52, 60); g.lineTo(48, 65); g.closePath(); g.fill();
+      g.strokeStyle = 'rgba(60,30,10,0.7)'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(48, 65); g.quadraticCurveTo(44, 71, 40, 68); g.moveTo(48, 65); g.quadraticCurveTo(52, 71, 56, 68);
+      [[-1, 60], [-1, 64], [1, 60], [1, 64]].forEach(([d, wy]) => { g.moveTo(48 + d * 10, wy); g.lineTo(48 + d * 30, wy - 3 + (wy - 60)); }); g.stroke();
+      if (arg === 'gold') { g.fillStyle = '#ff3d8b'; g.font = '22px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('♥', 80, 78); }
+    } else if (kind === 'heart') {
+      const hg = g.createRadialGradient(40, 36, 4, 48, 50, 40); hg.addColorStop(0, '#ffc2dc'); hg.addColorStop(0.5, '#ff3d8b'); hg.addColorStop(1, '#9a0a4a');
+      g.fillStyle = hg; g.beginPath(); g.moveTo(48, 80);
+      g.bezierCurveTo(10, 56, 12, 20, 34, 20); g.bezierCurveTo(42, 20, 48, 28, 48, 32); g.bezierCurveTo(48, 28, 54, 20, 62, 20); g.bezierCurveTo(84, 20, 86, 56, 48, 80); g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.6)'; g.beginPath(); g.ellipse(34, 32, 7, 4, -0.6, 0, Math.PI * 2); g.fill();
+    } else if (kind === 'bus') {
+      const bg = g.createLinearGradient(0, 22, 0, 74); bg.addColorStop(0, '#ff6aa6'); bg.addColorStop(1, '#a0105a');
+      g.fillStyle = bg; g.beginPath(); g.roundRect ? g.roundRect(8, 22, 80, 50, 9) : g.rect(8, 22, 80, 50); g.fill();
+      g.fillStyle = 'rgba(160,220,255,0.85)'; for (let i = 0; i < 4; i++) g.fillRect(14 + i * 17, 30, 13, 16);
+      g.fillStyle = '#ffc94a'; g.fillRect(8, 52, 80, 4);
+      g.fillStyle = '#111'; [28, 70].forEach(wx => { g.beginPath(); g.arc(wx, 74, 9, 0, Math.PI * 2); g.fill(); });
+      g.fillStyle = '#8a8298'; [28, 70].forEach(wx => { g.beginPath(); g.arc(wx, 74, 3.5, 0, Math.PI * 2); g.fill(); });
+    } else if (kind === 'hat') {
+      g.save(); g.translate(48, 72); g.scale(2.4, 2.4); Avatar.drawHat(g, arg || 'tophat', 0, false, 1, 0, '#ffc94a'); g.restore();
+    } else if (kind === 'swing') {
+      g.strokeStyle = '#c9a8ff'; g.lineWidth = 5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(14, 84); g.lineTo(26, 14); g.lineTo(70, 14); g.lineTo(82, 84); g.stroke();
+      g.strokeStyle = '#e8e0f0'; g.lineWidth = 2; g.beginPath(); g.moveTo(40, 14); g.lineTo(34, 60); g.moveTo(56, 14); g.lineTo(50, 60); g.stroke();
+      g.fillStyle = '#ff3d8b'; g.beginPath(); g.roundRect ? g.roundRect(29, 58, 26, 6, 3) : g.rect(29, 58, 26, 6); g.fill();
+      g.fillStyle = '#ffc94a'; g.font = '20px serif'; g.textAlign = 'center'; g.fillText('★', 70, 48);
+    }
     const u = c.toDataURL();
     cache.set(spec, u);
     return u;
@@ -8515,6 +10354,12 @@ const Achievements = (() => {
     { id: 'hilo_5', icon: 'hilo', name: 'Kartenleser', desc: 'Rate beim Hi-Lo 5-mal in Folge richtig.' },
     { id: 'bacc_tie', icon: 'bacc', name: 'Patt-Profi', desc: 'Gewinne beim Baccarat eine Unentschieden-Wette.' },
     { id: 'explorer', icon: 'sym:clover', name: 'Nachtschwärmer', desc: 'Spiele an allen 12 Tischen und Automaten.' },
+    { id: 'cat_pet', icon: 'cat', name: 'Samtpfote', desc: 'Streichle Katze Mimi in der Nachbarschaft.' },
+    { id: 'cat_best', icon: 'cat:gold', name: 'Beste Freunde', desc: 'Bring Mimis Zuneigung auf 100 %.' },
+    { id: 'cat_follow', icon: 'heart', name: 'Treue Begleiterin', desc: 'Nimm Mimi mit dem Bus an einen anderen Ort mit.' },
+    { id: 'traveler', icon: 'bus', name: 'Stadtbummel', desc: 'Besuche alle fünf Orte der Stadt.' },
+    { id: 'hat', icon: 'hat:tophat', name: 'Gut behütet', desc: 'Kauf dir einen Hut beim Hutmacher.' },
+    { id: 'playground', icon: 'swing', name: 'Kind geblieben', desc: 'Probiere alles auf dem Spielplatz aus.' },
     { id: 'level_5', icon: 'lvl:5', name: 'Stammgast', desc: 'Erreiche Level 5.' },
     { id: 'level_10', icon: 'lvl:10', name: 'VIP-Lounge', desc: 'Erreiche Level 10.' },
     { id: 'rich_10k', icon: 'coins:3', name: 'Fünfstellig', desc: 'Besitze 10.000 Münzen.' },
@@ -8555,6 +10400,15 @@ const Achievements = (() => {
     if (ev.type === 'keno') { played('keno'); if (ev.hits >= 6) unlock('keno_6'); }
     if (ev.type === 'hilo' || ev.type === 'hiloStep') { played('hilo'); if (ev.streak >= 5) unlock('hilo_5'); }
     if (ev.type === 'baccarat') { played('baccarat'); if (ev.tieWin) unlock('bacc_tie'); }
+    if (ev.type === 'catPet') unlock('cat_pet');
+    if (ev.type === 'cat' && ev.aff >= 100) unlock('cat_best');
+    if (ev.type === 'travel') {
+      const v = s.visited || (s.visited = {}); v[ev.zone] = 1; v.plaza = 1; Store.save();
+      if (['plaza', 'neighborhood', 'mall', 'market', 'playground'].every(z => v[z])) unlock('traveler');
+      if (ev.withCat) unlock('cat_follow');
+    }
+    if (ev.type === 'shop' && ev.item.startsWith('hat:')) unlock('hat');
+    if (ev.type === 'playground' && ev.all) unlock('playground');
     if (ev.type === 'levelup' || ev.type === 'xp') { if (s.level >= 5) unlock('level_5'); if (s.level >= 10) unlock('level_10'); }
     if (ev.type === 'balance') { if (s.balance >= 10000) unlock('rich_10k'); if (s.balance >= 100000) unlock('rich_100k'); }
   }
@@ -8592,6 +10446,7 @@ const AvatarEditor = (() => {
     $$('#avOutfit .swatch').forEach((b, i) => b.classList.toggle('on', a.outfit === i));
     $$('#avAccent .swatch').forEach(b => b.classList.toggle('on', b.style.getPropertyValue('--c') === a.accent));
     $$('#avStyle button').forEach(b => b.classList.toggle('on', b.dataset.style === a.style));
+    $$('#avHat button').forEach(b => b.classList.toggle('on', (b.dataset.hat || null) === (a.hat || null)));
     $('#avGlasses').classList.toggle('on', !!a.glasses);
     $('#avGlasses').setAttribute('aria-pressed', !!a.glasses);
   }
@@ -8628,14 +10483,21 @@ const AvatarEditor = (() => {
     e.preventDefault();
     a.name = ($('#avName').value || '').trim().slice(0, 14) || 'Gast';
     Store.s.avatar = { ...a }; Store.save();
-    Floor.refreshAvatar();
+    Floor.refreshAvatar(); Town.refreshAvatar();
     Sfx.win(1);
     App.closeModal(true);
     Profile.render();
     Toast.show(I18N.t('Willkommen, {0}!', a.name), 'Lauf durch die Halle und such dir einen Tisch aus.', '★', 'ach');
   });
+  function renderHats() {
+    const hats = (Store.s.inv && Store.s.inv.hats) || [];
+    $('#avHatField').hidden = !hats.length;
+    const NAMES = { cap: 'Basecap', beanie: 'Mütze', party: 'Partyhut', cowboy: 'Cowboyhut', tophat: 'Zylinder', crown: 'Krone' };
+    $('#avHat').innerHTML = `<button type="button" data-hat="">${I18N.t('Ohne')}</button>` + hats.map(h => `<button type="button" data-hat="${h}">${I18N.t(NAMES[h] || h)}</button>`).join('');
+    $$('#avHat button').forEach(b => b.addEventListener('click', () => { Sfx.click(); a.hat = b.dataset.hat || null; mark(); }));
+  }
   return {
-    open() { a = Avatar.load(); $('#avName').value = a.name === 'Gast' && !Store.s.avatar ? '' : a.name; mark(); open = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(loop); },
+    open() { a = Avatar.load(); renderHats(); $('#avName').value = a.name === 'Gast' && !Store.s.avatar ? '' : a.name; mark(); open = true; last = performance.now(); if (!raf) raf = requestAnimationFrame(loop); },
     close() { open = false; },
   };
 })();
@@ -8711,7 +10573,7 @@ const Loader = (() => {
 
 /* ---------- App / Navigation ---------- */
 const App = (() => {
-  const views = { floor: Floor, lobby: null, slots: Slots, plinko: Plinko, blackjack: Blackjack, roulette: Roulette, crash: Crash, mines: Mines, scratch: Scratch, dice: Dice, poker: VideoPoker, keno: Keno, hilo: HiLo, baccarat: Baccarat };
+  const views = { floor: Floor, lobby: null, slots: Slots, plinko: Plinko, blackjack: Blackjack, roulette: Roulette, crash: Crash, mines: Mines, scratch: Scratch, dice: Dice, poker: VideoPoker, keno: Keno, hilo: HiLo, baccarat: Baccarat, town: Town };
   let current = null, shownBalance = Store.s.balance, openModalId = null;
   const fade = $('#fade');
 
@@ -8726,7 +10588,7 @@ const App = (() => {
     window.scrollTo(0, 0);
     if (views[name]) views[name].show();
     if (name === 'lobby') { renderStats(); Achievements.render(); Profile.show(); }
-    if (name !== 'floor' && name !== 'lobby') Floor.placeAt(name);
+    if (name !== 'floor' && name !== 'lobby' && name !== 'town') Floor.placeAt(name);
   }
 
   function route() {
@@ -8843,12 +10705,14 @@ const App = (() => {
   function buildGamesMenu() {
     const box = $('#gamesMenu');
     box.innerHTML = GAMES.map(gm => `<button type="button" class="gm-item" data-game="${gm.id}" style="--c:${gm.color}"><img alt="" src="${Icons.url(gm.icon)}"><span><b>${gm.name}</b><small>${gm.sub}</small></span></button>`).join('') +
+      `<button type="button" class="gm-item" data-game="town" style="--c:#ff6aa6"><img alt="" src="${Icons.url('bus')}"><span><b>${I18N.t('Raus in die Stadt')}</b><small>${I18N.t('Nachbarschaft, Mall, Markt, Spielplatz')}</small></span></button>` +
       `<button type="button" class="gm-item" data-game="wheel" style="--c:#ffc94a"><span class="gm-wheel"></span><span><b>Bonusrad</b><small>${Wheel.ready() ? 'Gratis-Dreh bereit' : 'lädt noch'}</small></span></button>`;
     $$('.gm-item', box).forEach(b => b.addEventListener('click', () => {
       Sfx.click();
       const id = b.dataset.game;
       closeModal();
       if (id === 'wheel') { setTimeout(() => openModal('modal-wheel'), 260); return; }
+      if (id === 'town') { if (current === 'town') return; Store.s.town = { zone: (Store.s.town && Store.s.town.zone) || 'plaza' }; enter('town'); return; }
       Floor.placeAt(id);
       enter(id);
     }));
@@ -8893,7 +10757,7 @@ const App = (() => {
 
   document.addEventListener('keydown', e => {
     if (Loader.open) return; // Ladebildschirm zuerst bestätigen
-    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'Escape') { if (!openModalId && current === 'town' && Town.key(e)) return; closeModal(); return; }
     if (openModalId || e.target.closest('input, textarea, select')) return;
     if (e.target.closest('button') && (e.code === 'Space' || e.code === 'Enter')) return; // Button-Klick nicht doppelt auslösen
     if (current !== 'floor' && current !== 'lobby' && e.code === 'Escape') return;
@@ -8946,11 +10810,12 @@ const App = (() => {
   return {
     init() {
       I18N.start();
+      const cf = $('.cat-face'); if (cf) cf.style.setProperty('--cat-icon', `url(${Icons.url('cat')})`);
       const refund = Store.refundPending();
       shownBalance = Store.s.balance;
       balEl.textContent = U.fmt(Store.s.balance);
       const afterLoad = () => {
-        if (refund) setTimeout(() => Toast.show(I18N.t('Offene Runde erstattet'), I18N.t('{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', U.fmt(refund)), '↺', 'ach'), 600);
+        if (refund) setTimeout(() => Toast.show(I18N.t('Offene Runde abgerechnet'), I18N.t('{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', U.fmt(refund)), '↺', 'ach'), 600);
         if (!Store.s.avatar) setTimeout(() => openModal('modal-avatar'), 450);
       };
       updateXp(); updateBonus(); route();
