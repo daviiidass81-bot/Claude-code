@@ -95,7 +95,8 @@ const Plinko = (() => {
       binHit[p.k] = now;
       const m = P.tables[b.rows][b.risk][p.k];
       const win = Math.round(b.bet * m);
-      const p = Store.s.pending; if (p && p.plinko != null) { p.plinko = Math.max(0, p.plinko - b.due); if (!p.plinko && !balls.some(o => o !== b && o.seg < o.pts.length - 1)) Store.release('plinko'); else Store.save(); }
+      const pend = Store.s.pending; // eigener Name – "p" ist hier der Zielpunkt
+      if (pend && pend.plinko != null) { pend.plinko = Math.max(0, pend.plinko - b.due); if (!pend.plinko && !balls.some(o => o !== b && o.seg < o.pts.length - 1)) Store.release('plinko'); else Store.save(); }
       if (win > 0) Store.win(win, win - b.bet);
       Store.statMax('maxMult', m);
       Store.emit({ type: 'plinko', mult: m, win, bet: b.bet });
@@ -213,7 +214,7 @@ const Plinko = (() => {
       b.t += dt / b.dur;
       while (b.t >= 1) {
         b.t -= 1; b.seg++;
-        arrive(b, b.pts[b.seg]);
+        try { arrive(b, b.pts[b.seg]); } catch (e) { console.error(e); } // ein Fehler darf die Animation nie anhalten
         if (b.seg >= b.pts.length - 1) { b.done = true; break; }
         const nxt = b.pts[b.seg + 1];
         b.dur = nxt.kind === 'bin' ? 0.24 : U.rand(0.15, 0.19);
