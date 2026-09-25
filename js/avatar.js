@@ -149,6 +149,48 @@ const Avatar = (() => {
 
     // ----- Haare -----
     drawHair(g, a.style, hair, dir, side, flip, hy);
+    if (a.hat) drawHat(g, a.hat, dir, side, flip, hy, accent);
+    g.restore();
+  }
+
+  /* Hüte (aus der Einkaufsmeile) */
+  const HATS = {
+    cap: { name: 'Basecap' }, tophat: { name: 'Zylinder' }, crown: { name: 'Krone' },
+    beanie: { name: 'Mütze' }, cowboy: { name: 'Cowboyhut' }, party: { name: 'Partyhut' },
+  };
+  function drawHat(g, hat, dir, side, flip, hy, accent) {
+    g.save();
+    if (side) g.scale(flip, 1);
+    const top = hy - 9;
+    if (hat === 'cap') {
+      g.fillStyle = accent; g.beginPath(); g.ellipse(0, top + 1, 11, 7, 0, Math.PI, Math.PI * 2); g.fill();
+      g.fillStyle = shade(accent, -40);
+      if (dir === 0) { g.beginPath(); g.ellipse(0, top + 2, 11, 3.5, 0, 0, Math.PI); g.fill(); }
+      else if (side) { g.beginPath(); g.ellipse(9, top + 1.5, 7, 2.5, 0, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(0, top - 5, 1.4, 0, Math.PI * 2); g.fill();
+    } else if (hat === 'tophat') {
+      g.fillStyle = '#15101c'; g.beginPath(); g.ellipse(0, top + 1, 14, 4, 0, 0, Math.PI * 2); g.fill();
+      rr(g, -8, top - 17, 16, 18, 2); g.fill();
+      g.fillStyle = accent; g.fillRect(-8, top - 4, 16, 3);
+      g.fillStyle = 'rgba(255,255,255,0.15)'; g.fillRect(-6, top - 16, 3, 12);
+    } else if (hat === 'crown') {
+      const gg = g.createLinearGradient(0, top - 12, 0, top + 2); gg.addColorStop(0, '#fff2b0'); gg.addColorStop(1, '#c98a12');
+      g.fillStyle = gg; g.beginPath(); g.moveTo(-9, top + 1); g.lineTo(-10, top - 9); g.lineTo(-5, top - 4); g.lineTo(0, top - 12); g.lineTo(5, top - 4); g.lineTo(10, top - 9); g.lineTo(9, top + 1); g.closePath(); g.fill();
+      g.fillStyle = '#ff3d8b'; g.beginPath(); g.arc(0, top - 3, 1.8, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#3be8ff'; g.beginPath(); g.arc(-5, top - 1, 1.3, 0, Math.PI * 2); g.arc(5, top - 1, 1.3, 0, Math.PI * 2); g.fill();
+    } else if (hat === 'beanie') {
+      g.fillStyle = accent; g.beginPath(); g.ellipse(0, top + 2, 11, 10, 0, Math.PI, Math.PI * 2); g.fill();
+      g.fillStyle = shade(accent, -35); g.fillRect(-11, top, 22, 4);
+      g.fillStyle = '#fff'; g.beginPath(); g.arc(0, top - 9, 3.2, 0, Math.PI * 2); g.fill();
+    } else if (hat === 'cowboy') {
+      g.fillStyle = '#6a3e1a'; g.beginPath(); g.ellipse(0, top + 1, 17, 5, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#8a5424'; g.beginPath(); g.moveTo(-9, top + 1); g.quadraticCurveTo(-9, top - 12, 0, top - 11); g.quadraticCurveTo(9, top - 12, 9, top + 1); g.closePath(); g.fill();
+      g.fillStyle = '#3a200a'; g.fillRect(-9, top - 2, 18, 2.5);
+    } else if (hat === 'party') {
+      g.fillStyle = accent; g.beginPath(); g.moveTo(-7, top + 1); g.lineTo(0, top - 18); g.lineTo(7, top + 1); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.6)'; g.fillRect(-4, top - 6, 8, 2); g.fillRect(-2, top - 12, 4, 2);
+      g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(0, top - 18, 2.5, 0, Math.PI * 2); g.fill();
+    }
     g.restore();
   }
 
@@ -199,5 +241,5 @@ const Avatar = (() => {
     return a;
   }
 
-  return { draw, SKINS, HAIRS, OUTFITS, STYLES, DEFAULT, load, shade };
+  return { draw, drawHat, HATS, SKINS, HAIRS, OUTFITS, STYLES, DEFAULT, load, shade };
 })();
