@@ -52,7 +52,7 @@ const Store = (() => {
   const START = 2500;
   const defaults = () => ({
     balance: START, xp: 0, level: 1, lastBonus: 0, muted: false, peak: START,
-    stats: { bets: 0, wagered: 0, won: 0, biggest: 0, spins: 0, freeSpins: 0, balls: 0, hands: 0, bj: 0, bjWins: 0, maxMult: 0, rlSpins: 0, crashRounds: 0, maxCrash: 0, minesRounds: 0, tickets: 0, rolls: 0 },
+    stats: { bets: 0, wagered: 0, won: 0, biggest: 0, spins: 0, freeSpins: 0, balls: 0, hands: 0, bj: 0, bjWins: 0, maxMult: 0, rlSpins: 0, crashRounds: 0, maxCrash: 0, minesRounds: 0, tickets: 0, rolls: 0, pokerHands: 0, kenoRounds: 0, baccRounds: 0 },
     ach: {},
   });
   let s;

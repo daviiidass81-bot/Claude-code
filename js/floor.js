@@ -9,7 +9,7 @@ const Floor = (() => {
   const actionBtn = $('#floorAction'), joyEl = $('#joy'), knobEl = $('#joyKnob');
   const mini = $('#minimap'), mg = mini.getContext('2d');
 
-  const WW = 1800, WH = 1320, WALL = 160;
+  const WW = 1800, WH = 1720, WALL = 160, BOTTOM = 46;
   const CELL = 20, COLS = Math.ceil(WW / CELL), ROWS = Math.ceil(WH / CELL);
   const PR = 11; // Spieler-Radius
   let W = 0, H = 0, dpr = 1, zoom = 1, camX = 0, camY = 0;
@@ -18,7 +18,7 @@ const Floor = (() => {
   const keys = new Set();
   const joy = { id: null, dx: 0, dy: 0, cx: 0, cy: 0 };
 
-  const player = { x: 900, y: 1210, dir: 3, phase: 0, moving: false, path: null, speed: 200 };
+  const player = { x: 900, y: 1600, dir: 3, phase: 0, moving: false, path: null, speed: 200 };
   let avatar = Avatar.load();
 
   /* ---------- Hilfen ---------- */
@@ -97,9 +97,18 @@ const Floor = (() => {
   add({ kind: 'mines', x: 620, y: 1040, fw: 140, fh: 56, vh: 130, game: 'mines', label: 'Diamond Mines', sub: 'Juwelen statt Bomben', ix: 620, iy: 1092, glow: '#3be8ff' });
   add({ kind: 'scratch', x: 1180, y: 1040, fw: 170, fh: 56, vh: 110, game: 'scratch', label: 'Rubbellose', sub: 'Bis 100× pro Los', ix: 1180, iy: 1092, glow: '#ffc94a' });
   add({ kind: 'cashier', x: 1480, y: 1040, fw: 210, fh: 56, vh: 120, game: 'lobby', label: 'Kasse & Profil', sub: 'Statistik · Erfolge', ix: 1480, iy: 1092, glow: '#9d5cff' });
-  [[230, 470], [1570, 470], [230, 880], [1570, 880], [690, 880], [1110, 880]].forEach(([x, y]) => add({ kind: 'pillar', x, y, fw: 40, fh: 26, vh: 150 }));
-  [[60, 250], [1740, 360], [60, 1250], [1740, 1250], [780, 1275], [1020, 1275], [60, 640], [1740, 640]].forEach(([x, y], i) => add({ kind: 'plant', x, y, fw: 34, fh: 22, vh: 70, v: i }));
-  [[820, 1170], [820, 1060], [980, 1170], [980, 1060]].forEach(([x, y]) => add({ kind: 'post', x, y, fw: 12, fh: 10, vh: 34 }));
+  [[230, 470], [1570, 470], [230, 880], [1570, 880], [690, 880], [1110, 880], [230, 1250], [1570, 1250], [690, 1250], [1110, 1250]].forEach(([x, y]) => add({ kind: 'pillar', x, y, fw: 40, fh: 26, vh: 150 }));
+  [[60, 250], [1740, 360], [60, 1250], [1740, 1250], [760, 1640], [1040, 1640], [60, 640], [1740, 640], [60, 1640], [1740, 1640]].forEach(([x, y], i) => add({ kind: 'plant', x, y, fw: 34, fh: 22, vh: 70, v: i }));
+  // Neue Reihe: Video-Poker, Keno, Hi-Lo, Baccarat
+  [150, 240, 330].forEach((x, i) => {
+    add({ kind: 'vpoker', x, y: 1430, fw: 72, fh: 44, vh: 124, game: 'poker', label: 'Jacks or Better', sub: 'Video-Poker', ix: x, iy: 1480, glow: '#3be8ff', seed: i * 2.3 });
+    add({ kind: 'stool', x, y: 1468, c: '#3be8ff', nocoll: true });
+  });
+  add({ kind: 'keno', x: 590, y: 1430, fw: 170, fh: 56, vh: 140, game: 'keno', label: 'Neon Keno', sub: '10 aus 40', ix: 590, iy: 1482, glow: '#9d5cff' });
+  add({ kind: 'hilo', x: 1150, y: 1450, fw: 200, fh: 96, vh: 40, game: 'hilo', label: 'Hi-Lo', sub: 'Höher oder niedriger', ix: 1150, iy: 1500, glow: '#5dffb0' });
+  add({ kind: 'baccarat', x: 1480, y: 1460, fw: 290, fh: 124, vh: 40, game: 'baccarat', label: 'Royal Baccarat', sub: 'Spieler · Bank · Unentschieden', ix: 1480, iy: 1512, glow: '#ffc94a' });
+  add({ kind: 'door', x: 900, y: WH - 6, fw: 0, fh: 0, vh: 90, sortY: WH + 50, game: 'exit', label: 'Ausgang', sub: 'Zur Stadt', ix: 900, iy: WH - 80, glow: '#3be8ff' });
+  [[820, 1560], [820, 1450], [980, 1560], [980, 1450]].forEach(([x, y]) => add({ kind: 'post', x, y, fw: 12, fh: 10, vh: 34 }));
 
   const interactives = objects.filter(o => o.game);
 
@@ -112,6 +121,8 @@ const Floor = (() => {
     { x: 1370, y: 579, a: { skin: 4, hair: 0, style: 'bald', outfit: '#16121f', accent: '#ffc94a' }, opts: { bowtie: true } },
     { x: 1470, y: 206, a: { skin: 1, hair: 5, style: 'mohawk', outfit: '#1c1826', accent: '#3be8ff' }, opts: { bowtie: true } },
     { x: 1480, y: 990, a: { skin: 3, hair: 1, style: 'long', outfit: '#3a1f78', accent: '#ffc94a', glasses: true }, opts: {} },
+    { x: 1150, y: 1370, a: { skin: 1, hair: 6, style: 'bun', outfit: '#16121f', accent: '#5dffb0' }, opts: { bowtie: true } },
+    { x: 1480, y: 1356, a: { skin: 2, hair: 0, style: 'short', outfit: '#16121f', accent: '#ffc94a', glasses: false }, opts: { bowtie: true } },
   ].map(d => Object.assign(d, { dir: 0, phase: Math.random() * 6, npc: true, fixed: true }));
   const guests = Array.from({ length: 7 }, (_, i) => ({ x: 400 + i * 160, y: 900 + (i % 3) * 60, dir: 0, phase: 0, moving: false, a: rndAvatar(),
     path: null, wait: U.rand(0.5, 3), speed: U.rand(55, 80), npc: true, playing: null }));
@@ -123,7 +134,7 @@ const Floor = (() => {
     blocked.fill(0);
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
       const x = c * CELL + CELL / 2, y = r * CELL + CELL / 2;
-      if (y < WALL + 34 || y > WH - 18 || x < 26 || x > WW - 26) { blocked[r * COLS + c] = 1; continue; }
+      if (y < WALL + 34 || y > WH - BOTTOM - 14 || x < 26 || x > WW - 26) { blocked[r * COLS + c] = 1; continue; }
       for (const o of objects) {
         if (o.nocoll || !o.fw) continue;
         const q = rectOf(o);
@@ -132,7 +143,7 @@ const Floor = (() => {
     }
   }
   function collides(x, y) {
-    if (y < WALL + 30 || y > WH - 14 || x < 22 || x > WW - 22) return true;
+    if (y < WALL + 30 || y > WH - BOTTOM - 10 || x < 22 || x > WW - 22) return true;
     for (const o of objects) {
       if (o.nocoll || !o.fw) continue;
       const q = rectOf(o);
@@ -272,7 +283,7 @@ const Floor = (() => {
       // Ziel: Automat, Tisch oder freier Punkt
       let tx, ty;
       if (Math.random() < 0.55) {
-        const o = U.pick(interactives.filter(o => o.game !== 'lobby'));
+        const o = U.pick(interactives.filter(o => o.game !== 'lobby' && o.game !== 'exit'));
         tx = o.ix + U.pick([-36, 0, 36]); ty = o.iy + U.rand(4, 14);
         n.playing = o;
       } else { tx = U.rand(80, WW - 80); ty = U.rand(WALL + 200, WH - 60); n.playing = null; }
@@ -288,6 +299,7 @@ const Floor = (() => {
     Store.s.floorPos = { x: Math.round(player.x), y: Math.round(player.y) }; Store.save();
     if (o.game === 'wheel') { App.openModal('modal-wheel'); return; }
     if (o.game === 'bar') { Bar.order(); return; }
+    if (o.game === 'exit') { Floor.exitToTown ? Floor.exitToTown() : Toast.show(I18N.t('Ausgang'), I18N.t('Die Stadt öffnet bald ihre Tore.'), '→'); return; }
     App.enter(o.game);
   }
 
@@ -316,6 +328,8 @@ const Floor = (() => {
     for (const o of interactives) if (o.kind === 'slot' || o.kind === 'plinko') pool(o.x, o.y + 20, 90, hexRgb(o.glow), 0.12 + 0.04 * Math.sin(time * 2 + (o.seed || 0)));
     pool(330, 1060, 150, '255,93,61', 0.08); pool(620, 1060, 130, '59,232,255', 0.08);
     pool(1180, 1060, 150, '255,201,74', 0.07); pool(1480, 1060, 160, '157,92,255', 0.07);
+    pool(240, 1450, 200, '59,232,255', 0.08); pool(590, 1450, 140, '157,92,255', 0.08); pool(1150, 1430, 170, '93,255,176', 0.05); pool(1480, 1430, 220, '255,201,74', 0.06);
+    pool(900, WH - 40, 180, '59,232,255', 0.1);
     pool(900, 300, 220, '255,201,74', 0.08 + (Wheel.ready() ? 0.05 * Math.sin(time * 3) : 0));
     g.globalCompositeOperation = 'source-over';
     // Sockelleiste vor der Wand
@@ -766,12 +780,122 @@ const Floor = (() => {
     g.fillStyle = '#ffe07a'; g.beginPath(); g.arc(x, y - 34, 4, 0, Math.PI * 2); g.fill();
   }
   function drawRopes() {
-    const pairs = [[[820, 1170], [820, 1060]], [[980, 1170], [980, 1060]]];
+    const pairs = [[[820, 1560], [820, 1450]], [[980, 1560], [980, 1450]]];
     g.strokeStyle = '#a0103a'; g.lineWidth = 4; g.lineCap = 'round';
     pairs.forEach(([a, b]) => { g.beginPath(); g.moveTo(a[0], a[1] - 30); g.quadraticCurveTo(a[0] + 8, (a[1] + b[1]) / 2 - 18, b[0], b[1] - 30); g.stroke(); });
   }
 
-  const DRAW = { slot: drawSlot, stool: drawStool, plinko: drawPlinkoCab, podium: drawPodium, bar: drawBar, roulette: drawRoulette,
+
+  function drawVPoker(o) {
+    const { x, y } = o, w = 64, h = 124;
+    shadowEllipse(x, y - 6, 42, 11);
+    const body = g.createLinearGradient(x - w / 2, 0, x + w / 2, 0);
+    body.addColorStop(0, '#0c1433'); body.addColorStop(0.25, '#23408a'); body.addColorStop(0.55, '#16285a'); body.addColorStop(1, '#070c20');
+    g.fillStyle = body; rr(x - w / 2, y - h, w, h - 4, 8); g.fill();
+    g.strokeStyle = 'rgba(59,232,255,0.35)'; g.lineWidth = 1.5; rr(x - w / 2, y - h, w, h - 4, 8); g.stroke();
+    g.fillStyle = '#0a1438'; rr(x - w / 2 + 2, y - h - 20, w - 4, 24, [10, 10, 3, 3]); g.fill();
+    glowText('POKER', x, y - h - 8, 10, '#3be8ff', 10);
+    // Bildschirm mit fünf Karten
+    const sx = x - w / 2 + 6, sy = y - h + 10, sw = w - 12, shh = 40;
+    g.fillStyle = '#0a1a6a'; rr(sx, sy, sw, shh, 3); g.fill();
+    g.fillStyle = 'rgba(255,226,122,0.8)'; for (let i = 0; i < 3; i++) g.fillRect(sx + 4, sy + 4 + i * 4, sw - 8, 1.5);
+    const held = Math.floor(time * 0.8 + o.seed) % 5;
+    for (let i = 0; i < 5; i++) {
+      const cx = sx + 3 + i * (sw - 6) / 5, cy = sy + 18 - (i === held ? 2 : 0);
+      g.fillStyle = '#fff'; rr(cx, cy, (sw - 6) / 5 - 1.5, 17, 1.5); g.fill();
+      g.fillStyle = i % 2 ? '#d0103a' : '#1b1330'; g.font = '7px serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(['♠', '♥', '♣', '♦', '♠'][i], cx + (sw - 6) / 10, cy + 9);
+    }
+    g.fillStyle = 'rgba(255,255,255,0.08)'; g.fillRect(sx, sy, sw, shh * 0.35);
+    const py = y - h + 58;
+    g.fillStyle = '#0c1433'; g.beginPath(); g.moveTo(x - w / 2 + 2, py); g.lineTo(x + w / 2 - 2, py); g.lineTo(x + w / 2 + 3, py + 12); g.lineTo(x - w / 2 - 3, py + 12); g.closePath(); g.fill();
+    for (let i = 0; i < 5; i++) { g.fillStyle = i === 4 ? '#ffc94a' : '#3be8ff'; g.shadowColor = g.fillStyle; g.shadowBlur = 5; rr(x - 26 + i * 11, py + 3, 8, 5, 1.5); g.fill(); }
+    g.shadowBlur = 0;
+    g.fillStyle = 'rgba(59,232,255,0.8)'; g.fillRect(x - w / 2 + 6, py + 22, w - 12, 2.5);
+    glowText('J+', x, py + 40, 16, '#ffc94a', 8);
+  }
+
+  function drawKeno(o) {
+    const { x, y } = o, w = 160, h = 140;
+    shadowEllipse(x, y - 6, w / 2 + 12, 13);
+    const body = g.createLinearGradient(x - w / 2, 0, x + w / 2, 0);
+    body.addColorStop(0, '#140a24'); body.addColorStop(0.3, '#3a2466'); body.addColorStop(1, '#0c0616');
+    g.fillStyle = body; rr(x - w / 2, y - h, w, h - 4, 10); g.fill();
+    g.strokeStyle = 'rgba(157,92,255,0.5)'; g.lineWidth = 1.5; g.stroke();
+    g.fillStyle = '#2a1050'; rr(x - w / 2 - 3, y - h - 24, w + 6, 28, 10); g.fill();
+    glowText('NEON KENO', x, y - h - 10, 13, '#c9a8ff', 12);
+    const bx = x - w / 2 + 10, by = y - h + 10, bw = w - 20, bh = 70, cw = bw / 8, ch = bh / 5;
+    g.fillStyle = '#06030c'; rr(bx - 2, by - 2, bw + 4, bh + 4, 4); g.fill();
+    const round = Math.floor(time / 5);
+    for (let i = 0; i < 40; i++) {
+      const c = i % 8, r = (i / 8) | 0, lit = ((i * 13 + round * 7) % 40) < 10 && ((time % 5) > (i % 10) * 0.35);
+      g.fillStyle = lit ? '#ffc94a' : '#2e2250';
+      rr(bx + c * cw + 1, by + r * ch + 1, cw - 2, ch - 2, 2); g.fill();
+    }
+    g.fillStyle = 'rgba(255,255,255,0.06)'; g.fillRect(bx, by, bw, bh * 0.3);
+    const py = y - h + 92;
+    g.fillStyle = '#1a1024'; g.beginPath(); g.moveTo(x - w / 2 + 4, py); g.lineTo(x + w / 2 - 4, py); g.lineTo(x + w / 2 + 2, py + 14); g.lineTo(x - w / 2 - 2, py + 14); g.closePath(); g.fill();
+    // Kugeln in der Glaskuppel
+    for (let i = 0; i < 6; i++) { const a = time * 3 + i; g.fillStyle = ['#ff3d8b', '#ffc94a', '#3be8ff'][i % 3]; g.beginPath(); g.arc(x + Math.cos(a) * 16, py + 30 + Math.sin(a * 1.3) * 5, 3.5, 0, Math.PI * 2); g.fill(); }
+    g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1.5; g.beginPath(); g.ellipse(x, py + 30, 26, 11, 0, 0, Math.PI * 2); g.stroke();
+  }
+
+  function drawHiloTable(o) {
+    const { x, y } = o, w = 190, d = 88, top = y - d - 14;
+    shadowEllipse(x, y - 6, w / 2 + 8, 16, 0.45);
+    g.fillStyle = '#2a1206'; g.beginPath(); g.ellipse(x, top + d / 2 + 10, w / 2, d / 2, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#6a3a14'; g.beginPath(); g.ellipse(x, top + d / 2, w / 2, d / 2, 0, 0, Math.PI * 2); g.fill();
+    const felt = g.createRadialGradient(x, top + d / 2 - 6, 5, x, top + d / 2, w / 2);
+    felt.addColorStop(0, '#1d7a6c'); felt.addColorStop(1, '#0c3e38');
+    g.fillStyle = felt; g.beginPath(); g.ellipse(x, top + d / 2, w / 2 - 9, d / 2 - 8, 0, 0, Math.PI * 2); g.fill();
+    // große Karte + Pfeile
+    g.fillStyle = '#fff'; rr(x - 11, top + 24, 22, 32, 3); g.fill();
+    g.fillStyle = '#d0103a'; g.font = '700 13px Rubik, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(['7', 'Q', '3', 'K', '9'][Math.floor(time / 1.5) % 5], x, top + 40);
+    g.fillStyle = '#5dffb0'; g.beginPath(); g.moveTo(x + 36, top + 26); g.lineTo(x + 46, top + 40); g.lineTo(x + 26, top + 40); g.closePath(); g.fill();
+    g.fillStyle = '#ff5d6c'; g.beginPath(); g.moveTo(x - 36, top + 56); g.lineTo(x - 46, top + 42); g.lineTo(x - 26, top + 42); g.closePath(); g.fill();
+    glowText('HI-LO', x, top + d - 14, 10, '#5dffb0', 6);
+  }
+
+  function drawBaccaratTable(o) {
+    const { x, y } = o, w = 290, d = 116, top = y - d - 16;
+    shadowEllipse(x, y - 8, w / 2 + 12, 20, 0.45);
+    g.fillStyle = '#2a1206'; rr(x - w / 2, top + 12, w, d + 6, 58); g.fill();
+    g.fillStyle = '#6a3a14'; rr(x - w / 2, top, w, d, 56); g.fill();
+    const felt = g.createRadialGradient(x, top + d / 2, 10, x, top + d / 2, w / 2);
+    felt.addColorStop(0, '#8a1f40'); felt.addColorStop(1, '#4a0a22');
+    g.fillStyle = felt; rr(x - w / 2 + 10, top + 9, w - 20, d - 18, 48); g.fill();
+    g.strokeStyle = 'rgba(255,220,140,0.45)'; g.lineWidth = 1.2;
+    [['SPIELER', -70, '#9ad0ff'], ['BANK', 70, '#ff9aaa']].forEach(([t, dx, c]) => {
+      g.beginPath(); g.ellipse(x + dx, top + 50, 40, 20, 0, 0, Math.PI * 2); g.stroke();
+      g.fillStyle = c; g.font = `${Math.max(8, 10.5 / zoom)}px Bungee, Impact, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(I18N.t(t), x + dx, top + 50);
+    });
+    g.beginPath(); g.ellipse(x, top + 80, 30, 12, 0, 0, Math.PI * 2); g.stroke();
+    [[x - 90, top + 26], [x - 76, top + 24], [x + 60, top + 24], [x + 74, top + 26]].forEach(([cx, cy]) => { g.fillStyle = '#fff'; rr(cx, cy - 16, 11, 15, 1.5); g.fill(); });
+    glowText('BACCARAT', x, top + d - 14, 10, '#ffc94a', 6);
+  }
+
+  function drawDoor(o) {
+    // wird in drawBottomWall gezeichnet
+  }
+
+  function drawBottomWall() {
+    const y0 = WH - BOTTOM;
+    const wg = g.createLinearGradient(0, y0, 0, WH);
+    wg.addColorStop(0, '#2a1438'); wg.addColorStop(1, '#0d0616');
+    g.fillStyle = wg; g.fillRect(0, y0, WW, BOTTOM);
+    g.fillStyle = '#c98a12'; g.fillRect(0, y0, WW, 3);
+    // Glastüren
+    const dx = 820, dw = 160;
+    const gl = g.createLinearGradient(dx, 0, dx + dw, 0);
+    gl.addColorStop(0, 'rgba(59,232,255,0.25)'); gl.addColorStop(0.5, 'rgba(160,240,255,0.45)'); gl.addColorStop(1, 'rgba(59,232,255,0.25)');
+    g.fillStyle = gl; g.fillRect(dx, y0, dw, BOTTOM);
+    g.fillStyle = '#c98a12'; g.fillRect(dx - 4, y0, 4, BOTTOM); g.fillRect(dx + dw, y0, 4, BOTTOM); g.fillRect(dx + dw / 2 - 1.5, y0, 3, BOTTOM);
+    g.strokeStyle = 'rgba(255,255,255,0.4)'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(dx + 20, y0 + 8); g.lineTo(dx + 40, y0 + 36); g.moveTo(dx + dw - 50, y0 + 8); g.lineTo(dx + dw - 30, y0 + 36); g.stroke();
+    glowText('AUSGANG', 900, y0 - 14, 12, '#3be8ff', 10);
+  }
+
+  const DRAW = { vpoker: drawVPoker, keno: drawKeno, hilo: drawHiloTable, baccarat: drawBaccaratTable, door: drawDoor, slot: drawSlot, stool: drawStool, plinko: drawPlinkoCab, podium: drawPodium, bar: drawBar, roulette: drawRoulette,
     blackjack: drawBlackjackTable, dice: drawDiceTable, crash: o => drawBooth(o, 'crash'), mines: o => drawBooth(o, 'mines'),
     scratch: drawScratch, cashier: drawCashier, pillar: drawPillar, plant: drawPlant, post: drawPost };
 
@@ -821,6 +945,7 @@ const Floor = (() => {
     list.push({ y: player.y, f: () => drawChar(player, true) });
     list.sort((a, b) => a.y - b.y);
     for (const it of list) it.f();
+    drawBottomWall();
     // Licht
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
@@ -861,12 +986,12 @@ const Floor = (() => {
     promptEl.hidden = false;
     if (promptEl.__for !== near) {
       promptEl.__for = near; promptName.textContent = near.label; $('#floorPromptSub').textContent = near.sub || '';
-      promptKey.textContent = near.game === 'bar' ? 'bestellen' : near.game === 'lobby' ? 'öffnen' : 'spielen';
+      promptKey.textContent = near.game === 'bar' ? 'bestellen' : near.game === 'lobby' ? 'öffnen' : near.game === 'exit' ? 'hinausgehen' : 'spielen';
     }
     const sx = (near.x - camX) * zoom, sy = (near.y - (near.vh || 60) - 60 - camY) * zoom;
     promptEl.style.transform = `translate(${Math.round(U.clamp(sx, 110, W - 110))}px, ${Math.round(Math.max(promptEl.offsetHeight + 12, sy))}px) translate(-50%, -100%)`;
     actionBtn.disabled = false;
-    const al = near.game === 'bar' ? 'Bestellen' : near.game === 'lobby' ? 'Öffnen' : 'Spielen';
+    const al = near.game === 'bar' ? 'Bestellen' : near.game === 'lobby' ? 'Öffnen' : near.game === 'exit' ? 'Raus' : 'Spielen';
     if (actionBtn.__lbl !== al) { actionBtn.__lbl = al; actionBtn.querySelector('b').textContent = al; }
   }
 

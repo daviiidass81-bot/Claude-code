@@ -308,6 +308,27 @@ const Icons = (() => {
       };
       die(34, 54, -0.3, [[-1, -1], [1, 1], [0, 0]]); die(62, 40, 0.25, [[-1, -1], [1, -1], [-1, 1], [1, 1]]);
     }
+    else if (kind === 'vp') {
+      const card = (dx, rot, suit, red) => { g.save(); g.translate(x + dx, y + 6); g.rotate(rot); g.fillStyle = '#fff'; g.beginPath(); g.roundRect ? g.roundRect(-14, -22, 28, 40, 4) : g.rect(-14, -22, 28, 40); g.fill(); g.fillStyle = red ? '#d0103a' : '#1b1330'; g.font = '20px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(suit + '\uFE0E', 0, 0); g.restore(); };
+      card(-22, -0.35, '♠', false); card(-8, -0.12, '♥', true); card(8, 0.12, '♦', true); card(22, 0.35, '♣', false);
+      g.fillStyle = '#3be8ff'; g.font = '11px Bungee, Impact, sans-serif'; g.textAlign = 'center'; g.fillText('POKER', x, 86);
+    } else if (kind === 'keno') {
+      [[30, 38, '#ff3d8b', 7], [60, 34, '#ffc94a', 23], [44, 64, '#3be8ff', 40]].forEach(([bx, by, col, n]) => {
+        const bg = g.createRadialGradient(bx - 5, by - 5, 2, bx, by, 17); bg.addColorStop(0, '#fff'); bg.addColorStop(0.35, col); bg.addColorStop(1, Avatar.shade(col, -70));
+        g.fillStyle = bg; g.beginPath(); g.arc(bx, by, 17, 0, Math.PI * 2); g.fill();
+        g.fillStyle = '#fff'; g.beginPath(); g.arc(bx, by, 9, 0, Math.PI * 2); g.fill();
+        g.fillStyle = '#1a0826'; g.font = '10px Bungee, Impact, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), bx, by + 1);
+      });
+    } else if (kind === 'hilo') {
+      g.save(); g.translate(x, y); g.fillStyle = '#fff'; g.beginPath(); g.roundRect ? g.roundRect(-18, -26, 36, 52, 5) : g.rect(-18, -26, 36, 52); g.fill();
+      g.fillStyle = '#1b1330'; g.font = '700 22px Rubik, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('?', 0, 2); g.restore();
+      g.fillStyle = '#5dffb0'; g.beginPath(); g.moveTo(80, 22); g.lineTo(92, 40); g.lineTo(68, 40); g.closePath(); g.fill();
+      g.fillStyle = '#ff5d6c'; g.beginPath(); g.moveTo(16, 74); g.lineTo(28, 56); g.lineTo(4, 56); g.closePath(); g.fill();
+    } else if (kind === 'bacc') {
+      const card = (dx, rot, t) => { g.save(); g.translate(x + dx, y - 4); g.rotate(rot); g.fillStyle = '#fff'; g.beginPath(); g.roundRect ? g.roundRect(-15, -22, 30, 42, 4) : g.rect(-15, -22, 30, 42); g.fill(); g.fillStyle = '#1b1330'; g.font = '700 16px Rubik, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(t, 0, 0); g.restore(); };
+      card(-12, -0.2, '9'); card(12, 0.18, 'K');
+      [['#2f7bff', 30], ['#e0103a', 66]].forEach(([c, cx]) => { g.fillStyle = c; g.beginPath(); g.ellipse(cx, 80, 14, 6, 0, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 1.5; g.stroke(); });
+    }
     const u = c.toDataURL();
     cache.set(spec, u);
     return u;
@@ -326,6 +347,10 @@ const GAMES = [
   { id: 'mines', name: 'Diamond Mines', sub: 'Juwelen statt Bomben', icon: 'gem', color: '#3be8ff' },
   { id: 'scratch', name: 'Rubbellose', sub: 'Bis 100× pro Los', icon: 'ticket', color: '#ffc94a' },
   { id: 'dice', name: 'Würfel-Duell', sub: 'Unter · 7 · Über', icon: 'dice', color: '#ff8a3d' },
+  { id: 'poker', name: 'Jacks or Better', sub: 'Video-Poker', icon: 'vp', color: '#3be8ff' },
+  { id: 'keno', name: 'Neon Keno', sub: '10 aus 40', icon: 'keno', color: '#9d5cff' },
+  { id: 'hilo', name: 'Hi-Lo', sub: 'Höher oder niedriger', icon: 'hilo', color: '#5dffb0' },
+  { id: 'baccarat', name: 'Royal Baccarat', sub: 'Spieler · Bank · Unentschieden', icon: 'bacc', color: '#ffc94a' },
 ];
 
 /* ---------- Erfolge ---------- */
@@ -344,7 +369,11 @@ const Achievements = (() => {
     { id: 'mines_10', icon: 'gem', name: 'Minenräumer', desc: 'Finde 10 Juwelen in einer Mines-Runde.' },
     { id: 'scratch_25', icon: 'ticket', name: 'Goldenes Los', desc: 'Rubbel mindestens 25× frei.' },
     { id: 'dice_pair', icon: 'dice', name: 'Pasch-König', desc: 'Gewinne mit einer Pasch-Wette.' },
-    { id: 'explorer', icon: 'sym:clover', name: 'Nachtschwärmer', desc: 'Spiele an allen 8 Tischen und Automaten.' },
+    { id: 'vp_full', icon: 'vp', name: 'Volles Haus', desc: 'Erziele beim Video-Poker ein Full House oder besser.' },
+    { id: 'keno_6', icon: 'keno', name: 'Zahlenglück', desc: 'Triff beim Keno 6 oder mehr Zahlen.' },
+    { id: 'hilo_5', icon: 'hilo', name: 'Kartenleser', desc: 'Rate beim Hi-Lo 5-mal in Folge richtig.' },
+    { id: 'bacc_tie', icon: 'bacc', name: 'Patt-Profi', desc: 'Gewinne beim Baccarat eine Unentschieden-Wette.' },
+    { id: 'explorer', icon: 'sym:clover', name: 'Nachtschwärmer', desc: 'Spiele an allen 12 Tischen und Automaten.' },
     { id: 'level_5', icon: 'lvl:5', name: 'Stammgast', desc: 'Erreiche Level 5.' },
     { id: 'level_10', icon: 'lvl:10', name: 'VIP-Lounge', desc: 'Erreiche Level 10.' },
     { id: 'rich_10k', icon: 'coins:3', name: 'Fünfstellig', desc: 'Besitze 10.000 Münzen.' },
@@ -381,6 +410,10 @@ const Achievements = (() => {
     if (ev.type === 'mines') { played('mines'); if (ev.gems >= 10) unlock('mines_10'); }
     if (ev.type === 'scratch') { played('scratch'); if (ev.mult >= 25) unlock('scratch_25'); }
     if (ev.type === 'dice') { played('dice'); if (ev.pairWin) unlock('dice_pair'); }
+    if (ev.type === 'poker') { played('poker'); if (['full', 'four', 'sflush', 'royal'].includes(ev.hand)) unlock('vp_full'); }
+    if (ev.type === 'keno') { played('keno'); if (ev.hits >= 6) unlock('keno_6'); }
+    if (ev.type === 'hilo' || ev.type === 'hiloStep') { played('hilo'); if (ev.streak >= 5) unlock('hilo_5'); }
+    if (ev.type === 'baccarat') { played('baccarat'); if (ev.tieWin) unlock('bacc_tie'); }
     if (ev.type === 'levelup' || ev.type === 'xp') { if (s.level >= 5) unlock('level_5'); if (s.level >= 10) unlock('level_10'); }
     if (ev.type === 'balance') { if (s.balance >= 10000) unlock('rich_10k'); if (s.balance >= 100000) unlock('rich_100k'); }
   }
@@ -537,7 +570,7 @@ const Loader = (() => {
 
 /* ---------- App / Navigation ---------- */
 const App = (() => {
-  const views = { floor: Floor, lobby: null, slots: Slots, plinko: Plinko, blackjack: Blackjack, roulette: Roulette, crash: Crash, mines: Mines, scratch: Scratch, dice: Dice };
+  const views = { floor: Floor, lobby: null, slots: Slots, plinko: Plinko, blackjack: Blackjack, roulette: Roulette, crash: Crash, mines: Mines, scratch: Scratch, dice: Dice, poker: VideoPoker, keno: Keno, hilo: HiLo, baccarat: Baccarat };
   let current = null, shownBalance = Store.s.balance, openModalId = null;
   const fade = $('#fade');
 
@@ -598,7 +631,8 @@ const App = (() => {
   }
 
   const GAME_TAG = { slots: ['Slot', '#ffc94a'], plinko: ['Plinko', '#ff7ab4'], blackjack: ['Blackjack', '#5dffb0'], roulette: ['Roulette', '#5dffb0'],
-    crash: ['Crash', '#ff8a5d'], mines: ['Mines', '#3be8ff'], scratch: ['Los', '#ffc94a'], dice: ['Würfel', '#ff8a3d'] };
+    crash: ['Crash', '#ff8a5d'], mines: ['Mines', '#3be8ff'], scratch: ['Los', '#ffc94a'], dice: ['Würfel', '#ff8a3d'],
+    poker: ['Poker', '#3be8ff'], keno: ['Keno', '#9d5cff'], hilo: ['Hi-Lo', '#5dffb0'], baccarat: ['Baccarat', '#ffc94a'] };
   function recordWin(game, amount, what) {
     const r = Store.s.recent || (Store.s.recent = []);
     r.unshift({ game, amount, what, t: Date.now() });
@@ -632,6 +666,8 @@ const App = (() => {
     set('stCrash', s.maxCrash ? s.maxCrash.toFixed(2).replace('.', U.dec()) + '×' : '–');
     set('stTickets', U.fmt(s.tickets));
     set('stRolls', U.fmt(s.rolls));
+    set('stPoker', U.fmt(s.pokerHands));
+    set('stKeno', U.fmt(s.kenoRounds));
     set('lobbyLevel', Store.s.level);
   }
 
@@ -697,6 +733,10 @@ const App = (() => {
     if (ev.type === 'crash' && ev.win && ev.mult >= 3) recordWin('crash', ev.win, `Ausgestiegen bei ${ev.mult.toFixed(2).replace('.', U.dec())}×`);
     if (ev.type === 'mines' && ev.win && ev.mult >= 3) recordWin('mines', ev.win, `${ev.gems} Juwelen · ${ev.mines} Bomben`);
     if (ev.type === 'scratch' && ev.mult >= 4) recordWin('scratch', ev.win, `${ev.mult}× Los`);
+    if (ev.type === 'poker' && ev.win >= ev.bet * 9) recordWin('poker', ev.win, I18N.t('{0}', ev.hand === 'royal' ? 'Royal Flush' : ev.hand === 'sflush' ? 'Straight Flush' : ev.hand === 'four' ? 'Vierling' : 'Full House'));
+    if (ev.type === 'keno' && ev.mult >= 10) recordWin('keno', ev.win, I18N.t('{0} von {1} Treffern', ev.hits, ev.picks));
+    if (ev.type === 'hilo' && ev.win && ev.mult >= 4) recordWin('hilo', ev.win, I18N.t('Serie von {0}', ev.streak));
+    if (ev.type === 'baccarat' && ev.net > 0 && (ev.tieWin || ev.net >= 500)) recordWin('baccarat', ev.win, ev.tieWin ? I18N.t('Unentschieden') : I18N.t(ev.res === 'player' ? 'Spieler gewinnt' : 'Bank gewinnt'));
     if (ev.type === 'dice' && ev.win >= ev.bet * 4) recordWin('dice', ev.win, `Summe ${ev.sum}${ev.pair ? ' · Pasch' : ''}`);
     if (ev.type === 'balance') { updateBalance(ev.delta); updateBonus(); if (current === 'lobby') renderStats(); }
     if (ev.type === 'xp') updateXp();

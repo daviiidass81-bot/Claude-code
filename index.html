@@ -117,11 +117,13 @@
           <div><dt>Höchster Crash-Ausstieg</dt><dd id="stCrash">–</dd></div>
           <div><dt>Rubbellose</dt><dd id="stTickets">0</dd></div>
           <div><dt>Würfe</dt><dd id="stRolls">0</dd></div>
+          <div><dt>Poker-Hände</dt><dd id="stPoker">0</dd></div>
+          <div><dt>Keno-Ziehungen</dt><dd id="stKeno">0</dd></div>
         </dl>
         <div class="recent"><h3>Letzte große Gewinne</h3><div id="recentList"></div></div>
       </section>
       <section class="panel ach-panel">
-        <header class="panel-head"><h2>Erfolge</h2><span class="pill" id="achCount">0 / 18</span></header>
+        <header class="panel-head"><h2>Erfolge</h2><span class="pill" id="achCount">0 / 22</span></header>
         <div class="ach-grid" id="achGrid"></div>
       </section>
     </div>
@@ -450,6 +452,117 @@
     </div>
     <p class="hint">Mehrere Felder gleichzeitig möglich · Leertaste würfelt · R wiederholt</p>
   </section>
+  <!-- ================= VIDEO-POKER ================= -->
+  <section class="view" id="view-poker">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Jacks or Better</h2>
+      <span class="pill">Quote ca. <b>99 %</b></span>
+    </div>
+    <div class="vp-machine" id="vpMachine">
+      <div class="vp-top"><span class="vp-title">VIDEO POKER</span><span class="vp-sub">Buben oder besser gewinnen</span></div>
+      <div class="vp-pay-wrap"><table class="vp-pay" id="vpPay"></table></div>
+      <div class="vp-cards" id="vpCards"></div>
+      <p class="vp-msg" id="vpMsg" aria-live="polite"></p>
+      <div class="vp-controls">
+        <div class="vp-box"><small>Münzwert</small>
+          <div class="bet-ctl"><button class="round-btn" id="vpCoinMinus" type="button" aria-label="Einsatz senken">−</button><div class="bet-val"><b id="vpCoin">25</b></div><button class="round-btn" id="vpCoinPlus" type="button" aria-label="Einsatz erhöhen">+</button></div>
+        </div>
+        <div class="vp-box"><small>Münzen</small><div class="vp-coins" id="vpCoins"></div></div>
+        <div class="vp-box vp-winbox"><small>Gewinn</small><b id="vpWin">—</b></div>
+        <button class="cta-btn big-cta" id="vpDeal" type="button"><span id="vpDealLabel">Geben</span><small id="vpDealSub"></small></button>
+      </div>
+    </div>
+    <p class="hint">Karten antippen zum Halten · Tasten 1–5 halten · Leertaste gibt bzw. zieht</p>
+  </section>
+
+  <!-- ================= KENO ================= -->
+  <section class="view" id="view-keno">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Neon Keno</h2>
+      <span class="pill">Quote ca. <b>95 %</b></span>
+    </div>
+    <div class="keno-layout">
+      <div class="panel keno-main">
+        <div class="kn-board" id="knBoard"></div>
+        <div class="kn-draw"><small>Gezogen</small><div class="kn-balls" id="knBalls"></div><span class="kn-hits">Treffer <b id="knHits">0</b></span></div>
+        <p class="kn-msg" id="knMsg" aria-live="polite"></p>
+      </div>
+      <aside class="panel keno-side">
+        <div class="field">
+          <label>Einsatz</label>
+          <div class="bet-ctl wide"><button class="round-btn" id="knMinus" type="button" aria-label="Einsatz senken">−</button><div class="bet-val"><b id="knBet">50</b></div><button class="round-btn" id="knPlus" type="button" aria-label="Einsatz erhöhen">+</button></div>
+        </div>
+        <div class="kn-pickinfo"><span>Gewählte Zahlen</span><b id="knPicks">0 / 10</b></div>
+        <div class="kn-row"><button class="ghost-btn" id="knQuick" type="button">Zufallszahlen</button><button class="ghost-btn" id="knClear" type="button">Löschen</button></div>
+        <button class="cta-btn big-cta" id="knPlay" type="button"><span>Ziehung starten</span><small id="knPlaySub"></small></button>
+        <div class="field"><label>Gewinnplan</label><ul class="kn-pay" id="knPay"></ul></div>
+      </aside>
+    </div>
+    <p class="hint">Zahlen antippen · R wählt zufällig · Leertaste startet die Ziehung</p>
+  </section>
+
+  <!-- ================= HI-LO ================= -->
+  <section class="view" id="view-hilo">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Hi-Lo</h2>
+      <span class="pill">Quote ca. <b>98 %</b></span>
+    </div>
+    <div class="hl-table" id="hlTable">
+      <div class="hl-stats">
+        <div><small>Multiplikator</small><b id="hlMult">1,00×</b></div>
+        <div><small>Serie</small><b id="hlStreak">0</b></div>
+      </div>
+      <div class="hl-stage">
+        <button class="hl-guess hi" id="hlHi" type="button"><i aria-hidden="true">▲</i><b>Höher oder gleich</b><small id="hlHiSub">–</small></button>
+        <div class="hl-card" id="hlCard"><div class="hl-placeholder"></div></div>
+        <button class="hl-guess lo" id="hlLo" type="button"><i aria-hidden="true">▼</i><b>Niedriger oder gleich</b><small id="hlLoSub">–</small></button>
+      </div>
+      <div class="hl-trail" id="hlTrail" aria-label="Letzte Karten"></div>
+      <p class="hl-msg" id="hlMsg" aria-live="polite"></p>
+    </div>
+    <div class="hl-controls">
+      <div class="bet-ctl"><button class="round-btn" id="hlMinus" type="button" aria-label="Einsatz senken">−</button><div class="bet-val"><small>Einsatz</small><b id="hlBet">50</b></div><button class="round-btn" id="hlPlus" type="button" aria-label="Einsatz erhöhen">+</button></div>
+      <button class="ghost-btn hl-skip" id="hlSkip" type="button">Karte tauschen <small id="hlSkipSub"></small></button>
+      <button class="cta-btn big-cta" id="hlStart" type="button"><span id="hlStartLabel">Spiel starten</span><small id="hlStartSub"></small></button>
+    </div>
+    <p class="hint">Pfeil hoch/runter raten · X tauscht die Karte · Leertaste startet bzw. zahlt aus · Ass ist die höchste Karte</p>
+  </section>
+
+  <!-- ================= BACCARAT ================= -->
+  <section class="view" id="view-baccarat">
+    <div class="game-head">
+      <a class="back-btn" href="#floor"><i>←</i> Casino</a>
+      <h2>Royal Baccarat</h2>
+      <span class="pill">Tischlimit <b data-num="5000">5.000</b></span>
+    </div>
+    <div class="bc-table" id="bcTable">
+      <div class="bc-shoe" id="bcShoe" aria-hidden="true"></div>
+      <div class="bc-hands">
+        <div class="bc-hand player"><div class="bc-label">SPIELER <span class="hand-value" id="bcPlayerVal" hidden></span></div><div class="cards" id="bcPlayerCards"></div></div>
+        <div class="bc-hand banker"><div class="bc-label">BANK <span class="hand-value" id="bcBankerVal" hidden></span></div><div class="cards" id="bcBankerCards"></div></div>
+      </div>
+      <div class="bc-msg" id="bcMsg" aria-live="polite"></div>
+      <div class="bc-spots">
+        <button class="bc-spot player" type="button" data-bspot="player"><b>Spieler</b><small>zahlt 1:1</small><span class="bc-bet"></span></button>
+        <button class="bc-spot tie" type="button" data-bspot="tie"><b>Unentschieden</b><small>zahlt 8:1</small><span class="bc-bet"></span></button>
+        <button class="bc-spot banker" type="button" data-bspot="banker"><b>Bank</b><small>zahlt 0,95:1</small><span class="bc-bet"></span></button>
+      </div>
+      <div class="bc-road" id="bcRoad" aria-label="Letzte Ergebnisse"></div>
+    </div>
+    <div class="dice-controls">
+      <div class="rl-status"><span>Einsatz <b id="bcTotal">0</b></span><span>Wer näher an 9 liegt, gewinnt.</span></div>
+      <div class="chip-rack" id="bcChips"></div>
+      <div class="bj-bet-actions">
+        <button class="ghost-btn" id="bcClear" type="button">Löschen</button>
+        <button class="ghost-btn" id="bcRebet" type="button">Wie zuvor</button>
+        <button class="cta-btn" id="bcDeal" type="button">Austeilen</button>
+      </div>
+    </div>
+    <p class="hint">Bildkarten und Zehner zählen 0, Ass zählt 1 · Leertaste teilt aus · R wiederholt</p>
+  </section>
 </main>
 
 <!-- ================= MODALS & OVERLAYS ================= -->
@@ -557,6 +670,10 @@
 <script src="js/mines.js"></script>
 <script src="js/scratch.js"></script>
 <script src="js/dice.js"></script>
+<script src="js/videopoker.js"></script>
+<script src="js/keno.js"></script>
+<script src="js/hilo.js"></script>
+<script src="js/baccarat.js"></script>
 <script src="js/floor.js"></script>
 <script src="js/main.js"></script>
 </body>

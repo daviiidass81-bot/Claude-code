@@ -434,6 +434,7 @@ const Blackjack = (() => {
   renderStack();
 
   return {
+    makeCard, // wird von Video-Poker, Hi-Lo und Baccarat mitgenutzt
     show() { setControls(); if (phase === 'bet' && !hands.length) setMsg('Setze deine Chips und teile aus.'); },
     hide() {},
     key(e) {
