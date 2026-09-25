@@ -713,3 +713,18 @@ body[data-view="town"] .toasts { top: calc(76px + env(safe-area-inset-top, 0px))
 .shop-inv.pulse { animation: invPulse 0.6s ease-out; }
 @keyframes invPulse { 30% { color: var(--mint); transform: scale(1.06); } }
 .float-text.meow { font: 700 14px var(--body); color: #2a0716; padding: 4px 10px; border-radius: 12px 12px 12px 3px; background: #fff6e0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); text-shadow: none; animation-duration: 1.4s; }
+@media (max-width: 560px) {
+  .toasts { top: calc(62px + env(safe-area-inset-top, 0px)); }
+  .toast { padding: 6px 10px; gap: 9px; border-radius: 12px; opacity: 0.96; }
+  .toast .toast-icon { width: 30px; height: 30px; font-size: 14px; }
+  .toast .toast-icon img { width: 22px; height: 22px; }
+  .toast b { font-size: 10px; }
+  .toast span { font-size: 13px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+}
+.town-zone { transition: opacity 0.6s, transform 0.6s; }
+.town-zone.faded { opacity: 0; transform: translateY(-6px); }
+.cat-meter { height: 20px; }
+.cat-meter::after { content: none; }
+.cat-aff { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 9px; font-size: 11px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); letter-spacing: 0.04em; }
+.cat-aff b { font-variant-numeric: tabular-nums; }
+.cat-btn.locked small { color: #ff8a95; }

@@ -350,7 +350,7 @@ const I18N_ROWS = [
   ['{0}! Zurück: {1} von {2} Münzen.', '{0}! Returned: {1} of {2} coins.', '¡{0}! Devuelto: {1} de {2} monedas.', '{0} ! Rendu : {1} sur {2} pièces.', '{0}! İade: {2} jetondan {1}.'],
   ['Offene Runde abgerechnet', 'Unfinished round settled', 'Ronda pendiente liquidada', 'Manche inachevée réglée', 'Yarım kalan tur sonuçlandırıldı'],
   ['Offene Runde erstattet', 'Unfinished round refunded', 'Ronda pendiente reembolsada', 'Manche inachevée remboursée', 'Yarım kalan tur iade edildi'],
-  ['{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', '{0} coins from an unfinished round were refunded.', 'Se te han devuelto {0} monedas de una ronda pendiente.', '{0} pièces d’une manche inachevée t’ont été rendues.', 'Yarım kalan bir turdan {0} jeton iade edildi.'],
+  ['{0} Münzen aus einer offenen Runde wurden dir gutgeschrieben.', '{0} coins from an unfinished round were credited to you.', 'Se te han abonado {0} monedas de una ronda pendiente.', '{0} pièces d’une manche inachevée t’ont été créditées.', 'Yarım kalan bir turdan {0} jeton hesabına eklendi.'],
   ['bestellen', 'order', 'pedir', 'commander', 'sipariş ver'],
   ['öffnen', 'open', 'abrir', 'ouvrir', 'aç'],
   ['Lade das Casino …', 'Loading the casino …', 'Cargando el casino …', 'Chargement du casino …', 'Casino yükleniyor …'],
@@ -624,6 +624,8 @@ const I18N_ROWS = [
   ['benutzen · Bushaltestelle = andere Orte', 'use · bus stop = other places', 'usar · parada = otros lugares', 'utiliser · arrêt de bus = autres lieux', 'kullan · otobüs durağı = diğer yerler'],
   ['Miau!', 'Meow!', '¡Miau!', 'Miaou !', 'Miyav!'],
   ['Mimi rollt sich auf den Rücken – Bauchkraulen!', 'Mimi rolls onto her back – belly rubs!', 'Mimi se pone panza arriba: ¡caricias en la barriga!', 'Mimi se roule sur le dos – des papouilles sur le ventre !', 'Mimi sırtüstü yuvarlandı – göbek kaşıma zamanı!'],
+  ['FRISCH', 'FRESH', 'FRESCO', 'FRAIS', 'TAZE'],
+  ['WAGEN', 'CARTS', 'CARROS', 'CHARIOTS', 'ARABALAR'],
   // Figur
   ['Wer bist du heute Nacht?', 'Who are you tonight?', '¿Quién eres esta noche?', 'Qui es-tu ce soir ?', 'Bu gece kimsin?'],
   ['Gestalte deine Figur für die Casino-Halle.', 'Design your character for the casino floor.', 'Diseña tu personaje para el salón.', 'Crée ton personnage pour la salle du casino.', 'Casino salonu için karakterini tasarla.'],

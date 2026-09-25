@@ -77,14 +77,20 @@ const Town = (() => {
   });
 
   /* ---------- Gemeinsame Straße unten ---------- */
-  const ROAD_Y = 860, WALK_MAX = 846;
+  const ROAD_Y = 860, WALK_MAX = 846, VIEW_BOTTOM = 975;
+  const EX = 900; // über die Ortsgrenzen hinaus weiterzeichnen, damit breite Bildschirme keine Ränder zeigen
   function drawStreet(ww) {
-    g.fillStyle = pavePat(); g.fillRect(0, 780, ww, ROAD_Y - 780);
-    g.fillStyle = '#8a8298'; g.fillRect(0, ROAD_Y - 6, ww, 6);
-    g.fillStyle = asphaltPat(); g.fillRect(0, ROAD_Y, ww, 200);
+    g.fillStyle = pavePat(); g.fillRect(-EX, 780, ww + EX * 2, ROAD_Y - 780);
+    g.fillStyle = '#8a8298'; g.fillRect(-EX, ROAD_Y - 6, ww + EX * 2, 6);
+    g.fillStyle = asphaltPat(); g.fillRect(-EX, ROAD_Y, ww + EX * 2, 200);
     g.fillStyle = 'rgba(255,230,140,0.7)';
-    for (let x = 20; x < ww; x += 90) g.fillRect(x, ROAD_Y + 62, 46, 5);
-    g.fillStyle = 'rgba(255,255,255,0.12)'; g.fillRect(0, ROAD_Y + 130, ww, 3);
+    for (let x = 20 - EX; x < ww + EX; x += 90) g.fillRect(x, ROAD_Y + 62, 46, 5);
+    g.fillStyle = 'rgba(255,255,255,0.12)'; g.fillRect(-EX, ROAD_Y + 130, ww + EX * 2, 3);
+    // gegenüberliegender Gehweg und Hecke (für hohe Bildschirme)
+    g.fillStyle = '#8a8298'; g.fillRect(-EX, ROAD_Y + 200, ww + EX * 2, 6);
+    g.fillStyle = pavePat(); g.fillRect(-EX, ROAD_Y + 206, ww + EX * 2, 90);
+    g.fillStyle = '#173a22'; g.fillRect(-EX, ROAD_Y + 296, ww + EX * 2, 600);
+    g.fillStyle = 'rgba(160,255,140,0.08)'; for (let x = -EX; x < ww + EX; x += 26) { g.beginPath(); g.arc(x, ROAD_Y + 300, 16, Math.PI, 0); g.fill(); }
   }
 
   /* ---------- Objekt-Zeichner ---------- */
@@ -216,17 +222,31 @@ const Town = (() => {
     const { x, y, w = 220, c = '#8a4a5a' } = o;
     const h = 150;
     shadow(x, y - 4, w / 2 + 14, 14, 0.4);
-    // Satteldach
-    g.fillStyle = sh(c, -55);
-    g.beginPath(); g.moveTo(x - w / 2 - 12, y - h + 10); g.lineTo(x, y - h - 60); g.lineTo(x + w / 2 + 12, y - h + 10); g.closePath(); g.fill();
-    g.fillStyle = 'rgba(255,255,255,0.07)';
-    for (let i = 0; i < 6; i++) { g.beginPath(); g.moveTo(x - w / 2 - 12 + i * 22, y - h + 10 - i * 2); g.lineTo(x + w / 2 + 12 - i * 22, y - h + 10 - i * 2); g.lineWidth = 1; g.strokeStyle = 'rgba(0,0,0,0.2)'; g.stroke(); }
+    const roofC = sh(c, -55);
+    if (o.chimney) { const cx = x + w * 0.24; g.fillStyle = sh(c, -70); g.fillRect(cx - 11, y - h - 62, 22, 50); g.fillStyle = sh(c, -40); g.fillRect(cx - 14, y - h - 66, 28, 7);
+      for (let i = 0; i < 3; i++) { const t = (time * 0.35 + i / 3) % 1; g.fillStyle = `rgba(200,190,220,${0.25 * (1 - t)})`; g.beginPath(); g.arc(cx + Math.sin(t * 5 + i) * 6 + t * 14, y - h - 72 - t * 50, 6 + t * 10, 0, Math.PI * 2); g.fill(); } }
+    if (o.roof === 'flat') {
+      g.fillStyle = roofC; g.fillRect(x - w / 2 - 8, y - h - 6, w + 16, 18);
+      g.fillStyle = sh(c, -30); g.fillRect(x - w / 2 - 8, y - h - 12, w + 16, 7);
+      g.fillStyle = 'rgba(255,255,255,0.1)'; g.fillRect(x - w / 2 - 8, y - h - 12, w + 16, 2);
+    } else if (o.roof === 'mansard') {
+      g.fillStyle = roofC; g.beginPath(); g.moveTo(x - w / 2 - 10, y - h + 10); g.lineTo(x - w / 2 + 14, y - h - 40); g.lineTo(x + w / 2 - 14, y - h - 40); g.lineTo(x + w / 2 + 10, y - h + 10); g.closePath(); g.fill();
+      g.fillStyle = sh(c, -35); g.fillRect(x - w / 2 + 14, y - h - 46, w - 28, 8);
+      [-0.22, 0.22].forEach(k => { const dx = x + k * w; g.fillStyle = sh(c, 10); g.fillRect(dx - 14, y - h - 30, 28, 30); g.fillStyle = '#ffd88a'; g.fillRect(dx - 9, y - h - 25, 18, 20); g.fillStyle = roofC; g.beginPath(); g.moveTo(dx - 18, y - h - 30); g.lineTo(dx, y - h - 42); g.lineTo(dx + 18, y - h - 30); g.fill(); });
+    } else {
+      g.fillStyle = roofC;
+      g.beginPath(); g.moveTo(x - w / 2 - 12, y - h + 10); g.lineTo(x, y - h - 60); g.lineTo(x + w / 2 + 12, y - h + 10); g.closePath(); g.fill();
+      for (let i = 0; i < 6; i++) { g.beginPath(); g.moveTo(x - w / 2 - 12 + i * 22, y - h + 10 - i * 2); g.lineTo(x + w / 2 + 12 - i * 22, y - h + 10 - i * 2); g.lineWidth = 1; g.strokeStyle = 'rgba(0,0,0,0.2)'; g.stroke(); }
+      if (!o.home) { g.fillStyle = sh(c, 25); g.beginPath(); g.arc(x, y - h - 18, 10, 0, Math.PI * 2); g.fill(); g.fillStyle = '#ffd88a'; g.beginPath(); g.arc(x, y - h - 18, 7, 0, Math.PI * 2); g.fill(); }
+    }
     // Wand
     const fg = g.createLinearGradient(0, y - h, 0, y);
     fg.addColorStop(0, sh(c, 30)); fg.addColorStop(1, sh(c, -10));
     g.fillStyle = fg; g.fillRect(x - w / 2, y - h + 10, w, h - 10);
     // Fenster
-    [[-w / 2 + 40, -110], [w / 2 - 40, -110], [-w / 2 + 40, -60], [w / 2 - 40, -60]].forEach(([dx, dy], i) => {
+    const dX = o.doorX || 0;
+    const cols = [-w / 2 + 40, 0, w / 2 - 40];
+    [...cols.filter(dx => dX || dx).map(dx => [dx, -110]), ...cols.filter(dx => Math.abs(dx - dX) >= 50).map(dx => [dx, -60])].forEach(([dx, dy], i) => {
       const lit = (i + Math.floor(x)) % 3 !== 0;
       g.fillStyle = '#f0e6f4'; g.fillRect(x + dx - 20, y + dy - 18, 40, 36);
       g.fillStyle = lit ? '#ffd88a' : '#2a2a48'; g.fillRect(x + dx - 17, y + dy - 15, 34, 30);
@@ -234,16 +254,24 @@ const Town = (() => {
       if (lit) { g.fillStyle = 'rgba(255,220,150,0.16)'; g.fillRect(x + dx - 30, y + dy - 26, 60, 52); }
     });
     // Tür
-    g.fillStyle = sh(c, -60); rr(x - 18, y - 62, 36, 62, [10, 10, 0, 0]); g.fill();
-    g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(x + 10, y - 30, 2.2, 0, Math.PI * 2); g.fill();
-    g.fillStyle = '#b0a8c0'; g.fillRect(x - 26, y - 4, 52, 4);
+    const doorX = x + dX;
+    g.fillStyle = sh(c, -60); rr(doorX - 18, y - 62, 36, 62, [10, 10, 0, 0]); g.fill();
+    g.fillStyle = 'rgba(255,220,150,0.5)'; g.fillRect(doorX - 8, y - 54, 16, 10);
+    g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(doorX + 10, y - 30, 2.2, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#b0a8c0'; g.fillRect(doorX - 26, y - 4, 52, 4);
+    if (o.home) { // Fußmatte und Vorlicht – leuchten, wenn Mimi zu Hause ist
+      const on = Cat.present && !Cat.follow;
+      g.fillStyle = '#8a2a4a'; rr(doorX - 20, y + 2, 40, 9, 3); g.fill(); g.fillStyle = '#ffc94a'; g.font = '8px serif'; g.textAlign = 'center'; g.fillText('♥', doorX, y + 9);
+      g.fillStyle = '#2a2436'; g.fillRect(doorX + 24, y - 72, 8, 12); g.fillStyle = on ? '#fff0b0' : '#6a6070'; g.beginPath(); g.arc(doorX + 28, y - 58, 5, 0, Math.PI * 2); g.fill();
+      if (on) { const pl = g.createRadialGradient(doorX + 28, y - 58, 0, doorX + 28, y - 58, 60); pl.addColorStop(0, 'rgba(255,220,150,0.45)'); pl.addColorStop(1, 'rgba(255,220,150,0)'); g.fillStyle = pl; g.beginPath(); g.arc(doorX + 28, y - 58, 60, 0, Math.PI * 2); g.fill(); }
+    }
     if (o.home) {
       sign('ZUHAUSE', x, y - h - 20, 10, '#ffc94a', 8);
       // Katzennapf
       g.fillStyle = '#ff3d8b'; g.beginPath(); g.ellipse(x + 50, y + 14, 12, 5, 0, 0, Math.PI * 2); g.fill();
       g.fillStyle = Store.s.cat && Store.s.cat.bowl > 0 ? '#8a5424' : '#3a1020'; g.beginPath(); g.ellipse(x + 50, y + 12, 8, 3, 0, 0, Math.PI * 2); g.fill();
     }
-    if (o.num) { g.fillStyle = '#fff'; g.font = '700 11px Rubik, sans-serif'; g.textAlign = 'center'; g.fillText(String(o.num), x, y - 72); }
+    if (o.num) { g.fillStyle = '#fff'; g.font = '700 11px Rubik, sans-serif'; g.textAlign = 'center'; g.fillText(String(o.num), doorX, y - 70); }
   }
   function drawMailbox(o) {
     const { x, y } = o;
@@ -334,8 +362,18 @@ const Town = (() => {
     g.fillStyle = sg; g.fillRect(x - w / 2 + 18, y - h + 80, w - 36, h - 84);
     if (icon) icon(x, y - 50);
     // Tür
-    g.fillStyle = 'rgba(20,12,30,0.8)'; g.fillRect(x - 20, y - 64, 40, 64);
-    g.fillStyle = 'rgba(160,220,255,0.3)'; g.fillRect(x - 17, y - 60, 34, 60);
+    if (o.autoDoor) { // Schiebetür öffnet sich, wenn jemand davorsteht
+      const d = Math.min(...[player, ...npcs].map(p => Math.hypot(p.x - x, (p.y - y) * 1.6)));
+      o.open = (o.open || 0) + ((d < 110 ? 1 : 0) - (o.open || 0)) * 0.12;
+      g.fillStyle = 'rgba(10,6,20,0.9)'; g.fillRect(x - 40, y - 72, 80, 72);
+      g.fillStyle = 'rgba(255,240,200,0.35)'; g.fillRect(x - 36, y - 68, 72, 68);
+      g.fillStyle = 'rgba(160,220,255,0.45)'; g.fillRect(x - 36 - o.open * 30, y - 68, 36, 68); g.fillRect(x + o.open * 30, y - 68, 36, 68);
+      g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 1.5; g.strokeRect(x - 36 - o.open * 30, y - 68, 36, 68); g.strokeRect(x + o.open * 30, y - 68, 36, 68);
+      g.fillStyle = '#5dffb0'; g.fillRect(x - 40, y - 78, 80, 5);
+    } else {
+      g.fillStyle = 'rgba(20,12,30,0.8)'; g.fillRect(x - 20, y - 64, 40, 64);
+      g.fillStyle = 'rgba(160,220,255,0.3)'; g.fillRect(x - 17, y - 60, 34, 60);
+    }
     sign(title, x, y - h + 20, 15, color, 12);
   }
 
@@ -351,11 +389,11 @@ const Town = (() => {
     [-26, 26].forEach((dx, i) => {
       const active = i === 0 && time - play.swingT < 5;
       const amp = active ? Math.sin((time - play.swingT) * 3.2) * 0.5 * Math.min(1, (5 - (time - play.swingT)) / 1.5) : Math.sin(time * 1.2 + i) * 0.05;
-      const ex = x + dx + Math.sin(amp) * 70, ey = y - 108 + Math.cos(amp) * 78;
+      const ex = x + dx, ey = y - 108 + Math.cos(amp) * 78 + Math.sin(amp) * 30; // schwingt zum Betrachter hin und weg
       g.strokeStyle = '#8a8298'; g.lineWidth = 1.5;
       g.beginPath(); g.moveTo(x + dx - 9, y - 108); g.lineTo(ex - 9, ey); g.moveTo(x + dx + 9, y - 108); g.lineTo(ex + 9, ey); g.stroke();
-      g.fillStyle = '#ffc94a'; rr(ex - 12, ey - 3, 24, 6, 2); g.fill();
-      if (active) { o.seat = { x: ex, y: ey + 18 }; }
+      const sc = 1 + Math.sin(amp) * 0.12; g.fillStyle = '#ffc94a'; rr(ex - 12 * sc, ey - 3, 24 * sc, 6 * sc, 2); g.fill();
+      if (active) { o.seat = { x: ex, y: ey + 19, s: sc }; }
     });
   }
   function drawSlide(o) {
@@ -419,15 +457,102 @@ const Town = (() => {
 
   const DRAW = { tree: drawTree, palm: drawPalm, lamp: drawLamp, bench: drawBench, hedge: drawHedge, fence: drawFence, flowers: drawFlowers, busstop: drawBusStop,
     building: drawBuilding, house: drawHouse, mailbox: drawMailbox, car: drawCar, fountain: drawFountain, casino: drawCasinoFront, store: drawStoreFront,
-    swing: drawSwing, slide: drawSlide, sandbox: drawSandbox, seesaw: drawSeesaw, icetruck: drawIceTruck, cart: drawCart };
+    swing: drawSwing, slide: drawSlide, sandbox: drawSandbox, seesaw: drawSeesaw, icetruck: drawIceTruck, cart: drawCart, cafetable: drawCafeTable, menuboard: drawMenuBoard, crates: drawCrates, carf: drawCarFront, corral: drawCorral };
 
   /* ---------- Orte ---------- */
   const shopIcon = kind => (x, y) => {
     if (kind === 'hats') { const hats = ['tophat', 'crown', 'cowboy']; hats.forEach((h, i) => { g.save(); g.translate(x - 50 + i * 50, y + 10); g.scale(1.6, 1.6); Avatar.drawHat(g, h, 0, false, 1, 0, '#ff3d8b'); g.restore(); }); }
     else if (kind === 'pets') { drawCatShape(x - 30, y + 18, 1, 0, false, 'sit', 1.1, null); g.fillStyle = '#ff3d8b'; g.beginPath(); g.arc(x + 36, y + 8, 12, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#ffc2e4'; g.lineWidth = 1.5; for (let i = 0; i < 4; i++) { g.beginPath(); g.arc(x + 36, y + 8, 4 + i * 2.5, i, i + 2.4); g.stroke(); } }
     else if (kind === 'cafe') { g.fillStyle = '#f4eefa'; rr(x - 16, y - 6, 32, 28, 6); g.fill(); g.strokeStyle = '#f4eefa'; g.lineWidth = 4; g.beginPath(); g.arc(x + 18, y + 6, 8, -1.2, 1.2); g.stroke(); g.fillStyle = '#6a3e1a'; g.fillRect(x - 12, y - 4, 24, 6); for (let i = 0; i < 3; i++) { g.strokeStyle = `rgba(255,255,255,${0.4 + 0.2 * Math.sin(time * 2 + i)})`; g.lineWidth = 2; g.beginPath(); g.moveTo(x - 8 + i * 8, y - 12); g.quadraticCurveTo(x - 4 + i * 8, y - 22, x - 8 + i * 8, y - 30); g.stroke(); } }
-    else if (kind === 'market') { ['#e0103a', '#ffc94a', '#5dffb0', '#ff8a3d', '#3be8ff'].forEach((c, i) => { g.fillStyle = c; g.beginPath(); g.arc(x - 60 + i * 30, y + 12, 11, 0, Math.PI * 2); g.fill(); }); }
+    else if (kind === 'market') {
+      // Regalgänge über die ganze Fensterfront
+      const r = rnd(77), cols = ['#e0103a', '#ffc94a', '#5dffb0', '#ff8a3d', '#3be8ff', '#f4eefa', '#c77dff'];
+      for (const side of [-1, 1]) for (let a = 0; a < 3; a++) {
+        const ax = x + side * (80 + a * 110);
+        g.fillStyle = 'rgba(40,30,60,0.75)'; g.fillRect(ax - 44, y - 38, 88, 76);
+        for (let row = 0; row < 3; row++) {
+          g.fillStyle = '#8a8298'; g.fillRect(ax - 44, y - 12 + row * 24, 88, 3);
+          for (let k = 0; k < 7; k++) { g.fillStyle = cols[Math.floor(r() * cols.length)]; g.fillRect(ax - 41 + k * 12, y - 30 + row * 24, 9, 16 - r() * 5); }
+        }
+      }
+      // Plakate
+      [[-300, 'SALE %', '#ff3d8b'], [300, '-20 %', '#ffc94a']].forEach(([dx, t, c]) => { g.fillStyle = c; rr(x + dx - 34, y - 70, 68, 26, 5); g.fill(); g.fillStyle = '#1a0826'; g.font = '13px Bungee, Impact, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(t, x + dx, y - 56); });
+    }
+    if (kind === 'pets') { // Aquarium mit Fischen
+      const ax = x + 110, ay = y - 6;
+      const ag = g.createLinearGradient(0, ay - 30, 0, ay + 30); ag.addColorStop(0, 'rgba(90,220,255,0.85)'); ag.addColorStop(1, 'rgba(20,90,160,0.9)');
+      g.fillStyle = '#2a2436'; g.fillRect(ax - 38, ay + 26, 76, 8);
+      g.fillStyle = ag; g.fillRect(ax - 34, ay - 28, 68, 54);
+      for (let i = 0; i < 3; i++) { const fx = ax + Math.sin(time * (0.8 + i * 0.3) + i * 2) * 22, fy = ay - 14 + i * 14, d = Math.cos(time * (0.8 + i * 0.3) + i * 2) > 0 ? 1 : -1; g.fillStyle = ['#ff8a3d', '#ffc94a', '#ff3d8b'][i]; g.beginPath(); g.ellipse(fx, fy, 6, 3.5, 0, 0, Math.PI * 2); g.fill(); g.beginPath(); g.moveTo(fx - d * 5, fy); g.lineTo(fx - d * 10, fy - 4); g.lineTo(fx - d * 10, fy + 4); g.fill(); }
+      for (let i = 0; i < 4; i++) { const t = (time * 0.6 + i / 4) % 1; g.fillStyle = 'rgba(255,255,255,0.6)'; g.beginPath(); g.arc(ax - 20 + i * 5, ay + 22 - t * 48, 1.6, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = '#3fb04a'; for (let i = 0; i < 3; i++) { g.beginPath(); g.ellipse(ax + 20 + i * 5, ay + 16, 2, 10, Math.sin(time + i) * 0.2, 0, Math.PI * 2); g.fill(); }
+      const glw = g.createRadialGradient(ax, ay, 0, ax, ay, 70); glw.addColorStop(0, 'rgba(59,232,255,0.25)'); glw.addColorStop(1, 'rgba(59,232,255,0)'); g.fillStyle = glw; g.beginPath(); g.arc(ax, ay, 70, 0, Math.PI * 2); g.fill();
+    }
+    if (kind === 'hats') { // Hutständer neben der Tür
+      [[-120, 'party'], [120, 'beanie']].forEach(([dx, h]) => { g.fillStyle = '#c9a8ff'; g.fillRect(x + dx - 1.5, y - 10, 3, 34); g.fillRect(x + dx - 12, y + 22, 24, 3); g.fillStyle = '#f4d6c0'; g.beginPath(); g.ellipse(x + dx, y - 16, 10, 12, 0, 0, Math.PI * 2); g.fill(); g.save(); g.translate(x + dx, y - 4); g.scale(1.3, 1.3); Avatar.drawHat(g, h, 0, false, 1, 0, '#ffc94a'); g.restore(); });
+    }
   };
+  function drawCafeTable(o) {
+    const { x, y } = o;
+    shadow(x, y - 2, 40, 9, 0.35);
+    // Stühle
+    [[-26, 0], [26, 0]].forEach(([dx]) => { g.fillStyle = '#2a2436'; g.fillRect(x + dx - 9, y - 24, 3, 24); g.fillRect(x + dx + 6, y - 24, 3, 24); g.fillStyle = '#6a3e1a'; rr(x + dx - 10, y - 26, 20, 5, 2); g.fill(); g.fillRect(x + dx + (dx < 0 ? -10 : 7), y - 46, 3, 22); });
+    g.fillStyle = '#2a2436'; g.fillRect(x - 2, y - 30, 4, 30);
+    g.fillStyle = '#f4eefa'; g.beginPath(); g.ellipse(x, y - 32, 20, 7, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#6a3e1a'; g.beginPath(); g.ellipse(x - 6, y - 35, 4, 2, 0, 0, Math.PI * 2); g.fill();
+    // Schirm
+    g.fillStyle = '#8a8298'; g.fillRect(x - 1.5, y - 96, 3, 64);
+    const cols = ['#ffc94a', '#f4eefa'];
+    for (let i = 0; i < 6; i++) { g.fillStyle = cols[i % 2]; g.beginPath(); g.moveTo(x, y - 110); g.lineTo(x - 48 + i * 16, y - 86); g.lineTo(x - 32 + i * 16, y - 86); g.closePath(); g.fill(); }
+    for (let i = 0; i < 6; i++) { g.fillStyle = cols[i % 2]; g.beginPath(); g.arc(x - 40 + i * 16, y - 86, 8, 0, Math.PI); g.fill(); }
+  }
+  function drawMenuBoard(o) {
+    const { x, y } = o;
+    shadow(x, y, 20, 5, 0.3);
+    g.fillStyle = '#6a3e1a'; g.beginPath(); g.moveTo(x - 18, y); g.lineTo(x - 12, y - 56); g.lineTo(x + 12, y - 56); g.lineTo(x + 18, y); g.lineTo(x + 13, y); g.lineTo(x + 8, y - 50); g.lineTo(x - 8, y - 50); g.lineTo(x - 13, y); g.closePath(); g.fill();
+    g.fillStyle = '#1a2a22'; g.fillRect(x - 11, y - 52, 22, 36);
+    g.fillStyle = '#f4eefa'; g.font = '6px Rubik, sans-serif'; g.textAlign = 'center'; g.fillText('MENU', x, y - 45);
+    g.fillStyle = 'rgba(255,255,255,0.6)'; for (let i = 0; i < 3; i++) g.fillRect(x - 8, y - 40 + i * 7, 12 + (i % 2) * 4, 1.5);
+    g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(x + 6, y - 22, 2, 0, Math.PI * 2); g.fill();
+  }
+  function drawCrates(o) {
+    const { x, y } = o;
+    shadow(x, y, 70, 10, 0.35);
+    g.fillStyle = '#4a2c16'; g.fillRect(x - 64, y - 30, 128, 6); g.fillRect(x - 60, y - 24, 4, 24); g.fillRect(x + 56, y - 24, 4, 24);
+    const fruit = [['#e0103a', 5], ['#ff8a3d', 5.5], ['#ffe04a', 5], ['#5dbf3a', 5.5]];
+    fruit.forEach(([c, r], i) => {
+      const cx = x - 48 + i * 32;
+      g.fillStyle = '#a0662a'; g.beginPath(); g.moveTo(cx - 15, y - 58); g.lineTo(cx + 15, y - 58); g.lineTo(cx + 13, y - 32); g.lineTo(cx - 13, y - 32); g.closePath(); g.fill();
+      g.strokeStyle = '#6a3e1a'; g.lineWidth = 1; g.beginPath(); g.moveTo(cx - 14, y - 45); g.lineTo(cx + 14, y - 45); g.stroke();
+      for (let k = 0; k < 6; k++) { g.fillStyle = c; g.beginPath(); g.arc(cx - 10 + (k % 3) * 10, y - 60 - Math.floor(k / 3) * 6 + (k % 2), r, 0, Math.PI * 2); g.fill(); g.fillStyle = 'rgba(255,255,255,0.4)'; g.beginPath(); g.arc(cx - 11 + (k % 3) * 10, y - 62 - Math.floor(k / 3) * 6, 1.5, 0, Math.PI * 2); g.fill(); }
+    });
+    g.fillStyle = '#f4eefa'; rr(x - 22, y - 26, 44, 14, 3); g.fill(); g.fillStyle = '#1a0826'; g.font = '8px Bungee, Impact, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(I18N.t('FRISCH'), x, y - 19);
+  }
+  function drawCarFront(o) { // geparktes Auto von vorn
+    const { x, y, c = '#e0103a' } = o;
+    shadow(x, y - 2, 52, 10, 0.45);
+    const bg = g.createLinearGradient(0, y - 50, 0, y);
+    bg.addColorStop(0, sh(c, 25)); bg.addColorStop(1, sh(c, -45));
+    g.fillStyle = '#111'; rr(x - 46, y - 16, 16, 16, 4); g.fill(); rr(x + 30, y - 16, 16, 16, 4); g.fill();
+    g.fillStyle = bg; rr(x - 50, y - 44, 100, 34, 10); g.fill();
+    g.fillStyle = sh(c, -15); rr(x - 38, y - 72, 76, 32, [16, 16, 4, 4]); g.fill();
+    const wg = g.createLinearGradient(0, y - 68, 0, y - 44); wg.addColorStop(0, 'rgba(180,230,255,0.75)'); wg.addColorStop(1, 'rgba(60,110,160,0.75)');
+    g.fillStyle = wg; rr(x - 32, y - 67, 64, 22, [12, 12, 3, 3]); g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.moveTo(x - 20, y - 66); g.lineTo(x - 8, y - 66); g.lineTo(x - 22, y - 46); g.lineTo(x - 30, y - 46); g.fill();
+    g.fillStyle = '#fff6c8'; rr(x - 44, y - 34, 18, 9, 4); g.fill(); rr(x + 26, y - 34, 18, 9, 4); g.fill();
+    g.fillStyle = '#1a1622'; rr(x - 20, y - 32, 40, 10, 3); g.fill();
+    g.fillStyle = '#f4eefa'; rr(x - 13, y - 19, 26, 8, 2); g.fill(); g.fillStyle = '#1a0826'; g.font = '6px Rubik, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('NN ' + o.plate, x, y - 15);
+    g.fillStyle = sh(c, -30); g.fillRect(x - 56, y - 50, 8, 6); g.fillRect(x + 48, y - 50, 8, 6);
+  }
+  function drawCorral(o) {
+    const { x, y } = o;
+    shadow(x, y, 60, 8, 0.3);
+    g.strokeStyle = '#8a8298'; g.lineWidth = 3;
+    g.beginPath(); g.moveTo(x - 56, y); g.lineTo(x - 56, y - 36); g.lineTo(x + 56, y - 36); g.lineTo(x + 56, y); g.stroke();
+    g.fillStyle = '#5dffb0'; rr(x - 30, y - 60, 60, 16, 4); g.fill(); g.fillStyle = '#0a2a1a'; g.font = '8px Bungee, Impact, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(I18N.t('WAGEN'), x, y - 52);
+    g.strokeStyle = '#6a6278'; g.fillRect(x - 1, y - 44, 2, 8);
+    for (let i = 0; i < 4; i++) drawCart({ x: x - 36 + i * 22, y: y - 2 });
+  }
 
   const ZONES = {
     plaza: {
@@ -449,14 +574,14 @@ const Town = (() => {
     neighborhood: {
       name: 'Nachbarschaft', w: 1500, top: 330, spawn: [1250, 820], ground: 'grass',
       objects: () => [
-        { kind: 'house', x: 220, y: 330, w: 220, c: '#7a4a8a', fw: 240, fh: 40, num: 3 },
-        { kind: 'house', x: 560, y: 330, w: 220, c: '#c05a6a', fw: 240, fh: 40, home: true, game: 'home', label: 'Dein Zuhause', sub: 'Mimis Napf steht vor der Tür', ix: 560, iy: 380, glow: '#ffc94a' },
-        { kind: 'house', x: 900, y: 330, w: 220, c: '#3a7a8a', fw: 240, fh: 40, num: 7 },
-        { kind: 'house', x: 1240, y: 330, w: 220, c: '#8a7a3a', fw: 240, fh: 40, num: 9 },
+        { kind: 'house', x: 220, y: 330, w: 220, c: '#7a4a8a', fw: 240, fh: 40, num: 3, roof: 'flat', doorX: -50 },
+        { kind: 'house', x: 560, y: 330, w: 220, c: '#c05a6a', fw: 240, fh: 40, home: true, chimney: true, game: 'home', label: 'Dein Zuhause', sub: 'Mimis Napf steht vor der Tür', ix: 560, iy: 380, glow: '#ffc94a' },
+        { kind: 'house', x: 900, y: 330, w: 250, c: '#3a7a8a', fw: 270, fh: 40, num: 7, chimney: true, doorX: 50 },
+        { kind: 'house', x: 1240, y: 330, w: 200, c: '#8a7a3a', fw: 220, fh: 40, num: 9, roof: 'mansard', chimney: true },
         { kind: 'fence', x: 390, y: 470, w: 120, fw: 120, fh: 8 }, { kind: 'fence', x: 730, y: 470, w: 120, fw: 120, fh: 8 },
         { kind: 'hedge', x: 1070, y: 480, w: 140, fw: 140, fh: 22 },
         { kind: 'tree', x: 100, y: 600, fw: 22, fh: 14, s: 1.1 }, { kind: 'tree', x: 1400, y: 610, fw: 22, fh: 14, s: 1.2, lights: true },
-        { kind: 'tree', x: 760, y: 640, fw: 22, fh: 14 },
+        { kind: 'tree', x: 820, y: 720, fw: 22, fh: 14 },
         { kind: 'flowers', x: 470, y: 420, w: 80, fw: 80, fh: 12 }, { kind: 'flowers', x: 650, y: 420, w: 80, fw: 80, fh: 12 },
         { kind: 'mailbox', x: 470, y: 470, fw: 16, fh: 10 },
         { kind: 'bench', x: 1000, y: 700, fw: 64, fh: 14 },
@@ -474,6 +599,8 @@ const Town = (() => {
         { kind: 'store', x: 750, y: 330, w: 330, title: 'ZOOHANDLUNG', color: '#5dffb0', wall: '#1f4a4a', icon: shopIcon('pets'), fw: 330, fh: 40, game: 'shop:pets', label: 'Zoohandlung', sub: 'Spielzeug und Halsbänder für Mimi', ix: 750, iy: 380, glow: '#5dffb0', vh: 170 },
         { kind: 'store', x: 1250, y: 330, w: 330, title: 'CAFÉ LUNA', color: '#ffc94a', wall: '#4a2a1a', icon: shopIcon('cafe'), fw: 330, fh: 40, game: 'shop:cafe', label: 'Café Luna', sub: 'Kaffee und Kuchen', ix: 1250, iy: 380, glow: '#ffc94a', vh: 170 },
         { kind: 'tree', x: 500, y: 560, fw: 22, fh: 14, lights: true }, { kind: 'tree', x: 1000, y: 560, fw: 22, fh: 14, lights: true },
+        { kind: 'cafetable', x: 1120, y: 470, fw: 70, fh: 14 }, { kind: 'cafetable', x: 1390, y: 470, fw: 70, fh: 14 }, { kind: 'menuboard', x: 1170, y: 420, fw: 30, fh: 8 },
+        { kind: 'flowers', x: 250, y: 420, w: 100, fw: 100, fh: 12 },
         { kind: 'bench', x: 750, y: 600, fw: 64, fh: 14 }, { kind: 'bench', x: 250, y: 640, fw: 64, fh: 14 },
         { kind: 'lamp', x: 380, y: 770, fw: 10, fh: 8 }, { kind: 'lamp', x: 1000, y: 770, fw: 10, fh: 8 },
         { kind: 'flowers', x: 750, y: 700, w: 200, fw: 200, fh: 14 },
@@ -485,14 +612,17 @@ const Town = (() => {
     market: {
       name: 'Supermarkt', w: 1500, top: 330, spawn: [1250, 820], ground: 'asphalt',
       objects: () => [
-        { kind: 'store', x: 560, y: 330, w: 760, title: 'FRISCHMARKT', color: '#5dffb0', wall: '#2a3a4a', icon: shopIcon('market'), fw: 760, fh: 40, game: 'shop:market', label: 'Frischmarkt', sub: 'Katzenfutter, Leckerli und Eis', ix: 560, iy: 380, glow: '#5dffb0', vh: 170 },
-        { kind: 'car', x: 300, y: 560, c: '#e0103a' }, { kind: 'car', x: 560, y: 560, c: '#e8e4ef' }, { kind: 'car', x: 1000, y: 560, c: '#1fbf6a' },
-        { kind: 'cart', x: 820, y: 470, fw: 36, fh: 10 }, { kind: 'cart', x: 850, y: 478, fw: 36, fh: 10 }, { kind: 'cart', x: 150, y: 700, fw: 36, fh: 10 },
-        { kind: 'tree', x: 1250, y: 520, fw: 22, fh: 14 }, { kind: 'tree', x: 1400, y: 640, fw: 22, fh: 14 },
+        { kind: 'store', x: 560, y: 330, w: 760, title: 'FRISCHMARKT', color: '#5dffb0', wall: '#2a3a4a', autoDoor: true, icon: shopIcon('market'), fw: 760, fh: 40, game: 'shop:market', label: 'Frischmarkt', sub: 'Katzenfutter, Leckerli und Eis', ix: 560, iy: 380, glow: '#5dffb0', vh: 170 },
+        { kind: 'carf', x: 245, y: 596, c: '#e0103a', plate: '7', fw: 100, fh: 30 }, { kind: 'carf', x: 505, y: 596, c: '#e8e4ef', plate: '21', fw: 100, fh: 30 }, { kind: 'carf', x: 635, y: 596, c: '#2f6bff', plate: '9', fw: 100, fh: 30 }, { kind: 'carf', x: 1025, y: 596, c: '#1fbf6a', plate: '33', fw: 100, fh: 30 },
+        { kind: 'crates', x: 330, y: 430, fw: 130, fh: 14 }, { kind: 'crates', x: 790, y: 430, fw: 130, fh: 14 },
+        { kind: 'cart', x: 880, y: 470, fw: 36, fh: 10 }, { kind: 'cart', x: 150, y: 700, fw: 36, fh: 10 },
+        { kind: 'corral', x: 1200, y: 560, fw: 116, fh: 10 },
+        { kind: 'tree', x: 1420, y: 470, fw: 22, fh: 14, s: 1.15 }, { kind: 'tree', x: 1400, y: 690, fw: 22, fh: 14 }, { kind: 'lamp', x: 1150, y: 740, fw: 10, fh: 8 },
+        { kind: 'flowers', x: 1060, y: 420, w: 120, fw: 120, fh: 12 },
         { kind: 'lamp', x: 440, y: 740, fw: 10, fh: 8 }, { kind: 'lamp', x: 880, y: 740, fw: 10, fh: 8 },
         { kind: 'busstop', x: 1250, y: 800, fw: 130, fh: 20, game: 'bus', label: 'Bushaltestelle', sub: 'Mit dem Bus zu anderen Orten', ix: 1250, iy: 830, glow: '#ffc94a' },
       ],
-      lights: [[560, 420, 300, '93,255,176', 0.1], [440, 670, 150, '255,210,140', 0.18], [880, 670, 150, '255,210,140', 0.18]],
+      lights: [[560, 420, 300, '93,255,176', 0.1], [440, 670, 150, '255,210,140', 0.18], [880, 670, 150, '255,210,140', 0.18], [1150, 670, 150, '255,210,140', 0.18]],
       npcs: 4, parking: true,
     },
     playground: {
@@ -546,8 +676,10 @@ const Town = (() => {
     npcs = makeNpcs(Z);
     if (Z.cat) Cat.enter(Z.cat); else Cat.leave();
     Store.s.town = { zone: id }; Store.save();
+    if (W) resize();
     zoneEl.textContent = Z.name;
-    zoneEl.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 400 });
+    zoneEl.classList.remove('faded'); zoneEl.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 400 });
+    clearTimeout(zoneEl.__t); zoneEl.__t = setTimeout(() => zoneEl.classList.add('faded'), 3200);
     updateCamera(true);
   }
   function outside(x, y, pad = 0) { return y < TOP + 26 + pad || y > WALK_MAX - pad || x < 24 + pad || x > WW - 24 - pad; }
@@ -611,7 +743,9 @@ const Town = (() => {
     for (let i = 0; i < z.npcs; i++) {
       let x, y, n = 0; do { x = U.rand(80, WW - 80); y = U.rand(TOP + 80, WALK_MAX - 20); } while (collides(x, y) && n++ < 50);
       const kid = z.kids && i < 3;
-      list.push({ x, y, dir: 0, phase: Math.random() * 6, moving: false, path: null, wait: U.rand(0, 3), speed: kid ? U.rand(90, 120) : U.rand(50, 75), a: rndAv(), kid });
+      const a = rndAv();
+      if (kid) Object.assign(a, { outfit: U.pick(['#ff3d8b', '#3be8ff', '#ffc94a', '#5dffb0', '#ff8a3d']), accent: '#ffffff', glasses: false, hat: i === 0 ? 'cap' : null, style: U.pick(['short', 'bun', 'long']) });
+      list.push({ x, y, dir: 0, phase: Math.random() * 6, moving: false, path: null, wait: U.rand(0, 3), speed: kid ? U.rand(90, 120) : U.rand(50, 75), a, kid, first: i === 0 });
     }
     return list;
   }
@@ -639,7 +773,9 @@ const Town = (() => {
       n.moving = false; n.wait -= dt; n.phase += dt * 2;
       if (n.wait > 0) continue;
       let tx, ty;
-      if (Math.random() < 0.4 && interactives.length) { const o = U.pick(interactives.filter(o => o.game !== 'bus')); if (o) { tx = o.ix + U.pick([-40, 0, 40]); ty = o.iy + U.rand(6, 20); } }
+      const saw = n.kid && n.first && interactives.find(o => o.game === 'seesaw');
+      if (saw && Math.random() < 0.7) { tx = saw.x + 90; ty = saw.y + 14; }
+      else if (Math.random() < 0.4 && interactives.length) { const o = U.pick(interactives.filter(o => o.game !== 'bus')); if (o) { tx = o.ix + U.pick([-40, 0, 40]); ty = o.iy + U.rand(6, 20); } }
       if (tx == null) { tx = U.rand(60, WW - 60); ty = U.rand(TOP + 60, WALK_MAX - 10); }
       n.path = findPath(n.x, n.y, tx, ty); n.wait = U.rand(2, 7);
     }
@@ -884,12 +1020,14 @@ const Town = (() => {
       $('#catHearts').style.width = s.aff + '%';
       $('#catFeed').querySelector('small').textContent = '× ' + inv.food;
       $('#catTreat').querySelector('small').textContent = '× ' + inv.treats;
+      $('#catFeed').classList.toggle('locked', !inv.food); $('#catTreat').classList.toggle('locked', !inv.treats);
+      $('#catAffNum').textContent = `${s.aff} / 100`;
       $('#catPlay').classList.toggle('locked', !inv.yarn);
       $('#catFollow').querySelector('b').textContent = Cat.follow ? I18N.t('Hierbleiben') : I18N.t('Folge mir');
       $('#catFollow').classList.toggle('locked', s.aff < 50);
     }
     return {
-      open() { render(); el.hidden = false; msg.textContent = I18N.t('Was möchtest du mit Mimi machen?'); requestAnimationFrame(() => el.classList.add('show')); },
+      open() { render(); el.hidden = false; player.dir = Cat.target().x < player.x ? 1 : 2; msg.textContent = I18N.t('Was möchtest du mit Mimi machen?'); requestAnimationFrame(() => el.classList.add('show')); },
       close() { el.classList.remove('show'); setTimeout(() => { el.hidden = true; }, 220); },
       get open_() { return !el.hidden; },
       render, say(t) { msg.textContent = t; },
@@ -1093,7 +1231,7 @@ const Town = (() => {
     g.fillStyle = '#fff6c8'; rr(x + 160, y - 44, 10, 12, 3); g.fill();
     g.fillStyle = '#111'; [[-110], [100]].forEach(([wx]) => { g.beginPath(); g.arc(x + wx, y - 6, 17, 0, Math.PI * 2); g.fill(); g.fillStyle = '#8a8298'; g.beginPath(); g.arc(x + wx, y - 6, 7, 0, Math.PI * 2); g.fill(); g.fillStyle = '#111'; });
     const hl = g.createRadialGradient(x + 175, y - 38, 0, x + 175, y - 38, 90); hl.addColorStop(0, 'rgba(255,240,190,0.4)'); hl.addColorStop(1, 'rgba(255,240,190,0)');
-    g.fillStyle = hl; g.fillRect(x + 170, y - 130, 120, 180);
+    g.fillStyle = hl; g.beginPath(); g.arc(x + 175, y - 38, 90, 0, Math.PI * 2); g.fill();
   }
 
   /* ---------- Interaktion ---------- */
@@ -1132,7 +1270,7 @@ const Town = (() => {
       player.pose = null;
       Toast.show(I18N.t('Sandburg gebaut'), I18N.t('Ein Meisterwerk der Baukunst.'), '★');
     } else if (kind === 'seesaw') {
-      const kid = npcs.find(n => n.kid);
+      const kid = npcs.filter(n => n.kid).sort((a, b) => Math.hypot(a.x - o.x, a.y - o.y) - Math.hypot(b.x - o.x, b.y - o.y))[0];
       if (!kid) { Toast.show(I18N.t('Wippe'), I18N.t('Allein wippt es sich schlecht.'), '·'); return; }
       o.busy = true; player.pose = { kind: 'seesaw', o };
       kid.path = null; kid.x = o.x + 80; kid.y = o.y + 12; kid.wait = 5; kid.seesaw = o;
@@ -1152,8 +1290,8 @@ const Town = (() => {
   /* ---------- Zeichnen ---------- */
   function drawGround() {
     const gp = Z.ground === 'grass' ? grassPat() : Z.ground === 'asphalt' ? asphaltPat() : plazaPat();
-    g.fillStyle = '#0a0612'; g.fillRect(0, 0, WW, WH);
-    g.fillStyle = gp; g.fillRect(0, TOP - 40, WW, 780 - TOP + 40);
+    g.fillStyle = '#0a0612'; g.fillRect(-EX, -300, WW + EX * 2, WH + 600);
+    g.fillStyle = gp; g.fillRect(-EX, TOP - 40, WW + EX * 2, 780 - TOP + 40);
     if (Z.id === 'neighborhood') { g.fillStyle = pavePat(); g.fillRect(0, 520, WW, 60); g.fillRect(520, TOP, 80, 200); }
     if (Z.id === 'plaza') { g.fillStyle = '#8a1030'; g.fillRect(760, TOP, 80, 360); g.fillStyle = '#c98a12'; g.fillRect(758, TOP, 3, 360); g.fillRect(839, TOP, 3, 360); }
     if (Z.parking) { g.strokeStyle = 'rgba(255,255,255,0.4)'; g.lineWidth = 3; for (let x = 180; x < 1200; x += 130) { g.beginPath(); g.moveTo(x, 490); g.lineTo(x, 600); g.stroke(); } }
@@ -1161,19 +1299,25 @@ const Town = (() => {
     // Himmel/Hintergrund über dem Ort
     const sky = g.createLinearGradient(0, 0, 0, TOP);
     sky.addColorStop(0, '#07041a'); sky.addColorStop(1, '#2a0e3a');
-    g.fillStyle = sky; g.fillRect(0, 0, WW, TOP - 40);
-    for (let i = 0; i < 70; i++) { const r = rnd(i + 3); g.fillStyle = `rgba(255,255,255,${0.2 + r() * 0.6})`; g.fillRect(r() * WW, r() * (TOP - 60), 1.5, 1.5); }
+    g.fillStyle = sky; g.fillRect(-EX, -300, WW + EX * 2, TOP - 40 + 300);
+    for (let i = 0; i < 120; i++) { const r = rnd(i + 3); g.fillStyle = `rgba(255,255,255,${0.2 + r() * 0.6})`; g.fillRect(r() * (WW + EX * 2) - EX, r() * (TOP + 200) - 260, 1.5, 1.5); }
     drawSkyline();
     drawStreet(WW);
   }
   function drawSkyline() {
     const r = rnd(42 + ZONE_ORDER.indexOf(Z.id));
-    for (let x = 0; x < WW; x += 70 + r() * 40) {
+    for (let x = -EX; x < WW + EX; x += 70 + r() * 40) {
       const h = 60 + r() * 140, w = 50 + r() * 50;
       g.fillStyle = '#140a24'; g.fillRect(x, TOP - 40 - h, w, h);
       for (let i = 0; i < h / 18; i++) for (let j = 0; j < w / 16; j++) if (r() < 0.3) { g.fillStyle = r() < 0.5 ? 'rgba(255,210,140,0.6)' : 'rgba(59,232,255,0.5)'; g.fillRect(x + 5 + j * 16, TOP - 40 - h + 8 + i * 18, 6, 8); }
     }
-    g.fillStyle = 'rgba(255,61,139,0.25)'; g.fillRect(0, TOP - 42, WW, 2);
+    g.fillStyle = 'rgba(255,61,139,0.25)'; g.fillRect(-EX, TOP - 42, WW + EX * 2, 2);
+  }
+  function drawEdges() { // außerhalb des begehbaren Bereichs abdunkeln
+    for (const [x0, dir] of [[0, -1], [WW, 1]]) {
+      const eg = g.createLinearGradient(x0, 0, x0 + dir * 160, 0); eg.addColorStop(0, 'rgba(6,2,14,0)'); eg.addColorStop(1, 'rgba(6,2,14,0.72)');
+      g.fillStyle = eg; g.fillRect(dir < 0 ? x0 - EX : x0, TOP - 60, EX, ROAD_Y - TOP + 60);
+    }
   }
   function drawChar(ch, isPlayer) {
     if (isPlayer && player.alpha <= 0) return;
@@ -1191,6 +1335,7 @@ const Town = (() => {
       if (p.kind === 'seesaw') { const a = Math.sin(time * 2.4) * 0.28; x = p.o.x - 62 * Math.cos(a); y = p.o.y - 4 - Math.sin(a) * 62; dir = 0; moving = false; sit = { sit: true, noShadow: true }; }
     }
     if (!isPlayer && ch.seesaw) { const a = Math.sin(time * 2.4) * 0.28, o = ch.seesaw; x = o.x + 62 * Math.cos(a); y = o.y - 4 + Math.sin(a) * 62; dir = 0; moving = false; sit = { sit: true, noShadow: true }; }
+    if (ch.kid) { g.translate(x, y); g.scale(0.72, 0.72); x = 0; y = 0; }
     Avatar.draw(g, x, y, ch.a || avatar, dir, phase, moving, sit || {});
     if (isPlayer) {
       const name = (avatar.name || 'Gast').slice(0, 14);
@@ -1207,19 +1352,20 @@ const Town = (() => {
     g.globalCompositeOperation = 'lighter';
     (Z.lights || []).forEach(([x, y, r, c, a]) => pool(x, y, r, c, a));
     g.globalCompositeOperation = 'source-over';
-    if (near && near.game !== 'cat') {
+    if (near && near.game !== 'cat' && !player.pose && player.alpha >= 1) {
       const a = 0.55 + 0.35 * Math.sin(time * 5);
       g.strokeStyle = hexA(near.glow || '#ffc94a', a); g.lineWidth = 2.5; g.beginPath(); g.ellipse(near.ix, near.iy, 30, 10, 0, 0, Math.PI * 2); g.stroke();
     }
     const list = [];
     for (const o of objects) list.push({ y: o.sortY, f: () => DRAW[o.kind](o) });
     for (const n of npcs) list.push({ y: n.y, f: () => drawChar(n) });
-    list.push({ y: Cat.y, f: () => Cat.draw() });
+    list.push({ y: Cat.y + (Cat.dist(player) < 60 ? 30 : 0), f: () => Cat.draw() }); // nahe Mimi nicht hinter Bäumen verstecken
     const pY = player.pose && player.pose.kind === 'swing' ? player.pose.o.y + 30 : player.y;
     list.push({ y: pY, f: () => drawChar(player, true) });
     list.push({ y: ROAD_Y + 100, f: drawBus });
     list.sort((a, b) => a.y - b.y);
     for (const it of list) it.f();
+    drawEdges();
     // Nachtlicht
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.8);
@@ -1231,12 +1377,13 @@ const Town = (() => {
   function updateCamera(snap) {
     const vw = W / zoom, vh = H / zoom;
     const tx = U.clamp(player.x - vw / 2, 0, Math.max(0, WW - vw));
-    const ty = U.clamp(player.y - vh * 0.6, Math.max(0, TOP - 300), Math.max(0, WH - vh));
+    const top = TOP - 250, span = VIEW_BOTTOM - top;
+    const ty = vh > span ? top - (vh - span) * 0.35 : U.clamp(player.y - vh * 0.6, top, VIEW_BOTTOM - vh);
     if (snap) { camX = tx; camY = ty; } else { camX += (tx - camX) * 0.12; camY += (ty - camY) * 0.12; }
     if (vw > WW) camX = (WW - vw) / 2;
   }
   function updatePrompt() {
-    if (!near || lock || player.pose) { promptEl.hidden = true; promptEl.__for = null; actionBtn.disabled = true; return; }
+    if (!near || lock || player.pose || Panel.open_) { promptEl.hidden = true; promptEl.__for = null; actionBtn.disabled = true; return; }
     promptEl.hidden = false;
     if (promptEl.__for !== near) {
       promptEl.__for = near; promptName.textContent = near.label; promptSub.textContent = near.sub || '';
@@ -1262,7 +1409,7 @@ const Town = (() => {
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     view.style.height = H + 'px';
-    zoom = Math.max(U.clamp(Math.min(W / 1150, H / 880), 0.72, 1.25), W / 1500);
+    zoom = U.clamp(Math.min(W / 1150, H / (VIEW_BOTTOM - ((Z ? Z.top : 330) - 250))), 0.6, 1.25);
     for (const k in patterns) delete patterns[k];
     updateCamera(true);
   }

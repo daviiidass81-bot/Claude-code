@@ -232,8 +232,10 @@ const Toast = {
     el.innerHTML = `<div class="toast-icon">${icon}</div><div><b></b><span></span></div>`;
     el.querySelector('b').textContent = title;
     el.querySelector('span').textContent = text;
+    const mob = window.innerWidth <= 560, dur = mob ? 2400 : 3600;
+    while (box.children.length >= (mob ? 1 : 3)) box.firstChild.remove(); // auf dem Handy nur eine kompakte Meldung
     box.appendChild(el);
-    setTimeout(() => el.classList.add('out'), 3600);
-    setTimeout(() => el.remove(), 4100);
+    setTimeout(() => el.classList.add('out'), dur);
+    setTimeout(() => el.remove(), dur + 500);
   },
 };
