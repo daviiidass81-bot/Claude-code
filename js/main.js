@@ -15,10 +15,10 @@ const Celebrate = (() => {
     requestAnimationFrame(() => bw.classList.add('show'));
     Sfx.bigWin();
     FX.confetti(140);
-    FX.coinRain(60 + tier * 30);
+    FX.coinRain(60 + tier * 30, true);
     const dur = 2200 + tier * 900;
     let skipped = false, rainT;
-    rainT = setInterval(() => FX.coinRain(25), 900);
+    rainT = setInterval(() => FX.coinRain(25, true), 900);
     return new Promise(res => {
       let lastTick = 0;
       const done = () => {
@@ -218,26 +218,76 @@ const Wheel = (() => {
 /* ---------- Erfolge ---------- */
 const Achievements = (() => {
   const LIST = [
-    { id: 'first_win', icon: '7', name: 'Erster Treffer', desc: 'Gewinne zum ersten Mal am Slot.' },
-    { id: 'big_win', icon: '✦', name: 'Big Win', desc: 'Gewinne das 15-fache deines Einsatzes.' },
-    { id: 'free_spins', icon: '★', name: 'Sternenregen', desc: 'Löse Freispiele aus.' },
-    { id: 'five_kind', icon: 'V', name: 'Volle Linie', desc: '5 gleiche Symbole auf einer Linie.' },
-    { id: 'blackjack', icon: '♠', name: 'Natürlich!', desc: 'Bekomme einen Blackjack.' },
-    { id: 'bj_streak', icon: '♥', name: 'Heiße Hand', desc: 'Gewinne 3 Blackjack-Runden in Folge.' },
-    { id: 'plinko_10', icon: '●', name: 'Guter Fall', desc: 'Triff bei Plinko mindestens 10×.' },
-    { id: 'plinko_100', icon: '◆', name: 'Plinko-Legende', desc: 'Triff bei Plinko 100× oder mehr.' },
-    { id: 'level_5', icon: '5', name: 'Stammgast', desc: 'Erreiche Level 5.' },
-    { id: 'level_10', icon: '10', name: 'VIP-Lounge', desc: 'Erreiche Level 10.' },
-    { id: 'rich_10k', icon: '$', name: 'Fünfstellig', desc: 'Besitze 10.000 Münzen.' },
-    { id: 'rich_100k', icon: '♛', name: 'High Roller', desc: 'Besitze 100.000 Münzen.' },
+    { id: 'first_win', icon: 'sym:cherry', name: 'Erster Treffer', desc: 'Gewinne zum ersten Mal am Slot.' },
+    { id: 'big_win', icon: 'sym:seven', name: 'Big Win', desc: 'Gewinne das 15-fache deines Einsatzes.' },
+    { id: 'free_spins', icon: 'sym:scatter', name: 'Sternenregen', desc: 'Löse Freispiele aus.' },
+    { id: 'five_kind', icon: 'sym:wild', name: 'Volle Linie', desc: '5 gleiche Symbole auf einer Linie.' },
+    { id: 'blackjack', icon: 'card:A♠', name: 'Natürlich!', desc: 'Bekomme einen Blackjack.' },
+    { id: 'bj_streak', icon: 'card:K♥', name: 'Heiße Hand', desc: 'Gewinne 3 Blackjack-Runden in Folge.' },
+    { id: 'plinko_10', icon: 'ball:pink', name: 'Guter Fall', desc: 'Triff bei Plinko mindestens 10×.' },
+    { id: 'plinko_100', icon: 'ball:gold', name: 'Plinko-Legende', desc: 'Triff bei Plinko 100× oder mehr.' },
+    { id: 'level_5', icon: 'lvl:5', name: 'Stammgast', desc: 'Erreiche Level 5.' },
+    { id: 'level_10', icon: 'lvl:10', name: 'VIP-Lounge', desc: 'Erreiche Level 10.' },
+    { id: 'rich_10k', icon: 'coins:3', name: 'Fünfstellig', desc: 'Besitze 10.000 Münzen.' },
+    { id: 'rich_100k', icon: 'sym:diamond', name: 'High Roller', desc: 'Besitze 100.000 Münzen.' },
   ];
+  const iconCache = new Map();
+  // Zeichnet ein kleines Erfolgs-Icon (96×96) und liefert eine Data-URL
+  function iconURL(spec) {
+    if (iconCache.has(spec)) return iconCache.get(spec);
+    const S = 96, c = document.createElement('canvas'); c.width = c.height = S;
+    const g = c.getContext('2d');
+    const [kind, arg] = spec.split(':');
+    if (kind === 'sym') g.drawImage(Symbols.sprite(arg, S), 0, 0, S, S);
+    else if (kind === 'card') {
+      const red = /[♥♦]/.test(arg);
+      g.save(); g.translate(S / 2, S / 2); g.rotate(-0.16);
+      g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 8; g.shadowOffsetY = 3;
+      g.fillStyle = '#fff'; g.beginPath(); g.roundRect ? g.roundRect(-24, -33, 48, 66, 6) : g.rect(-24, -33, 48, 66); g.fill();
+      g.shadowColor = 'transparent';
+      g.fillStyle = red ? '#d0103a' : '#1b1330';
+      g.font = '700 15px Rubik, sans-serif'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillText(arg[0], -19, -29);
+      g.font = '34px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(arg.slice(1) + '\uFE0E', 0, 4);
+      g.restore();
+    } else if (kind === 'ball') {
+      const gold = arg === 'gold', x = S / 2, y = S / 2, r = 22;
+      const gl = g.createRadialGradient(x, y, 0, x, y, r * 1.9);
+      gl.addColorStop(0, gold ? 'rgba(255,210,63,.6)' : 'rgba(255,110,190,.6)'); gl.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gl; g.fillRect(0, 0, S, S);
+      const bg = g.createRadialGradient(x - 7, y - 8, 2, x, y, r);
+      bg.addColorStop(0, '#fff'); bg.addColorStop(0.4, gold ? '#ffe27a' : '#ffc2e4'); bg.addColorStop(1, gold ? '#c47a00' : '#ff2f86');
+      g.fillStyle = bg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    } else if (kind === 'lvl') {
+      const x = S / 2, y = S / 2;
+      g.beginPath();
+      for (let k = 0; k < 16; k++) { const rr = k % 2 ? 30 : 38, a = -Math.PI / 2 + k * Math.PI / 8; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+      g.closePath();
+      const lg = g.createRadialGradient(x - 8, y - 10, 4, x, y, 38);
+      lg.addColorStop(0, '#d8c2ff'); lg.addColorStop(0.5, '#8a4dff'); lg.addColorStop(1, '#3a1280');
+      g.fillStyle = lg; g.fill();
+      g.fillStyle = '#fff'; g.font = `${arg.length > 1 ? 24 : 30}px Bungee, Impact, sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(arg, x, y + 2);
+    } else if (kind === 'coins') {
+      for (let i = 0; i < 4; i++) {
+        const y = 66 - i * 11;
+        g.fillStyle = '#9a5b00'; g.beginPath(); g.ellipse(48, y + 4, 27, 10, 0, 0, Math.PI * 2); g.fill();
+        const cg = g.createLinearGradient(21, 0, 75, 0);
+        cg.addColorStop(0, '#c47a00'); cg.addColorStop(0.4, '#fff0a8'); cg.addColorStop(1, '#d08a10');
+        g.fillStyle = cg; g.beginPath(); g.ellipse(48, y, 27, 10, 0, 0, Math.PI * 2); g.fill();
+      }
+    }
+    const url = c.toDataURL();
+    iconCache.set(spec, url);
+    return url;
+  }
+
   function unlock(id) {
     const s = Store.s;
     if (s.ach[id]) return;
     s.ach[id] = Date.now(); Store.save();
     const a = LIST.find(x => x.id === id);
     Sfx.achievement();
-    Toast.show('Erfolg freigeschaltet', a.name, a.icon, 'ach');
+    Toast.show('Erfolg freigeschaltet', a.name, `<img src="${iconURL(a.icon)}" alt="">`, 'ach');
     render();
   }
   function check(ev) {
@@ -259,9 +309,10 @@ const Achievements = (() => {
     const got = LIST.filter(a => Store.s.ach[a.id]).length;
     $('#achCount').textContent = `${got} / ${LIST.length}`;
     box.innerHTML = LIST.map(a => `<div class="ach ${Store.s.ach[a.id] ? 'got' : ''}" title="${a.desc}">
-      <div class="ach-icon">${a.icon}</div><div><b>${a.name}</b><span>${a.desc}</span></div></div>`).join('');
+      <div class="ach-icon"><img src="${iconURL(a.icon)}" alt=""></div><div><b>${a.name}</b><span>${a.desc}</span></div></div>`).join('');
   }
   Store.on(check);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { iconCache.clear(); render(); });
   return { render };
 })();
 
@@ -314,7 +365,26 @@ const App = (() => {
     if (openModalId === 'modal-wheel') Wheel.updateBtn();
   }
 
+  const GAME_TAG = { slots: ['Slot', '#ffc94a'], plinko: ['Plinko', '#ff7ab4'], blackjack: ['Blackjack', '#5dffb0'] };
+  function recordWin(game, amount, what) {
+    const r = Store.s.recent || (Store.s.recent = []);
+    r.unshift({ game, amount, what, t: Date.now() });
+    r.length = Math.min(r.length, 5);
+    Store.save();
+  }
+  function renderRecent() {
+    const box = $('#recentList');
+    if (!box) return;
+    const r = Store.s.recent || [];
+    if (!r.length) { box.innerHTML = '<p class="empty">Noch keine großen Gewinne. Ab an die Tische!</p>'; return; }
+    box.innerHTML = '<ol>' + r.map(e => {
+      const [tag, c] = GAME_TAG[e.game];
+      return `<li><span class="tag" style="--c:${c}">${tag}</span><span class="what">${e.what}</span><b>+${U.fmt(e.amount)}</b></li>`;
+    }).join('') + '</ol>';
+  }
+
   function renderStats() {
+    renderRecent();
     const s = Store.s.stats;
     const set = (id, v) => { const e = $('#' + id); if (e) e.textContent = v; };
     set('stBalance', U.fmt(Store.s.balance));
@@ -365,6 +435,9 @@ const App = (() => {
 
   /* Events */
   Store.on(ev => {
+    if (ev.type === 'slotResult' && ev.total >= ev.bet * 5) recordWin('slots', ev.total, `${U.fmtMult(Math.round(ev.total / ev.bet))} Einsatz${ev.free ? ' · Freispiel' : ''}`);
+    if (ev.type === 'plinko' && ev.mult >= 5) recordWin('plinko', ev.win, `${U.fmtMult(ev.mult)} Treffer`);
+    if (ev.type === 'bjResult' && ev.net > 0 && (ev.blackjack || ev.net >= 500)) recordWin('blackjack', ev.net, ev.blackjack ? 'Blackjack!' : 'Gewonnene Hand');
     if (ev.type === 'balance') { updateBalance(ev.delta); updateBonus(); if (current === 'lobby') renderStats(); }
     if (ev.type === 'xp') updateXp();
     if (ev.type === 'levelup') {
@@ -456,10 +529,10 @@ const Lobby = (() => {
   function drawPlinko(now) {
     const { g, w, h } = fit(plC);
     g.clearRect(0, 0, w, h);
-    const rows = 8, s = Math.min(w / (rows + 3), h / (rows + 2.2)), cx = w / 2, y0 = s * 0.9, v = s * 0.86;
+    const rows = 8, s = Math.min(w / (rows + 2.2), h / 8.1), cx = w / 2, y0 = s * 0.75, v = s * 0.84;
     for (let r = 0; r < rows; r++) for (let j = 0; j < r + 3; j++) {
       const x = cx + (j - (r + 2) / 2) * s, y = y0 + r * v;
-      g.fillStyle = '#cbbcf5'; g.beginPath(); g.arc(x, y, Math.max(1.6, s * 0.1), 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#cbbcf5'; g.beginPath(); g.arc(x, y, Math.max(2, s * 0.12), 0, Math.PI * 2); g.fill();
     }
     const by = y0 + (rows - 1) * v + v * 0.7;
     for (let k = 0; k <= rows; k++) {

@@ -168,9 +168,12 @@ const FX = (() => {
         add({ shape: 'coin', x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 1300, life: U.rand(1.4, 2.2), size: U.rand(7, 12), spin: Math.random() * 6, vs: U.rand(8, 16), rot: U.rand(-0.3, 0.3), drag: 0.995 });
       }
     },
-    coinRain(n = 80) {
+    coinRain(n = 80, avoidCenter = false) {
       for (let i = 0; i < n; i++) {
-        add({ shape: 'coin', x: Math.random() * W, y: U.rand(-H * 0.6, -20), vx: U.rand(-40, 40), vy: U.rand(100, 400), g: 700, life: 4, size: U.rand(9, 15), spin: Math.random() * 6, vs: U.rand(6, 14), drag: 0.998 });
+        // Bei Big Wins bleibt die Mitte frei, damit der Betrag lesbar bleibt
+        let x = Math.random() * W;
+        if (avoidCenter) { const side = Math.random() < 0.5; x = side ? Math.random() * W * 0.3 : W * 0.7 + Math.random() * W * 0.3; }
+        add({ shape: 'coin', x, y: U.rand(-H * 0.6, -20), vx: U.rand(-40, 40), vy: U.rand(100, 400), g: 700, life: 4, size: U.rand(9, 15), spin: Math.random() * 6, vs: U.rand(6, 14), drag: 0.998 });
       }
     },
     confetti(n = 120, x = W / 2, y = H * 0.35) {
@@ -192,9 +195,10 @@ const FX = (() => {
         add({ shape: 'star', x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 0, drag: 0.93, life: U.rand(0.5, 1), size: U.rand(6, 14), color, vr: U.rand(-3, 3) });
       }
     },
-    floatText(x, y, text, cls = '') {
+    floatText(x, y, text, cls = '', color = null) {
       const el = document.createElement('div');
       el.className = 'float-text ' + cls;
+      if (color) { el.classList.add('tint'); el.style.setProperty('--c', color); }
       el.textContent = text;
       el.style.left = x + 'px'; el.style.top = y + 'px';
       document.body.appendChild(el);

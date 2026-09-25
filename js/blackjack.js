@@ -170,6 +170,7 @@ const Blackjack = (() => {
     el.betting.hidden = !betting;
     el.actions.hidden = phase !== 'play';
     el.circle.hidden = !betting;
+    el.table.classList.toggle('betting', betting && hands.length > 0);
     el.deal.disabled = !pending || busy;
     el.clear.disabled = !pending;
     el.rebet.disabled = !lastBet || pending === lastBet || lastBet > Store.s.balance;
@@ -387,7 +388,8 @@ const Blackjack = (() => {
     else if (anyLoss) Sfx.lose();
     else Sfx.push();
     if (anyWin && !anyLoss) { winStreak++; Store.stat('bjWins'); } else if (anyLoss) winStreak = 0;
-    Store.emit({ type: 'bjResult', blackjack: bjHit, win: anyWin, streak: winStreak, splitWins: hands.length > 1 && hands.every(h => h.el.classList.contains('win')) });
+    const netAll = totalReturn - hands.reduce((s, h) => s + h.bet, 0);
+    Store.emit({ type: 'bjResult', net: netAll, blackjack: bjHit, win: anyWin, streak: winStreak, splitWins: hands.length > 1 && hands.every(h => h.el.classList.contains('win')) });
 
     const net = totalReturn - hands.reduce((s, h) => s + h.bet, 0);
     setMsg(net > 0 ? `Du gewinnst ${U.fmt(net)} Münzen!` : net < 0 ? (d > 21 ? 'Dealer überkauft – leider zu spät.' : 'Das Haus gewinnt diese Runde.') : 'Unentschieden – Einsatz zurück.');

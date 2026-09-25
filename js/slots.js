@@ -346,7 +346,8 @@ const Slots = (() => {
   function describe(it) {
     if (it.kind === 'all') {
       const n = wins.length + (scatterHit ? 1 : 0);
-      el.msg.textContent = n === 1 ? '1 Gewinn' : `${n} Gewinne`;
+      const sum = wins.reduce((s, w) => s + w.amount, 0) + (scatterHit ? scatterHit.amount : 0);
+      el.msg.textContent = `${n} Gewinne · ${U.fmt(sum)}`;
     } else if (it.kind === 'line') {
       const w = it.w;
       el.msg.textContent = `Linie ${w.line + 1} · ${w.n}× ${SYM[w.sym].name} · ${U.fmt(w.amount)}`;

@@ -21,7 +21,9 @@ const Plinko = (() => {
     if (!w) return;
     dpr = Math.min(2, window.devicePixelRatio || 1);
     W = w; cx = W / 2;
-    s = W / (rows + 2.3);
+    // Brett so groß wie möglich, aber nie höher als der sichtbare Bereich
+    const availH = Math.max(360, window.innerHeight - (window.innerWidth <= 960 ? 150 : 190));
+    s = Math.min(W / (rows + 1.9), availH / (rows * 0.84 + 2.9));
     v = s * 0.84;
     pegR = Math.max(2.2, s * 0.095);
     ballR = Math.max(4, s * 0.22);
@@ -102,7 +104,7 @@ const Plinko = (() => {
       FX.sparks(px, py, m >= 2 ? 22 : 8, `rgb(${col.join(',')})`, m >= 10 ? 380 : 200);
       if (m >= 10) { FX.coins(px, py, Math.min(40, Math.round(m / 2) + 12), 1.1); FX.shake(el.wrap, m >= 100); }
       if (m >= 100) { FX.flash('rgba(255,201,74,0.35)'); FX.confetti(90, px, py); }
-      FX.floatText(px, py - 10, (win >= b.bet ? '+' : '') + U.fmt(win), m >= 1 ? 'good' : 'bad');
+      FX.floatText(px, py - binH * 1.3, (win >= b.bet ? '+' : '') + U.fmt(win), m >= 1 ? '' : 'bad', m >= 1 ? `rgb(${col.join(',')})` : null);
       pushHistory(m, col);
       el.last.textContent = `${U.fmtMult(m)} · ${U.fmt(win)}`;
     }
@@ -164,8 +166,8 @@ const Plinko = (() => {
       const col = binColor(k), hitAge = (now - binHit[k]) / 400;
       const press = hitAge < 1 ? Math.sin(hitAge * Math.PI) * binH * 0.28 : 0;
       const x = binX(k) - bw / 2, y = binY + press;
-      g.fillStyle = `rgba(${col.map(c => Math.round(c * 0.45)).join(',')},1)`;
-      roundRect(x, y + 3, bw, binH, Math.min(8, bw * 0.2)); g.fill();
+      g.fillStyle = `rgba(${col.map(c => Math.round(c * 0.4)).join(',')},1)`;
+      roundRect(x, y + 5, bw, binH, Math.min(8, bw * 0.2)); g.fill();
       const bg = g.createLinearGradient(0, y, 0, y + binH);
       bg.addColorStop(0, `rgb(${col.map(c => Math.min(255, c + 40)).join(',')})`);
       bg.addColorStop(1, `rgb(${col.join(',')})`);
@@ -174,11 +176,13 @@ const Plinko = (() => {
       roundRect(x, y, bw, binH, Math.min(8, bw * 0.2)); g.fill();
       g.shadowBlur = 0;
       g.fillStyle = 'rgba(255,255,255,0.25)'; roundRect(x + 2, y + 2, bw - 4, binH * 0.32, Math.min(6, bw * 0.15)); g.fill();
-      const label = t[k] >= 100 ? String(t[k]) : String(t[k]).replace('.', ',');
+      const base = t[k] >= 100 ? String(t[k]) : String(t[k]).replace('.', ',');
       let fs = Math.min(binH * 0.42, s * 0.32);
-      g.font = `700 ${fs}px "Rubik", system-ui, sans-serif`;
-      const tw = g.measureText(label).width;
-      if (tw > bw * 0.86) { fs *= bw * 0.86 / tw; g.font = `700 ${fs}px "Rubik", system-ui, sans-serif`; }
+      const fit = txt => { g.font = `700 ${fs}px "Rubik", system-ui, sans-serif`; return g.measureText(txt).width <= bw * 0.86; };
+      let label = base + '×';
+      if (!fit(label)) label = base;
+      if (!fit(label) && t[k] >= 1000) label = t[k] / 1000 + 'K';
+      if (!fit(label)) { fs *= bw * 0.86 / g.measureText(label).width; g.font = `700 ${fs}px "Rubik", system-ui, sans-serif`; }
       g.fillStyle = '#1a0a26'; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.fillText(label, binX(k), y + binH * 0.54);
     }
