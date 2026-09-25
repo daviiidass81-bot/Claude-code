@@ -626,6 +626,8 @@ const I18N_ROWS = [
   ['Mimi rollt sich auf den Rücken – Bauchkraulen!', 'Mimi rolls onto her back – belly rubs!', 'Mimi se pone panza arriba: ¡caricias en la barriga!', 'Mimi se roule sur le dos – des papouilles sur le ventre !', 'Mimi sırtüstü yuvarlandı – göbek kaşıma zamanı!'],
   ['FRISCH', 'FRESH', 'FRESCO', 'FRAIS', 'TAZE'],
   ['WAGEN', 'CARTS', 'CARROS', 'CHARIOTS', 'ARABALAR'],
+  ['Federpferd', 'Spring rider', 'Caballito de muelle', 'Cheval à ressort', 'Yaylı at'],
+  ['Hopp, hopp!', 'Giddy-up!', '¡Arre, arre!', 'Hue, dada !', 'Deh, deh!'],
   // Figur
   ['Wer bist du heute Nacht?', 'Who are you tonight?', '¿Quién eres esta noche?', 'Qui es-tu ce soir ?', 'Bu gece kimsin?'],
   ['Gestalte deine Figur für die Casino-Halle.', 'Design your character for the casino floor.', 'Diseña tu personaje para el salón.', 'Crée ton personnage pour la salle du casino.', 'Casino salonu için karakterini tasarla.'],

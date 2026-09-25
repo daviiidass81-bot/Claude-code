@@ -48,10 +48,11 @@ const Avatar = (() => {
     if (opts.sit) { // sitzend: Oberschenkel nach vorn, Unterschenkel hängen
       for (const k of [-1, 1]) {
         const kick = opts.kick ? Math.sin(phase + (k > 0 ? 0 : 0.4)) * 2.5 : 0;
-        g.fillStyle = shade(pants, 8); rr(g, k * 5 - 3.8, -21, 7.6, 7, 3); g.fill();
-        g.fillStyle = pants; rr(g, k * 5 - 3.2, -15 + kick * 0.3, 6.4, 10, 3); g.fill();
-        g.fillStyle = shoe; rr(g, k * 5 - 4, -6.5 + kick, 8, 5, 2.2); g.fill();
+        g.fillStyle = shade(pants, 14); rr(g, k * 5 - 4.2, -14, 8.4, 8, 3.5); g.fill(); // Knie zum Betrachter
+        g.fillStyle = pants; rr(g, k * 5 - 3.2, -8 + kick * 0.3, 6.4, 5, 2.5); g.fill();
+        g.fillStyle = shoe; rr(g, k * 5 - 4.5, -3.5 + kick, 9, 5, 2.4); g.fill();
       }
+      g.translate(0, 8); // Oberkörper sinkt auf die Sitzfläche
     } else if (side) {
       g.save(); g.scale(flip, 1);
       for (const k of [-1, 1]) {

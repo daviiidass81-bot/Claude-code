@@ -383,17 +383,17 @@ const Town = (() => {
     const { x, y } = o;
     shadow(x, y, 70, 12, 0.3);
     g.strokeStyle = '#c9a8ff'; g.lineWidth = 6; g.lineCap = 'round';
-    g.beginPath(); g.moveTo(x - 70, y); g.lineTo(x - 55, y - 110); g.lineTo(x - 40, y);
-    g.moveTo(x + 40, y); g.lineTo(x + 55, y - 110); g.lineTo(x + 70, y); g.stroke();
-    g.strokeStyle = '#ff3d8b'; g.lineWidth = 7; g.beginPath(); g.moveTo(x - 58, y - 108); g.lineTo(x + 58, y - 108); g.stroke();
-    [-26, 26].forEach((dx, i) => {
+    g.beginPath(); g.moveTo(x - 92, y); g.lineTo(x - 77, y - 110); g.lineTo(x - 62, y);
+    g.moveTo(x + 62, y); g.lineTo(x + 77, y - 110); g.lineTo(x + 92, y); g.stroke();
+    g.strokeStyle = '#ff3d8b'; g.lineWidth = 7; g.beginPath(); g.moveTo(x - 80, y - 108); g.lineTo(x + 80, y - 108); g.stroke();
+    [-22, 22].forEach((dx, i) => {
       const active = i === 0 && time - play.swingT < 5;
       const amp = active ? Math.sin((time - play.swingT) * 3.2) * 0.5 * Math.min(1, (5 - (time - play.swingT)) / 1.5) : Math.sin(time * 1.2 + i) * 0.05;
       const ex = x + dx, ey = y - 108 + Math.cos(amp) * 78 + Math.sin(amp) * 30; // schwingt zum Betrachter hin und weg
       g.strokeStyle = '#8a8298'; g.lineWidth = 1.5;
       g.beginPath(); g.moveTo(x + dx - 9, y - 108); g.lineTo(ex - 9, ey); g.moveTo(x + dx + 9, y - 108); g.lineTo(ex + 9, ey); g.stroke();
       const sc = 1 + Math.sin(amp) * 0.12; g.fillStyle = '#ffc94a'; rr(ex - 12 * sc, ey - 3, 24 * sc, 6 * sc, 2); g.fill();
-      if (active) { o.seat = { x: ex, y: ey + 19, s: sc }; }
+      if (active) { o.seat = { x: ex, y: ey + 11, s: sc }; }
     });
   }
   function drawSlide(o) {
@@ -413,11 +413,40 @@ const Town = (() => {
     g.fillStyle = sandPat(); rr(x - 82, y - 54, 164, 52, 4); g.fill();
     g.fillStyle = '#ff3d8b'; g.beginPath(); g.moveTo(x + 60, y - 30); g.lineTo(x + 72, y - 30); g.lineTo(x + 70, y - 18); g.lineTo(x + 62, y - 18); g.closePath(); g.fill();
     g.strokeStyle = '#3be8ff'; g.lineWidth = 2; g.beginPath(); g.moveTo(x + 50, y - 22); g.lineTo(x + 40, y - 40); g.stroke();
+    // Spielzeug im Sand
+    g.fillStyle = '#ffc94a'; g.beginPath(); g.arc(x - 60, y - 16, 7, 0, Math.PI * 2); g.fill(); g.fillStyle = '#e0103a'; g.beginPath(); g.arc(x - 60, y - 16, 7, -0.6, 0.9); g.lineTo(x - 60, y - 16); g.fill();
+    g.fillStyle = '#5dffb0'; g.beginPath(); g.moveTo(x - 30, y - 38); g.lineTo(x - 14, y - 38); g.lineTo(x - 18, y - 30); g.lineTo(x - 26, y - 30); g.closePath(); g.fill();
+    g.fillStyle = '#c9a878'; g.beginPath(); g.ellipse(x + 10, y - 20, 14, 5, 0, 0, Math.PI * 2); g.fill();
     play.castles.forEach(c => {
       const cx = x + c.dx, cy = y - 16;
       g.fillStyle = '#d8b878'; g.fillRect(cx - 12, cy - 16, 24, 16); g.fillRect(cx - 14, cy - 22, 7, 8); g.fillRect(cx + 7, cy - 22, 7, 8); g.fillRect(cx - 4, cy - 26, 8, 12);
       g.fillStyle = '#ff3d8b'; g.beginPath(); g.moveTo(cx, cy - 26); g.lineTo(cx, cy - 36); g.lineTo(cx + 8, cy - 32); g.closePath(); g.fill();
     });
+  }
+  function drawSpring(o) { // Federwippe in Pferdchenform
+    const { x, y } = o;
+    const ride = player.pose && player.pose.kind === 'spring' && player.pose.o === o;
+    const b = ride ? Math.sin(time * 9) * 0.22 : Math.sin(time * 1.3) * 0.03;
+    shadow(x, y, 30, 7, 0.35);
+    g.fillStyle = '#3a2250'; rr(x - 20, y - 5, 40, 6, 3); g.fill();
+    g.strokeStyle = '#c9a8ff'; g.lineWidth = 3; g.beginPath();
+    for (let i = 0; i <= 6; i++) { const yy = y - 4 - i * 4; g.lineTo(x + (i % 2 ? 5 : -5), yy); } g.stroke();
+    g.save(); g.translate(x, y - 30); g.rotate(b);
+    g.fillStyle = '#ffc94a'; rr(-22, -12, 40, 16, 8); g.fill();
+    g.beginPath(); g.moveTo(12, -8); g.lineTo(26, -30); g.lineTo(32, -26); g.lineTo(22, -4); g.closePath(); g.fill();
+    g.beginPath(); g.ellipse(30, -30, 9, 6, -0.4, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#ff3d8b'; g.beginPath(); g.moveTo(22, -34); g.lineTo(14, -24); g.lineTo(20, -22); g.closePath(); g.fill();
+    g.fillStyle = '#1a0826'; g.beginPath(); g.arc(32, -32, 1.6, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#ff3d8b'; g.lineWidth = 4; g.beginPath(); g.moveTo(-22, -6); g.quadraticCurveTo(-32, -2, -30, 8); g.stroke();
+    g.fillStyle = '#3be8ff'; rr(-8, -16, 14, 5, 2); g.fill();
+    g.restore();
+    if (ride) o.seat = { x: x - 2 + Math.sin(b) * 20, y: y - 33 + Math.abs(b) * 8 };
+  }
+  function drawHopscotch(o) {
+    const { x, y } = o;
+    g.strokeStyle = 'rgba(255,240,200,0.75)'; g.lineWidth = 2.5; g.font = '700 12px Rubik, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = 'rgba(255,240,200,0.8)';
+    const cells = [[0, 0, 1], [0, -1, 2], [-0.5, -2, 3], [0.5, -2, 4], [0, -3, 5], [-0.5, -4, 6], [0.5, -4, 7], [0, -5, 8]];
+    cells.forEach(([cx, cy, n]) => { const px = x + cx * 36 - 18, py = y + cy * 22 - 11; g.strokeRect(px, py, 36, 22); g.fillText(String(n), px + 18, py + 12); });
   }
   function drawSeesaw(o) {
     const { x, y } = o;
@@ -457,7 +486,7 @@ const Town = (() => {
 
   const DRAW = { tree: drawTree, palm: drawPalm, lamp: drawLamp, bench: drawBench, hedge: drawHedge, fence: drawFence, flowers: drawFlowers, busstop: drawBusStop,
     building: drawBuilding, house: drawHouse, mailbox: drawMailbox, car: drawCar, fountain: drawFountain, casino: drawCasinoFront, store: drawStoreFront,
-    swing: drawSwing, slide: drawSlide, sandbox: drawSandbox, seesaw: drawSeesaw, icetruck: drawIceTruck, cart: drawCart, cafetable: drawCafeTable, menuboard: drawMenuBoard, crates: drawCrates, carf: drawCarFront, corral: drawCorral };
+    swing: drawSwing, spring: drawSpring, hopscotch: drawHopscotch, slide: drawSlide, sandbox: drawSandbox, seesaw: drawSeesaw, icetruck: drawIceTruck, cart: drawCart, cafetable: drawCafeTable, menuboard: drawMenuBoard, crates: drawCrates, carf: drawCarFront, corral: drawCorral };
 
   /* ---------- Orte ---------- */
   const shopIcon = kind => (x, y) => {
@@ -559,7 +588,7 @@ const Town = (() => {
       name: 'Casino-Vorplatz', w: 1600, top: 330, spawn: [1250, 820], ground: 'plaza',
       objects: () => [
         { kind: 'casino', x: 800, y: 330, fw: 1100, fh: 40, sortY: 300, game: 'casino', label: 'Neon Nights Casino', sub: 'Hier gibt es Münzen zu gewinnen', ix: 800, iy: 380, glow: '#ff3d8b', vh: 250 },
-        { kind: 'fountain', x: 800, y: 620, fw: 210, fh: 60 },
+        { kind: 'fountain', x: 800, y: 626, fw: 220, fh: 76 },
         { kind: 'palm', x: 300, y: 480, fw: 20, fh: 14 }, { kind: 'palm', x: 1300, y: 480, fw: 20, fh: 14 },
         { kind: 'palm', x: 150, y: 720, fw: 20, fh: 14 }, { kind: 'palm', x: 1450, y: 720, fw: 20, fh: 14 },
         { kind: 'lamp', x: 520, y: 760, fw: 10, fh: 8 }, { kind: 'lamp', x: 1080, y: 760, fw: 10, fh: 8 },
@@ -618,7 +647,6 @@ const Town = (() => {
         { kind: 'cart', x: 880, y: 470, fw: 36, fh: 10 }, { kind: 'cart', x: 150, y: 700, fw: 36, fh: 10 },
         { kind: 'corral', x: 1200, y: 560, fw: 116, fh: 10 },
         { kind: 'tree', x: 1420, y: 470, fw: 22, fh: 14, s: 1.15 }, { kind: 'tree', x: 1400, y: 690, fw: 22, fh: 14 }, { kind: 'lamp', x: 1150, y: 740, fw: 10, fh: 8 },
-        { kind: 'flowers', x: 1060, y: 420, w: 120, fw: 120, fh: 12 },
         { kind: 'lamp', x: 440, y: 740, fw: 10, fh: 8 }, { kind: 'lamp', x: 880, y: 740, fw: 10, fh: 8 },
         { kind: 'busstop', x: 1250, y: 800, fw: 130, fh: 20, game: 'bus', label: 'Bushaltestelle', sub: 'Mit dem Bus zu anderen Orten', ix: 1250, iy: 830, glow: '#ffc94a' },
       ],
@@ -629,9 +657,11 @@ const Town = (() => {
       name: 'Spielplatz', w: 1500, top: 200, spawn: [1250, 820], ground: 'grass',
       objects: () => [
         { kind: 'fence', x: 700, y: 210, w: 1200, fw: 1200, fh: 8 },
-        { kind: 'swing', x: 300, y: 420, fw: 150, fh: 20, game: 'swing', label: 'Schaukel', sub: 'Einmal richtig Schwung holen', ix: 274, iy: 460, glow: '#c9a8ff' },
+        { kind: 'swing', x: 300, y: 420, fw: 190, fh: 20, game: 'swing', label: 'Schaukel', sub: 'Einmal richtig Schwung holen', ix: 278, iy: 448, glow: '#c9a8ff' },
         { kind: 'slide', x: 650, y: 420, fw: 140, fh: 30, game: 'slide', label: 'Rutsche', sub: 'Hoch und runter!', ix: 620, iy: 460, glow: '#ff6aa6' },
         { kind: 'sandbox', x: 1000, y: 440, fw: 180, fh: 64, game: 'sand', label: 'Sandkasten', sub: 'Eine Sandburg bauen', ix: 1000, iy: 480, glow: '#ffc94a' },
+        { kind: 'spring', x: 1180, y: 450, fw: 40, fh: 12, game: 'spring', label: 'Federpferd', sub: 'Hopp, hopp!', ix: 1180, iy: 480, glow: '#ffc94a', vh: 60 },
+        { kind: 'hopscotch', x: 700, y: 770, nocoll: true, sortY: 0 },
         { kind: 'seesaw', x: 420, y: 650, fw: 150, fh: 16, game: 'seesaw', label: 'Wippe', sub: 'Mit einem Kind wippen', ix: 420, iy: 690, glow: '#3be8ff' },
         { kind: 'icetruck', x: 900, y: 700, fw: 180, fh: 30, game: 'shop:ice', label: 'Eiswagen', sub: 'Kugeln in allen Farben', ix: 860, iy: 740, glow: '#ff6aa6' },
         { kind: 'tree', x: 120, y: 330, fw: 22, fh: 14, s: 1.2 }, { kind: 'tree', x: 1380, y: 330, fw: 22, fh: 14, s: 1.2 },
@@ -641,7 +671,7 @@ const Town = (() => {
         { kind: 'busstop', x: 1250, y: 800, fw: 130, fh: 20, game: 'bus', label: 'Bushaltestelle', sub: 'Mit dem Bus zu anderen Orten', ix: 1250, iy: 830, glow: '#ffc94a' },
       ],
       lights: [[560, 700, 150, '255,210,140', 0.18], [650, 400, 200, '255,106,166', 0.07]],
-      npcs: 4, kids: true, rubber: [180, 300, 1100, 420],
+      npcs: 5, kids: true, rubber: [180, 300, 1260, 420],
     },
   };
   const ZONE_ORDER = ['plaza', 'neighborhood', 'mall', 'market', 'playground'];
@@ -894,7 +924,7 @@ const Town = (() => {
     const tgt = { game: 'cat', label: 'Mimi', sub: 'Streicheln · Füttern · Spielen', glow: '#ffc94a' };
     function enter(cfg) {
       c.present = true; c.area = cfg.area; c.home = cfg.home;
-      if (c.follow) { c.x = player.x - 30; c.y = player.y; } else { c.x = cfg.home[0] + 30; c.y = cfg.home[1] + 60; }
+      if (c.follow) { c.x = player.x - 44; c.y = player.y + 8; } else { c.x = cfg.home[0] + 30; c.y = cfg.home[1] + 60; }
       c.state = 'sit'; c.until = time + 2;
     }
     function leave() { if (!c.follow) c.present = false; }
@@ -904,19 +934,20 @@ const Town = (() => {
     function update(dt) {
       if (!c.present) return;
       c.phase += dt * 10;
-      const sp = c.state === 'run' ? 170 : c.state === 'chase' ? 190 : 55;
+      const sp = c.state === 'run' ? 170 : c.state === 'chase' ? 140 : 55;
       if (c.follow && !['petted', 'eat', 'chase', 'roll'].includes(c.state)) {
         const d = Math.hypot(player.x - c.x, player.y - c.y);
-        if (d > 70) goTo(player.x + (c.x < player.x ? -34 : 34), player.y + 4, d > 140);
+        const face = player.dir === 1 ? -1 : 1; // hinter der Figur bleiben
+        if (d > 70) goTo(player.x - 40 * face, player.y + 8, d > 140);
         else if (c.state === 'walk' || c.state === 'run') set('sit', 1.5);
       }
       if (c.state === 'walk' || c.state === 'run' || c.state === 'chase') {
         const tx = c.state === 'chase' && c.yarn ? c.yarn.x : c.tx, ty = c.state === 'chase' && c.yarn ? c.yarn.y : c.ty;
         const dx = tx - c.x, dy = ty - c.y, d = Math.hypot(dx, dy);
-        if (d < 6) {
+        if (d < 8 && (c.state !== 'chase' || !c.yarn || Math.hypot(c.yarn.vx, c.yarn.vy) < 40)) {
           if (c.state === 'chase' && c.yarn) {
             c.yarn.hits = (c.yarn.hits || 0) + 1;
-            if (c.yarn.hits < 3) { throwYarn(); Sfx.bounce(0.7); } else { c.yarn = null; set('sit', 2); addAff(10, false); hearts(6); }
+            if (c.yarn.hits < 4) { throwYarn(); Sfx.bounce(0.7); } else { c.yarn = null; set('sit', 2); addAff(10, false); hearts(6); }
           } else set(Math.random() < 0.3 && !c.follow ? 'sleep' : 'sit', U.rand(3, 8));
         } else {
           const nx = c.x + dx / d * sp * dt, ny = c.y + dy / d * sp * dt;
@@ -940,7 +971,7 @@ const Town = (() => {
     function meow() { c.lastMeow = time; Sfx.meow && Sfx.meow(); const [sx, sy] = toScreen(c.x + 6, c.y - 52); FX.floatText(sx, sy, I18N.t('Miau!'), 'meow'); }
     function throwYarn() {
       const [x0, y0, x1, y1] = c.area || [player.x - 150, player.y - 100, player.x + 150, player.y + 60];
-      const tx = U.clamp(c.x + U.rand(-180, 180), x0, x1), ty = U.clamp(c.y + U.rand(-100, 100), y0, y1);
+      const tx = U.clamp(U.clamp(c.x + U.rand(-160, 160), player.x - 200, player.x + 200), x0, x1), ty = U.clamp(U.clamp(c.y + U.rand(-90, 90), player.y - 140, player.y + 60), y0, y1);
       c.yarn = c.yarn || { x: player.x, y: player.y - 10, rot: 0, hits: 0 };
       c.yarn.vx = (tx - c.yarn.x) * 1.6; c.yarn.vy = (ty - c.yarn.y) * 1.6;
       c.state = 'chase';
@@ -988,22 +1019,27 @@ const Town = (() => {
       if (!c.follow && Z && !Z.cat) { c.present = false; Panel.close(); }
       Panel.render();
     }
+    function drawYarn() {
+      if (!c.present || !c.yarn) return;
+      const Y = c.yarn;
+      Y.trail = Y.trail || []; Y.trail.push([Y.x, Y.y]); if (Y.trail.length > 14) Y.trail.shift();
+      g.strokeStyle = 'rgba(255,120,180,0.8)'; g.lineWidth = 1.5; g.beginPath(); Y.trail.forEach(([tx, ty], i) => i ? g.lineTo(tx, ty - 6) : g.moveTo(tx, ty - 6)); g.stroke();
+      g.fillStyle = 'rgba(0,0,0,0.35)'; g.beginPath(); g.ellipse(Y.x, Y.y + 2, 10, 3.5, 0, 0, Math.PI * 2); g.fill();
+      g.save(); g.translate(Y.x, Y.y - 8); g.rotate(Y.rot);
+      g.fillStyle = '#5a0a30'; g.beginPath(); g.arc(0, 0, 10.5, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ff3d8b'; g.beginPath(); g.arc(0, 0, 9, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#ffc2e4'; g.lineWidth = 1.4; for (let i = 0; i < 4; i++) { g.beginPath(); g.arc(0, 0, 3 + i * 1.8, i, i + 2.6); g.stroke(); }
+      g.restore();
+    }
     function draw() {
       if (!c.present) return;
-      if (c.yarn) {
-        g.save(); g.translate(c.yarn.x, c.yarn.y); g.rotate(c.yarn.rot);
-        g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(0, 6, 7, 2.5, 0, 0, Math.PI * 2); g.fill();
-        g.fillStyle = '#ff3d8b'; g.beginPath(); g.arc(0, 0, 7, 0, Math.PI * 2); g.fill();
-        g.strokeStyle = '#ffc2e4'; g.lineWidth = 1.2; for (let i = 0; i < 3; i++) { g.beginPath(); g.arc(0, 0, 3 + i * 1.8, i, i + 2.6); g.stroke(); }
-        g.restore();
-      }
       drawCatShape(c.x, c.y, c.dir, c.phase, c.moving, c.state === 'run' || c.state === 'walk' || c.state === 'chase' ? 'walk' : c.state, 1.35, Inv.get().collar);
       if (near === tgt) {
         g.strokeStyle = `rgba(255,201,74,${0.5 + 0.3 * Math.sin(time * 5)})`; g.lineWidth = 2; g.beginPath(); g.ellipse(c.x, c.y + 1, 32, 10, 0, 0, Math.PI * 2); g.stroke();
       }
     }
     return {
-      enter, leave, update, draw, pet, feed, playYarn, toggleFollow, level, S,
+      enter, leave, update, draw, drawYarn, get yarnY() { return c.yarn ? c.yarn.y : -1; }, pet, feed, playYarn, toggleFollow, level, S,
       dist: p => c.present ? Math.hypot(p.x - c.x, p.y - c.y) : 1e9,
       target: () => Object.assign(tgt, { x: c.x, y: c.y, ix: c.x, iy: c.y, vh: 40, label: S().name }),
       get y() { return c.y; }, get present() { return c.present; }, get follow() { return c.follow; }, get state() { return c.state; },
@@ -1147,7 +1183,7 @@ const Town = (() => {
     renderShop(key);
     // Rückmeldung direkt im Laden statt Toast über dem Fenster
     const row = $$('.shop-item', $('#shopItems'))[SHOPS[key].items.indexOf(it)];
-    if (row) { row.classList.remove('bought'); void row.offsetWidth; row.classList.add('bought'); const c = FX.center(row.querySelector('img')); FX.floatText(c.x, c.y - 10, '✓', 'good'); }
+    if (row) { row.classList.remove('bought'); void row.offsetWidth; row.classList.add('bought');  }
     const invEl = $('#shopInv'); invEl.classList.remove('pulse'); void invEl.offsetWidth; invEl.classList.add('pulse');
     if (it.treat) invEl.textContent = '♪ ' + I18N.t(it.treat);
   }
@@ -1247,9 +1283,11 @@ const Town = (() => {
     if (o.game === 'slide') { usePlay('slide', o); return; }
     if (o.game === 'sand') { usePlay('sand', o); return; }
     if (o.game === 'seesaw') { usePlay('seesaw', o); return; }
+    if (o.game === 'spring') { usePlay('spring', o); return; }
   }
   async function usePlay(kind, o) {
     if (player.pose) return;
+    if (kind === 'spring') { player.pose = { kind: 'spring', o }; Sfx.bounce(1); await U.sleep(3200); player.pose = null; player.y = o.iy; return; }
     const used = Store.s.played_pg || (Store.s.played_pg = {});
     used[kind] = 1; Store.save();
     Store.emit({ type: 'playground', kind, all: ['swing', 'slide', 'sand', 'seesaw'].every(k => used[k]) });
@@ -1295,7 +1333,7 @@ const Town = (() => {
     if (Z.id === 'neighborhood') { g.fillStyle = pavePat(); g.fillRect(0, 520, WW, 60); g.fillRect(520, TOP, 80, 200); }
     if (Z.id === 'plaza') { g.fillStyle = '#8a1030'; g.fillRect(760, TOP, 80, 360); g.fillStyle = '#c98a12'; g.fillRect(758, TOP, 3, 360); g.fillRect(839, TOP, 3, 360); }
     if (Z.parking) { g.strokeStyle = 'rgba(255,255,255,0.4)'; g.lineWidth = 3; for (let x = 180; x < 1200; x += 130) { g.beginPath(); g.moveTo(x, 490); g.lineTo(x, 600); g.stroke(); } }
-    if (Z.rubber) { const [x0, y0, x1, y1] = Z.rubber; g.fillStyle = rubberPat(); rr(x0, y0, x1 - x0, y1 - y0 + 60, 30); g.fill(); }
+    if (Z.rubber) { const [x0, y0, x1, y1] = Z.rubber; g.fillStyle = rubberPat(); rr(x0, y0, x1 - x0, y1 - y0 + 60, 30); g.fill(); g.strokeStyle = 'rgba(30,6,20,0.7)'; g.lineWidth = 5; rr(x0 + 2, y0 + 2, x1 - x0 - 4, y1 - y0 + 56, 28); g.stroke(); g.strokeStyle = 'rgba(255,140,200,0.25)'; g.lineWidth = 2; rr(x0 - 2, y0 - 2, x1 - x0 + 4, y1 - y0 + 64, 32); g.stroke(); }
     // Himmel/Hintergrund über dem Ort
     const sky = g.createLinearGradient(0, 0, 0, TOP);
     sky.addColorStop(0, '#07041a'); sky.addColorStop(1, '#2a0e3a');
@@ -1325,6 +1363,7 @@ const Town = (() => {
     let { x, y, dir, phase, moving } = ch, sit = null;
     if (isPlayer && player.pose) {
       const p = player.pose;
+      if (p.kind === 'spring' && p.o.seat) { x = p.o.seat.x; y = p.o.seat.y; dir = 0; moving = false; sit = { sit: true, noShadow: true }; }
       if (p.kind === 'swing' && p.o.seat) { x = p.o.seat.x; y = p.o.seat.y; dir = 0; moving = false; sit = { sit: true, noShadow: true, kick: true }; phase = time * 6; }
       if (p.kind === 'slide') {
         const t = Math.min(1, (time - p.t0) / 2.4), o = p.o;
@@ -1332,9 +1371,9 @@ const Town = (() => {
         else { const u = (t - 0.45) / 0.55; x = o.x - 12 + u * 90; y = o.y - 96 + u * 104 + Math.sin(u * Math.PI) * -6 ; dir = 2; moving = false; }
       }
       if (p.kind === 'dig') { dir = 3; moving = true; phase = time * 18; }
-      if (p.kind === 'seesaw') { const a = Math.sin(time * 2.4) * 0.28; x = p.o.x - 62 * Math.cos(a); y = p.o.y - 4 - Math.sin(a) * 62; dir = 0; moving = false; sit = { sit: true, noShadow: true }; }
+      if (p.kind === 'seesaw') { const a = Math.sin(time * 2.4) * 0.28; x = p.o.x - 60 * Math.cos(a); y = p.o.y - 19 - Math.sin(a) * 60; dir = 0; moving = false; sit = { sit: true, noShadow: true }; }
     }
-    if (!isPlayer && ch.seesaw) { const a = Math.sin(time * 2.4) * 0.28, o = ch.seesaw; x = o.x + 62 * Math.cos(a); y = o.y - 4 + Math.sin(a) * 62; dir = 0; moving = false; sit = { sit: true, noShadow: true }; }
+    if (!isPlayer && ch.seesaw) { const a = Math.sin(time * 2.4) * 0.28, o = ch.seesaw; x = o.x + 60 * Math.cos(a); y = o.y - 21 + Math.sin(a) * 60; dir = 0; moving = false; sit = { sit: true, noShadow: true }; }
     if (ch.kid) { g.translate(x, y); g.scale(0.72, 0.72); x = 0; y = 0; }
     Avatar.draw(g, x, y, ch.a || avatar, dir, phase, moving, sit || {});
     if (isPlayer) {
@@ -1359,7 +1398,8 @@ const Town = (() => {
     const list = [];
     for (const o of objects) list.push({ y: o.sortY, f: () => DRAW[o.kind](o) });
     for (const n of npcs) list.push({ y: n.y, f: () => drawChar(n) });
-    list.push({ y: Cat.y + (Cat.dist(player) < 60 ? 30 : 0), f: () => Cat.draw() }); // nahe Mimi nicht hinter Bäumen verstecken
+    list.push({ y: Cat.y + (Cat.dist(player) < 60 ? 30 : 0), f: () => Cat.draw() });
+    if (Cat.yarnY >= 0) list.push({ y: Cat.yarnY + 1, f: () => Cat.drawYarn() }); // nahe Mimi nicht hinter Bäumen verstecken
     const pY = player.pose && player.pose.kind === 'swing' ? player.pose.o.y + 30 : player.y;
     list.push({ y: pY, f: () => drawChar(player, true) });
     list.push({ y: ROAD_Y + 100, f: drawBus });
@@ -1378,7 +1418,7 @@ const Town = (() => {
     const vw = W / zoom, vh = H / zoom;
     const tx = U.clamp(player.x - vw / 2, 0, Math.max(0, WW - vw));
     const top = TOP - 250, span = VIEW_BOTTOM - top;
-    const ty = vh > span ? top - (vh - span) * 0.35 : U.clamp(player.y - vh * 0.6, top, VIEW_BOTTOM - vh);
+    const ty = vh > span ? top - (vh - span) * 0.2 : U.clamp(player.y - vh * 0.6, top, VIEW_BOTTOM - vh);
     if (snap) { camX = tx; camY = ty; } else { camX += (tx - camX) * 0.12; camY += (ty - camY) * 0.12; }
     if (vw > WW) camX = (WW - vw) / 2;
   }
