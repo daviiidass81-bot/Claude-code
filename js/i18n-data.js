@@ -621,6 +621,7 @@ const I18N_ROWS = [
   ['Ein Meisterwerk der Baukunst.', 'A masterpiece of architecture.', 'Una obra maestra de la arquitectura.', 'Un chef-d\'œuvre d\'architecture.', 'Bir mimari şaheser.'],
   ['Allein wippt es sich schlecht.', 'Seesawing alone doesn\'t really work.', 'Balancearse solo no funciona.', 'Seul, la bascule ne marche pas.', 'Tahterevalliye tek başına binilmez.'],
   ['Benutzen', 'Use', 'Usar', 'Utiliser', 'Kullan'],
+  ['benutzen · Bushaltestelle = andere Orte', 'use · bus stop = other places', 'usar · parada = otros lugares', 'utiliser · arrêt de bus = autres lieux', 'kullan · otobüs durağı = diğer yerler'],
   // Figur
   ['Wer bist du heute Nacht?', 'Who are you tonight?', '¿Quién eres esta noche?', 'Qui es-tu ce soir ?', 'Bu gece kimsin?'],
   ['Gestalte deine Figur für die Casino-Halle.', 'Design your character for the casino floor.', 'Diseña tu personaje para el salón.', 'Crée ton personnage pour la salle du casino.', 'Casino salonu için karakterini tasarla.'],

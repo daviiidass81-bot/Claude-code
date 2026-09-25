@@ -38,15 +38,21 @@ const Avatar = (() => {
     g.save();
     g.translate(x, y);
     // Schatten
-    g.fillStyle = 'rgba(0,0,0,0.35)';
-    g.beginPath(); g.ellipse(0, 0, 13, 4.5, 0, 0, Math.PI * 2); g.fill();
+    if (!opts.noShadow) { g.fillStyle = 'rgba(0,0,0,0.35)'; g.beginPath(); g.ellipse(0, 0, 13, 4.5, 0, 0, Math.PI * 2); g.fill(); }
     g.translate(0, bob);
 
     const pants = opts.pants || '#1c1628';
     const shoe = '#0c0a12';
 
     // ----- Beine -----
-    if (side) {
+    if (opts.sit) { // sitzend: Oberschenkel nach vorn, Unterschenkel hängen
+      for (const k of [-1, 1]) {
+        const kick = opts.kick ? Math.sin(phase + (k > 0 ? 0 : 0.4)) * 2.5 : 0;
+        g.fillStyle = shade(pants, 8); rr(g, k * 5 - 3.8, -21, 7.6, 7, 3); g.fill();
+        g.fillStyle = pants; rr(g, k * 5 - 3.2, -15 + kick * 0.3, 6.4, 10, 3); g.fill();
+        g.fillStyle = shoe; rr(g, k * 5 - 4, -6.5 + kick, 8, 5, 2.2); g.fill();
+      }
+    } else if (side) {
       g.save(); g.scale(flip, 1);
       for (const k of [-1, 1]) {
         const off = sw * 5 * k;

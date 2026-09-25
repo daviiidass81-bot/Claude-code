@@ -355,7 +355,7 @@ const Town = (() => {
       g.strokeStyle = '#8a8298'; g.lineWidth = 1.5;
       g.beginPath(); g.moveTo(x + dx - 9, y - 108); g.lineTo(ex - 9, ey); g.moveTo(x + dx + 9, y - 108); g.lineTo(ex + 9, ey); g.stroke();
       g.fillStyle = '#ffc94a'; rr(ex - 12, ey - 3, 24, 6, 2); g.fill();
-      if (active) { o.seat = { x: ex, y: ey + 16 }; }
+      if (active) { o.seat = { x: ex, y: ey + 18 }; }
     });
   }
   function drawSlide(o) {
@@ -974,12 +974,17 @@ const Town = (() => {
     Sfx.coin(4);
     if (it.hat) { inv.hats.push(it.hat); avatar.hat = it.hat; Store.s.avatar = { ...Avatar.load(), hat: it.hat }; Floor.refreshAvatar(); Toast.show(I18N.t('Neuer Hut!'), I18N.t('{0} sitzt perfekt.', I18N.t(it.name)), '♛', 'ach'); }
     else if (it.collar) { inv.collarsOwned = inv.collarsOwned || []; inv.collarsOwned.push(it.collar); inv.collar = it.collar; Toast.show(I18N.t('Für Mimi'), I18N.t('{0} gekauft.', I18N.t(it.name)), '♥', 'ach'); }
-    else if (it.once) { inv[it.id] = true; Toast.show(I18N.t('Gekauft'), I18N.t('{0} ist jetzt in deinem Rucksack.', I18N.t(it.name)), '✓'); }
-    else if (it.add) { for (const [k, v] of Object.entries(it.add)) inv[k] = (inv[k] || 0) + v; Toast.show(I18N.t('Gekauft'), I18N.t('{0} ist jetzt in deinem Rucksack.', I18N.t(it.name)), '✓'); }
-    else if (it.treat) { Toast.show(I18N.t(it.name), I18N.t(it.treat), '♪'); FX.stars(window.innerWidth / 2, window.innerHeight / 2, 10); }
+    else if (it.once) { inv[it.id] = true; }
+    else if (it.add) { for (const [k, v] of Object.entries(it.add)) inv[k] = (inv[k] || 0) + v; }
+    else if (it.treat) { FX.stars(window.innerWidth / 2, window.innerHeight / 2, 10); }
     Store.save();
     Store.emit({ type: 'shop', item: it.id });
     renderShop(key);
+    // Rückmeldung direkt im Laden statt Toast über dem Fenster
+    const row = $$('.shop-item', $('#shopItems'))[SHOPS[key].items.indexOf(it)];
+    if (row) { row.classList.remove('bought'); void row.offsetWidth; row.classList.add('bought'); const c = FX.center(row.querySelector('img')); FX.floatText(c.x, c.y - 10, '✓', 'good'); }
+    const invEl = $('#shopInv'); invEl.classList.remove('pulse'); void invEl.offsetWidth; invEl.classList.add('pulse');
+    if (it.treat) invEl.textContent = '♪ ' + I18N.t(it.treat);
   }
 
   /* ---------- Bus ---------- */
@@ -1103,8 +1108,8 @@ const Town = (() => {
       const kid = npcs.find(n => n.kid);
       if (!kid) { Toast.show(I18N.t('Wippe'), I18N.t('Allein wippt es sich schlecht.'), '·'); return; }
       o.busy = true; player.pose = { kind: 'seesaw', o };
-      kid.path = null; kid.x = o.x + 66; kid.y = o.y + 4; kid.wait = 5;
-      await U.sleep(4000); o.busy = false; player.pose = null;
+      kid.path = null; kid.x = o.x + 80; kid.y = o.y + 12; kid.wait = 5; kid.seesaw = o;
+      await U.sleep(4000); o.busy = false; player.pose = null; kid.seesaw = null;
     }
   }
   function goCasino() {
@@ -1146,19 +1151,20 @@ const Town = (() => {
   function drawChar(ch, isPlayer) {
     if (isPlayer && player.alpha <= 0) return;
     g.save(); if (isPlayer) g.globalAlpha = player.alpha;
-    let { x, y, dir, phase, moving } = ch;
+    let { x, y, dir, phase, moving } = ch, sit = null;
     if (isPlayer && player.pose) {
       const p = player.pose;
-      if (p.kind === 'swing' && p.o.seat) { x = p.o.seat.x; y = p.o.seat.y; dir = 0; moving = false; }
+      if (p.kind === 'swing' && p.o.seat) { x = p.o.seat.x; y = p.o.seat.y; dir = 0; moving = false; sit = { sit: true, noShadow: true, kick: true }; phase = time * 6; }
       if (p.kind === 'slide') {
         const t = Math.min(1, (time - p.t0) / 2.4), o = p.o;
         if (t < 0.45) { const u = t / 0.45; x = o.x - 42; y = o.y + 6 - u * 104; dir = 3; moving = true; phase = time * 12; }
         else { const u = (t - 0.45) / 0.55; x = o.x - 12 + u * 90; y = o.y - 96 + u * 104 + Math.sin(u * Math.PI) * -6 ; dir = 2; moving = false; }
       }
       if (p.kind === 'dig') { dir = 3; moving = true; phase = time * 18; }
-      if (p.kind === 'seesaw') { const a = Math.sin(time * 2.4) * 0.28; x = p.o.x - 62; y = p.o.y - 22 - Math.sin(a) * 60 + 26; dir = 2; moving = false; }
+      if (p.kind === 'seesaw') { const a = Math.sin(time * 2.4) * 0.28; x = p.o.x - 62 * Math.cos(a); y = p.o.y - 4 - Math.sin(a) * 62; dir = 0; moving = false; sit = { sit: true, noShadow: true }; }
     }
-    Avatar.draw(g, x, y, ch.a || avatar, dir, phase, moving, {});
+    if (!isPlayer && ch.seesaw) { const a = Math.sin(time * 2.4) * 0.28, o = ch.seesaw; x = o.x + 62 * Math.cos(a); y = o.y - 4 + Math.sin(a) * 62; dir = 0; moving = false; sit = { sit: true, noShadow: true }; }
+    Avatar.draw(g, x, y, ch.a || avatar, dir, phase, moving, sit || {});
     if (isPlayer) {
       const name = (avatar.name || 'Gast').slice(0, 14);
       g.font = '600 11px Rubik, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -1198,7 +1204,7 @@ const Town = (() => {
   function updateCamera(snap) {
     const vw = W / zoom, vh = H / zoom;
     const tx = U.clamp(player.x - vw / 2, 0, Math.max(0, WW - vw));
-    const ty = U.clamp(player.y - vh * 0.52, Math.max(0, TOP - 300), Math.max(0, WH - 40 - vh));
+    const ty = U.clamp(player.y - vh * 0.6, Math.max(0, TOP - 300), Math.max(0, WH - vh));
     if (snap) { camX = tx; camY = ty; } else { camX += (tx - camX) * 0.12; camY += (ty - camY) * 0.12; }
     if (vw > WW) camX = (WW - vw) / 2;
   }
@@ -1229,7 +1235,7 @@ const Town = (() => {
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     view.style.height = H + 'px';
-    zoom = U.clamp(Math.min(W / 1150, H / 800), 0.72, 1.25);
+    zoom = Math.max(U.clamp(Math.min(W / 1150, H / 880), 0.72, 1.25), W / 1500);
     for (const k in patterns) delete patterns[k];
     updateCamera(true);
   }
