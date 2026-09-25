@@ -41,6 +41,8 @@ const Celebrate = (() => {
 
   function banner(title, sub, kind = '') {
     bnTitle.textContent = title; bnSub.textContent = sub;
+    const star = $('#bnStar');
+    if (!star.src) { const c = document.createElement('canvas'); c.width = c.height = 220; c.getContext('2d').drawImage(Symbols.sprite('scatter', 220, true), 0, 0); star.src = c.toDataURL(); }
     bn.dataset.kind = kind;
     bn.hidden = false;
     requestAnimationFrame(() => bn.classList.add('show'));
@@ -238,7 +240,7 @@ const Achievements = (() => {
     const S = 96, c = document.createElement('canvas'); c.width = c.height = S;
     const g = c.getContext('2d');
     const [kind, arg] = spec.split(':');
-    if (kind === 'sym') g.drawImage(Symbols.sprite(arg, S), 0, 0, S, S);
+    if (kind === 'sym') g.drawImage(Symbols.sprite(arg, S, true), 0, 0, S, S);
     else if (kind === 'card') {
       const red = /[♥♦]/.test(arg);
       g.save(); g.translate(S / 2, S / 2); g.rotate(-0.16);

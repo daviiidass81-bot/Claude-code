@@ -29,7 +29,7 @@ const Plinko = (() => {
     ballR = Math.max(4, s * 0.22);
     y0 = s * 1.25;
     binY = y0 + (rows - 1) * v + v * 0.72;
-    binH = Math.max(24, s * 0.7);
+    binH = Math.max(28, s * 0.74);
     H = binY + binH + s * 0.45;
     el.canvas.width = Math.round(W * dpr); el.canvas.height = Math.round(H * dpr);
     el.canvas.style.height = H + 'px';
@@ -104,7 +104,7 @@ const Plinko = (() => {
       FX.sparks(px, py, m >= 2 ? 22 : 8, `rgb(${col.join(',')})`, m >= 10 ? 380 : 200);
       if (m >= 10) { FX.coins(px, py, Math.min(40, Math.round(m / 2) + 12), 1.1); FX.shake(el.wrap, m >= 100); }
       if (m >= 100) { FX.flash('rgba(255,201,74,0.35)'); FX.confetti(90, px, py); }
-      FX.floatText(px, py - binH * 1.3, (win >= b.bet ? '+' : '') + U.fmt(win), m >= 1 ? '' : 'bad', m >= 1 ? `rgb(${col.join(',')})` : null);
+      if (m >= 1) FX.floatText(px, py - binH * 0.7, '+' + U.fmt(win), 'plinko-pop', `rgb(${col.map(c => Math.round(c + (255 - c) * 0.35)).join(',')})`);
       pushHistory(m, col);
       el.last.textContent = `${U.fmtMult(m)} · ${U.fmt(win)}`;
     }
@@ -178,7 +178,7 @@ const Plinko = (() => {
       g.fillStyle = 'rgba(255,255,255,0.25)'; roundRect(x + 2, y + 2, bw - 4, binH * 0.32, Math.min(6, bw * 0.15)); g.fill();
       const base = t[k] >= 100 ? String(t[k]) : String(t[k]).replace('.', ',');
       let fs = Math.min(binH * 0.42, s * 0.32);
-      const fit = txt => { g.font = `700 ${fs}px "Rubik", system-ui, sans-serif`; return g.measureText(txt).width <= bw * 0.86; };
+      const fit = txt => { g.font = `700 ${fs}px "Rubik", system-ui, sans-serif`; return g.measureText(txt).width <= bw * 0.8; };
       let label = base + '×';
       if (!fit(label)) label = base;
       if (!fit(label) && t[k] >= 1000) label = t[k] / 1000 + 'K';

@@ -378,7 +378,7 @@ const Slots = (() => {
   function clearWins() {
     wins = []; scatterHit = null; lastShowIdx = -1;
     el.winBox.classList.remove('has-win', 'big');
-    el.win.textContent = '0';
+    el.win.textContent = '—';
   }
 
   async function presentWin(total, b) {

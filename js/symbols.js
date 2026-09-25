@@ -1,6 +1,7 @@
 'use strict';
 /* Vektor-Grafiken der Slot-Symbole. Jede Funktion zeichnet in eine 100×100-Box. */
 const Symbols = (() => {
+  let noLabel = false;
   const DISPLAY_FONT = '"Bungee", "Impact", "Arial Black", sans-serif';
 
   function glossBall(g, x, y, r, light, mid, dark) {
@@ -211,6 +212,7 @@ const Symbols = (() => {
       glossBall(g, 13, 27, 4.5, '#fff', '#ffd24a', '#8a5200');
       glossBall(g, 50, 16, 5, '#fff', '#ff5b9a', '#7a0030');
       glossBall(g, 87, 27, 4.5, '#fff', '#ffd24a', '#8a5200');
+      if (noLabel) return;
       // Schriftzug
       g.font = `26px ${DISPLAY_FONT}`; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
       g.lineWidth = 6; g.strokeStyle = '#3a0030'; g.strokeText('WILD', 50, 98);
@@ -235,6 +237,7 @@ const Symbols = (() => {
       g.fillStyle = rg; g.fill(); g.restore();
       g.lineJoin = 'round'; g.strokeStyle = '#ffe3fa'; g.lineWidth = 2; star(40, 17); g.stroke();
       star(20, 8.5); g.fillStyle = 'rgba(255,255,255,0.5)'; g.fill();
+      if (noLabel) return;
       g.font = `19px ${DISPLAY_FONT}`; g.textAlign = 'center';
       g.lineWidth = 5; g.strokeStyle = '#2a0650'; g.strokeText('BONUS', 50, 97);
       g.fillStyle = '#ffe36b'; g.fillText('BONUS', 50, 97);
@@ -243,8 +246,8 @@ const Symbols = (() => {
 
   const cache = new Map();
   // Rendert ein Symbol einmal auf eine Offscreen-Canvas (mit Schlagschatten/Glow)
-  function sprite(id, size) {
-    const key = id + '@' + size;
+  function sprite(id, size, plain = false) {
+    const key = id + '@' + size + (plain ? 'p' : '');
     if (cache.has(key)) return cache.get(key);
     const c = document.createElement('canvas');
     c.width = c.height = size;
@@ -253,7 +256,10 @@ const Symbols = (() => {
     // Symbol zuerst in eine Zwischenebene zeichnen, damit der Schatten die Gesamtform umfasst
     const tmp = document.createElement('canvas'); tmp.width = tmp.height = size;
     const tg = tmp.getContext('2d'); tg.scale(k, k);
+    noLabel = plain;
+    if (plain) { tg.translate(50, 50); tg.scale(1.12, 1.12); tg.translate(-50, id === 'wild' ? -44 : -46); }
     draw[id](tg);
+    noLabel = false;
     g.shadowColor = 'rgba(0,0,0,0.55)'; g.shadowBlur = 7 * k; g.shadowOffsetY = 4 * k;
     g.translate(size / 2, size / 2); g.scale(0.84, 0.84); g.translate(-size / 2, -size / 2);
     g.drawImage(tmp, 0, 0);
