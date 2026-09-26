@@ -150,7 +150,11 @@ class DinoActor {
         if (night && Math.random() < dt * 0.3) { this.state = 'sleep'; this.pose = 'sleep'; break; }
         if (this.timer <= 0 && this.pose !== 'roar') {
           const r = Math.random();
-          if (r < 0.65) { const b = this.bounds(); this.tx = rand(b[0], b[2]); this.ty = rand(b[1], b[3]); this.state = 'walk'; }
+          if (r < 0.65) {
+            const b = this.bounds(), px = o.x + o.w * 0.72, py = o.y + o.h * 0.28;
+            for (let k = 0; k < 8; k++) { this.tx = rand(b[0], b[2]); this.ty = rand(b[1], b[3]); if (sp.diet === 'carn' || Math.hypot(this.tx - px, this.ty - py) > o.w * 0.3) break; }
+            this.state = 'walk';
+          }
           else if (r < 0.85) { this.setPose(sp.diet === 'herb' ? 'eat' : 'alert', rand(2, 4)); this.timer = rand(2, 4); }
           else { this.timer = rand(2, 5); if (Math.random() < 0.25 && Render.onScreen(this.x, this.y)) this.roar(); }
         }

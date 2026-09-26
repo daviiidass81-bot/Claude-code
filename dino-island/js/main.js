@@ -416,7 +416,7 @@ const Game = {
               const c = World.toWorld(o.x + o.w / 2, o.y + o.h / 2);
               Entities.emit(c.x, c.y - 20, 'confetti', 30); Entities.emit(c.x, c.y - 10, 'star', 12);
               Sfx.hatch();
-              UI.toast(`🥚 A baby ${SPECIES[o.species].name} has hatched!`, 'good big');
+              UI.toast(`🥚 ${SPECIES[o.species].name} hatched!`, 'good');
             }
             G.stats.hatched++;
             missionEvent('hatch', { species: o.species });
@@ -458,7 +458,7 @@ function setupNewPark() {
   place('building', 'visitor_center', 25, 26);
   place('building', 'lab', 29, 26);
   place('building', 'crop_harbor', 20, 20);
-  place('building', 'souvenir', 29, 20).start = now() - 45000;
+  place('building', 'souvenir', 30, 20).start = now() - 45000;
   const trike = place('paddock', 'triceratops', 25, 18);
   trike.hatchEnd = now() - 1000; trike.hatchStart = now() - 20000; trike.level = 4; trike.coins = 120;
   const cropH = G.objects.find(o => o.def === 'crop_harbor');

@@ -358,7 +358,8 @@ const Battle = {
       if (!f) continue;
       const A = this.anim[side], p = this.pos(side);
       const size = DinoArt.size(f.sid);
-      const sc = scaleBase * clamp(260 / size.len, 0.55, 1.4) * (0.75 + 0.25 * f.sp.size);
+      // true relative scale between species, clamped so small ones stay readable
+      const sc = scaleBase * clamp(250 / size.len, 0.6, 1.2) * clamp(f.sp.size, 0.62, 1.25) * (f.sp.body === 'sauropod' ? 0.8 : 1) * 1.05;
       const pose = A.pose === 'walk' ? 'walk' : A.pose;
       DinoArt.draw(ctx, f.sid, p.x, p.y, sc, { stage: f.stage, dir: side === 'me' ? 1 : -1, t: t + (side === 'me' ? 0 : 2), pose, speed: A.pose === 'walk' ? 1 : 0, phase: t * 1.4, fly: f.sp.aviary ? 60 * sc : 0 });
       if (A.flash > 0) {
