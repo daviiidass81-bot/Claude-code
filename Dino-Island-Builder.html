@@ -3686,7 +3686,12 @@ class DinoActor {
     this.poseTimer = 0; this.pose = 'idle';
   }
   get sp() { return SPECIES[this.o.species]; }
-  bounds() { const o = this.o, m = this.sp.pad >= 5 ? 1.1 : 0.8; return [o.x + m, o.y + m, o.x + o.w - m, o.y + o.h - m]; }
+  bounds() {
+    // keep the whole body (incl. tail and neck) inside the fence
+    const o = this.o, len = DinoArt.size(o.species).len * DINO_WORLD_SCALE * this.sp.size * this.growth();
+    const m = clamp(len / 64 * 0.62, 0.8, o.w / 2 - 0.15);
+    return [o.x + m, o.y + m, o.x + o.w - m, o.y + o.h - m];
+  }
   growth() { const o = this.o; const lv = o.level - [0, 10, 20, 30][o.stage || 0]; return clamp(0.55 + (lv - 1) * 0.1125, 0.55, 1) * (o.stage ? 1 : 1); }
   hatched() { return this.o.hatchEnd <= now(); }
   setPose(p, time) { this.pose = p; this.poseTimer = time; }
@@ -4429,7 +4434,7 @@ const Render = {
           if (o.order) {
             if (nowT >= o.order.end) this.bubble(ctx, c.x, top + bob, b.food, k, o);
             else this.progressBar(ctx, c.x, top + 10, (nowT - o.order.start) / (o.order.end - o.order.start), fmtTime(o.order.end - nowT), k, b.food === 'meat' ? '#ff8a6a' : '#b6e27a');
-          } else this.bubble(ctx, c.x, top + bob, 'zzz', k * 0.8, o, false, true);
+          } else this.bubble(ctx, c.x, top + bob, b.food, k * 0.8, o, false, true);
         } else if (b.kind === 'lab') {
           if (G.lab) {
             if (nowT >= G.lab.end) this.bubble(ctx, c.x, top + bob, 'check', k, o);
@@ -4455,7 +4460,7 @@ const Render = {
     drawSprite(ctx, Sprites.icons[icon], x, y, k * 0.95);
     if (full) { ctx.strokeStyle = `rgba(255,200,60,${0.5 + 0.5 * Math.sin(this.t * 6)})`; ctx.lineWidth = 3 * k; ctx.beginPath(); ctx.arc(x, y, r + 4 * k, 0, TAU); ctx.stroke(); }
     ctx.restore();
-    if (!dim) this.addHit(x - r - 4, y - r - 4, x + r + 4, y + r + 10, 10000, { kind: 'bubble', o, icon });
+    this.addHit(x - r - 4, y - r - 4, x + r + 4, y + r + 10, 10000, { kind: 'bubble', o, icon });
   },
   progressBar(ctx, x, y, f, label, k, col) {
     const w = 64 * k, h = 11 * k;

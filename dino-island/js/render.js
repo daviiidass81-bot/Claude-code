@@ -573,7 +573,7 @@ const Render = {
           if (o.order) {
             if (nowT >= o.order.end) this.bubble(ctx, c.x, top + bob, b.food, k, o);
             else this.progressBar(ctx, c.x, top + 10, (nowT - o.order.start) / (o.order.end - o.order.start), fmtTime(o.order.end - nowT), k, b.food === 'meat' ? '#ff8a6a' : '#b6e27a');
-          } else this.bubble(ctx, c.x, top + bob, 'zzz', k * 0.8, o, false, true);
+          } else this.bubble(ctx, c.x, top + bob, b.food, k * 0.8, o, false, true);
         } else if (b.kind === 'lab') {
           if (G.lab) {
             if (nowT >= G.lab.end) this.bubble(ctx, c.x, top + bob, 'check', k, o);
@@ -599,7 +599,7 @@ const Render = {
     drawSprite(ctx, Sprites.icons[icon], x, y, k * 0.95);
     if (full) { ctx.strokeStyle = `rgba(255,200,60,${0.5 + 0.5 * Math.sin(this.t * 6)})`; ctx.lineWidth = 3 * k; ctx.beginPath(); ctx.arc(x, y, r + 4 * k, 0, TAU); ctx.stroke(); }
     ctx.restore();
-    if (!dim) this.addHit(x - r - 4, y - r - 4, x + r + 4, y + r + 10, 10000, { kind: 'bubble', o, icon });
+    this.addHit(x - r - 4, y - r - 4, x + r + 4, y + r + 10, 10000, { kind: 'bubble', o, icon });
   },
   progressBar(ctx, x, y, f, label, k, col) {
     const w = 64 * k, h = 11 * k;

@@ -110,7 +110,12 @@ class DinoActor {
     this.poseTimer = 0; this.pose = 'idle';
   }
   get sp() { return SPECIES[this.o.species]; }
-  bounds() { const o = this.o, m = this.sp.pad >= 5 ? 1.1 : 0.8; return [o.x + m, o.y + m, o.x + o.w - m, o.y + o.h - m]; }
+  bounds() {
+    // keep the whole body (incl. tail and neck) inside the fence
+    const o = this.o, len = DinoArt.size(o.species).len * DINO_WORLD_SCALE * this.sp.size * this.growth();
+    const m = clamp(len / 64 * 0.62, 0.8, o.w / 2 - 0.15);
+    return [o.x + m, o.y + m, o.x + o.w - m, o.y + o.h - m];
+  }
   growth() { const o = this.o; const lv = o.level - [0, 10, 20, 30][o.stage || 0]; return clamp(0.55 + (lv - 1) * 0.1125, 0.55, 1) * (o.stage ? 1 : 1); }
   hatched() { return this.o.hatchEnd <= now(); }
   setPose(p, time) { this.pose = p; this.poseTimer = time; }
