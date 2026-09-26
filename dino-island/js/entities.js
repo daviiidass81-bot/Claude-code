@@ -116,7 +116,7 @@ class DinoActor {
     const m = clamp(len / 64 * 0.62, 0.8, o.w / 2 - 0.15);
     return [o.x + m, o.y + m, o.x + o.w - m, o.y + o.h - m];
   }
-  growth() { const o = this.o; const lv = o.level - [0, 10, 20, 30][o.stage || 0]; return clamp(0.55 + (lv - 1) * 0.1125, 0.55, 1) * (o.stage ? 1 : 1); }
+  growth() { return clamp(0.55 + (this.o.level - 1) * 0.1125, 0.55, 1); }
   hatched() { return this.o.hatchEnd <= now(); }
   setPose(p, time) { this.pose = p; this.poseTimer = time; }
   roar() {

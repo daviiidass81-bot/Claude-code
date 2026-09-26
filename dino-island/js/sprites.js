@@ -703,11 +703,20 @@ const PAINT = {
     }
     // crane
     const [bx, by] = I.p(2.7, 2.7, 5);
-    c.strokeStyle = meat ? '#d8a02a' : '#c8402a'; c.lineWidth = 3;
-    c.beginPath(); c.moveTo(bx, by); c.lineTo(bx, by - 78); c.lineTo(bx - 50, by - 60); c.stroke();
-    c.lineWidth = 1; c.strokeStyle = '#333'; c.beginPath(); c.moveTo(bx - 44, by - 62); c.lineTo(bx - 44, by - 34); c.stroke();
-    c.fillStyle = '#555'; c.fillRect(bx - 47, by - 34, 6, 3);
-    for (let k = 0; k < 7; k++) { c.strokeStyle = meat ? '#b8801a' : '#a0301a'; c.beginPath(); c.moveTo(bx - 2, by - k * 11); c.lineTo(bx + 2, by - k * 11 - 11); c.stroke(); }
+    // lattice dock crane: mast, cab, truss jib and hook
+    const cc = '#e8b020', cd = '#8a6010';
+    c.fillStyle = '#6a6a6a'; c.fillRect(bx - 6, by - 4, 12, 5);
+    c.strokeStyle = cd; c.lineWidth = 2.4;
+    c.beginPath(); c.moveTo(bx - 3, by); c.lineTo(bx - 3, by - 70); c.moveTo(bx + 3, by); c.lineTo(bx + 3, by - 70); c.stroke();
+    c.strokeStyle = cc; c.lineWidth = 1.1;
+    c.beginPath(); for (let k = 0; k < 7; k++) { c.moveTo(bx - 3, by - k * 10); c.lineTo(bx + 3, by - k * 10 - 10); c.moveTo(bx + 3, by - k * 10); c.lineTo(bx - 3, by - k * 10 - 10); } c.stroke();
+    c.fillStyle = cc; c.strokeStyle = cd; c.lineWidth = 1; c.fillRect(bx - 5, by - 80, 11, 10); c.strokeRect(bx - 5, by - 80, 11, 10);
+    c.fillStyle = '#6ab0d0'; c.fillRect(bx - 3, by - 78, 5, 4);
+    c.strokeStyle = cd; c.lineWidth = 1.8; c.beginPath(); c.moveTo(bx - 5, by - 78); c.lineTo(bx - 56, by - 70); c.moveTo(bx - 5, by - 72); c.lineTo(bx - 56, by - 68); c.stroke();
+    c.strokeStyle = cc; c.lineWidth = 0.9; c.beginPath(); for (let k = 0; k < 6; k++) { const x0 = bx - 5 - k * 8.5; c.moveTo(x0, by - 78 + k * 1.3); c.lineTo(x0 - 8.5, by - 72 + k * 0.7); } c.stroke();
+    c.strokeStyle = cd; c.lineWidth = 1.2; c.beginPath(); c.moveTo(bx + 6, by - 76); c.lineTo(bx + 14, by - 70); c.stroke(); c.fillStyle = '#555'; c.fillRect(bx + 11, by - 72, 7, 6);
+    c.strokeStyle = '#333'; c.lineWidth = 0.8; c.beginPath(); c.moveTo(bx - 50, by - 69); c.lineTo(bx - 50, by - 40); c.stroke();
+    c.fillStyle = meat ? '#c8402a' : '#7ac04a'; c.fillRect(bx - 56, by - 40, 12, 9); c.strokeStyle = 'rgba(0,0,0,0.4)'; c.strokeRect(bx - 56, by - 40, 12, 9);
     // bollards and rope
     for (const u of [0.3, 1.5]) I.cyl(u, 2.85, 5, 11, 0.06, '#333');
     I.lamp(0.2, 2.8, 5, 24);
@@ -1035,18 +1044,20 @@ const PAINT_DECO = {
   },
   fern(I, c) { const rng = mulberry32(21); for (let i = 0; i < 3; i++) { c.save(); c.translate(...I.p(0.3 + i * 0.2, 0.35 + (i % 2) * 0.3, 0)); c.scale(0.55, 0.55); paintTreeFern(c, rng, i); c.restore(); } },
   fossil(I, c) {
-    I.box(0.25, 0.25, 0.75, 0.75, 0, 16, '#8a7a64');
-    const [x, y] = I.p(0.5, 0.5, 16);
+    I.box(0.14, 0.14, 0.86, 0.86, 0, 14, '#8a7a64', { top: '#a8987e' });
+    const [x, y] = I.p(0.5, 0.5, 14);
+    const ag = c.createRadialGradient(x - 3, y - 18, 1, x, y - 14, 13); ag.addColorStop(0, '#f0dcb0'); ag.addColorStop(1, '#a07a4a');
+    c.fillStyle = ag; c.beginPath(); c.arc(x, y - 14, 11, 0, TAU); c.fill();
     c.fillStyle = 'rgba(180,230,255,0.35)'; c.strokeStyle = 'rgba(255,255,255,0.7)'; c.lineWidth = 0.8;
-    I.box(0.28, 0.28, 0.72, 0.72, 16, 34, 'rgba(170,220,240,0.35)', { edge: 'rgba(255,255,255,0.6)', left: 'rgba(170,220,240,0.3)', right: 'rgba(120,180,210,0.35)', top: 'rgba(210,240,255,0.35)', flat: true });
+    I.box(0.16, 0.16, 0.84, 0.84, 14, 44, 'rgba(170,220,240,0.3)', { edge: 'rgba(255,255,255,0.6)', left: 'rgba(170,220,240,0.3)', right: 'rgba(120,180,210,0.35)', top: 'rgba(210,240,255,0.35)', flat: true });
     c.strokeStyle = '#c8a870'; c.lineWidth = 2; c.beginPath();
-    for (let a = 0; a < 4 * Math.PI; a += 0.2) { const r = 1 + a * 0.75; const px = x + Math.cos(a) * r, py = y - 10 + Math.sin(a) * r * 0.8; a ? c.lineTo(px, py) : c.moveTo(px, py); }
+    for (let a = 0; a < 4 * Math.PI; a += 0.2) { const r = 1 + a * 0.8; const px = x + Math.cos(a) * r, py = y - 14 + Math.sin(a) * r; a ? c.lineTo(px, py) : c.moveTo(px, py); }
     c.stroke();
   },
   raptor_statue(I, c) {
     I.box(0.2, 0.2, 0.8, 0.8, 0, 12, '#9a948a', { top: '#b8b2a6' });
     const [x, y] = I.p(0.5, 0.5, 12);
-    if (typeof DinoArt !== 'undefined') DinoArt.draw(c, 'velociraptor', x, y, 0.55, { stage: 0, dir: 1, t: 0.6, pose: 'roar', palette: P('#9a7a3a', '#5a4418', '#d8b870', '#6a4a18', '#c8a050', '#2a2010'), statue: true });
+    if (typeof DinoArt !== 'undefined') DinoArt.draw(c, 'velociraptor', x, y, 0.55, { stage: 0, dir: 1, t: 0.6, pose: 'roar', palette: P('#a8a498', '#6e6a62', '#c8c4ba', '#8a867c', '#a09c92', '#5a564e'), statue: true });
   },
   garden(I, c) {
     I.box(0.1, 0.1, 1.9, 1.9, 0, 5, '#a89a84', { top: '#5a3a1e' });

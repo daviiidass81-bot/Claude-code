@@ -199,7 +199,7 @@ const Render = {
       const w = World.toWorld(o.x, o.y);
       drawSprite(ctx, f, w.x, w.y);
       // floodlights on the fence corners
-      if (World.night > 0.05 && !SPECIES[o.species].aviary) for (const [cx, cy] of [[o.x, o.y], [o.x + o.w, o.y], [o.x, o.y + o.h], [o.x + o.w, o.y + o.h]]) { const p = World.toWorld(cx, cy); this.lights.push({ x: p.x, y: p.y - 36, r: 70, col: 'rgba(255,230,160,' }); }
+      if (World.night > 0.05 && !SPECIES[o.species].aviary) for (const [cx, cy] of [[o.x, o.y], [o.x + o.w, o.y], [o.x, o.y + o.h], [o.x + o.w, o.y + o.h]]) { const p = World.toWorld(cx, cy); this.lights.push({ x: p.x, y: p.y - 36, r: 42, col: 'rgba(255,230,160,' }); }
     }
     // selection outline
     if (this.selected && G.objects.includes(this.selected)) {
@@ -648,7 +648,7 @@ const Render = {
       L.setTransform(1, 0, 0, 1, 0, 0);
       L.globalCompositeOperation = 'source-over';
       L.clearRect(0, 0, lw, lh);
-      L.fillStyle = `rgba(6,14,38,${n * 0.66})`; L.fillRect(0, 0, lw, lh);
+      L.fillStyle = `rgba(4,10,30,${n * 0.8})`; L.fillRect(0, 0, lw, lh);
       if (high) {
         L.globalCompositeOperation = 'destination-out';
         const z = this.cam.zoom;

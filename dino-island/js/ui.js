@@ -56,7 +56,7 @@ const UI = {
     const t = el('div', 'toast ' + cls, msg);
     $('#toasts').appendChild(t);
     setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 450); }, ms);
-    while ($('#toasts').children.length > 4) $('#toasts').firstChild.remove();
+    while ($('#toasts').children.length > 3) $('#toasts').firstChild.remove();
   },
   fly(res, sx, sy, n = 5) {
     const map = { coins: 'ic-coin', bucks: 'ic-buck', crops: 'ic-crop', meat: 'ic-meat', xp: 'ic-xp', amber: 'ic-amber' };
@@ -137,12 +137,12 @@ const UI = {
     this.infoObj = ref;
     Render.selected = ref.kind === 'obs' ? null : ref;
     this.renderInfo();
-    $('#info').classList.remove('hidden');
+    $('#info').classList.remove('hidden'); document.body.classList.add('info-open');
     const p = $('#info'); p.style.animation = 'none'; void p.offsetWidth; p.style.animation = '';
   },
   hideInfo() {
     this.infoObj = null; Render.selected = null;
-    $('#info').classList.add('hidden');
+    $('#info').classList.add('hidden'); document.body.classList.remove('info-open');
     cancelAnimationFrame(this.portraitRAF);
   },
   refreshInfo(dt) {
@@ -198,7 +198,7 @@ const UI = {
       else if (atCap) feedBtn = `<button class="btn btn-blue" data-act="openLab" type="button">Research ${STAGE_NAMES[st + 1]} in Lab</button>`;
       else feedBtn = `<button class="btn btn-green" data-act="feed" type="button">Feed · <i class="ic ic-${food === 'crops' ? 'crop' : 'meat'}"></i>${fmt(cost)}</button>`;
       body = `
-        <div class="lvl-track"><div class="row"><span>Level ${o.level}${isAdult(o) ? ' · Adult' : ' · Juvenile'}</span><span>${o.level >= MAX_LEVEL ? 'MAX' : atCap ? 'Evolve!' : 'Next level'}</span></div><div class="pips" data-live="pips">${pips}</div></div>
+        <div class="lvl-track"><div class="row"><span>Level ${o.level}${isAdult(o) ? ' · Adult' : ' · Juvenile'}</span><span>${o.level >= MAX_LEVEL ? 'MAX' : atCap ? 'Evolve!' : `Feedings ${o.feeds}/${FEEDS_PER_LEVEL}`}</span></div><div class="pips" data-live="pips">${pips}</div></div>
         <div class="stage-row">${STAGE_NAMES.map((n, i) => `<span class="${i <= st ? 'on' : ''}">${n}</span>`).join('')}</div>
         <div class="stat-grid" data-live="stats">
           <div class="stat"><i class="ic ic-coin"></i><span><b>${fmt(dinoRate(o))}</b>/min</span></div>

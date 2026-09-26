@@ -80,12 +80,12 @@ button { font-family: inherit; cursor: pointer; }
 /* ---------- title ---------- */
 .title { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 40%, rgba(10,25,12,.15), rgba(5,12,6,.8) 75%); transition: opacity .8s; }
 .title.fade { opacity: 0; pointer-events: none; }
-.title-inner { text-align: center; padding: 24px; max-width: 760px; animation: titleIn 1.1s cubic-bezier(.2,.9,.3,1.2) both; }
+.title-inner { text-align: center; padding: 30px 34px; max-width: 800px; background: radial-gradient(ellipse at center, rgba(5,14,7,.72), rgba(5,14,7,.45) 70%, rgba(5,14,7,0)); border-radius: 40px; animation: titleIn 1.1s cubic-bezier(.2,.9,.3,1.2) both; }
 @keyframes titleIn { from { opacity: 0; transform: translateY(30px) scale(.94); } }
 .logo { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; }
 .logo-emblem { width: 150px; height: 150px; filter: drop-shadow(0 10px 22px rgba(0,0,0,.6)); animation: emblem 6s ease-in-out infinite; }
 @keyframes emblem { 50% { transform: rotate(-4deg) scale(1.03); } }
-.logo h1 { margin: 0; line-height: .92; font-family: var(--font-head); font-weight: 400; text-align: left; }
+.logo h1 { margin: 0; line-height: .92; font-family: var(--font-head); font-weight: 400; text-align: center; }
 .logo .l1 { display: block; font-size: clamp(48px, 9vw, 92px); background: linear-gradient(#fff3b8 0%, #ffc43d 40%, #e07a0c 70%, #9a4204 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 2px #3a1a02; filter: drop-shadow(0 5px 0 #3a1a02) drop-shadow(0 12px 18px rgba(0,0,0,.6)); letter-spacing: 1px; }
 .logo .l2 { display: block; font-size: clamp(22px, 4.2vw, 40px); color: #d9f5b0; letter-spacing: 9px; text-shadow: 0 3px 0 #16300c, 0 8px 14px rgba(0,0,0,.6); margin-top: 6px; }
 .tagline { font-weight: 800; font-size: 17px; color: #f6e7c0; text-shadow: 0 2px 6px #000; margin: 20px 0 26px; letter-spacing: .4px; }
@@ -261,7 +261,7 @@ button { font-family: inherit; cursor: pointer; }
 .toast { background: var(--panel); border: 2px solid var(--panel-brd); border-radius: 14px; padding: 8px 16px; font-weight: 800; box-shadow: var(--shadow); animation: toastIn .35s cubic-bezier(.2,.9,.3,1.3) both; display: flex; gap: 8px; align-items: center; }
 .toast.err { border-color: var(--red); }
 .toast.good { border-color: var(--leaf); }
-.toast.big { font: 400 22px var(--font-head); color: var(--amber-hi); padding: 12px 24px; }
+.toast.big { font: 400 18px var(--font-head); color: var(--amber-hi); padding: 12px 24px; }
 .toast.out { animation: toastOut .4s forwards; }
 @keyframes toastIn { from { opacity: 0; transform: translateY(-16px) scale(.9); } }
 @keyframes toastOut { to { opacity: 0; transform: translateY(-12px); } }
@@ -337,4 +337,12 @@ button { font-family: inherit; cursor: pointer; }
   .b-act { width: 30%; height: 62px; }
   .modal-head h2 { font-size: 22px; }
   .cards { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
+
+/* info sheet on phones */
+@media (max-width: 900px) {
+  .info-open .zoom { display: none; }
+  .info .portrait { height: 96px; }
+  .info { padding: 10px; }
+  .info .btn-row { position: sticky; bottom: -10px; background: #13241a; padding-bottom: 4px; }
 }

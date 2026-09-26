@@ -182,7 +182,7 @@ const Game = {
       Entities.float(c.x, c.y - 100, `Level ${o.level}!`, '#b6e27a', 22);
       Entities.emit(c.x, c.y - 60, 'star', 14);
       Sfx.levelUp();
-      if (o.level === [5, 15, 25, 35][o.stage || 0]) UI.toast(`Your ${sp.name} is now an adult!`, 'good');
+      if (o.level === 5) UI.toast(`Your ${sp.name} is now an adult!`, 'good');
       if (STAGE_LEVELS.includes(o.level)) UI.toast(`${sp.name} is ready to evolve! Research it in the Lab.`, 'good');
     }
     UI.renderInfo();
@@ -456,7 +456,7 @@ function setupNewPark() {
   const place = (type, def, x, y) => { const o = makeObject(type, def, x, y); G.objects.push(o); return o; };
   place('building', 'gate', 23, 31);
   place('building', 'visitor_center', 25, 26);
-  place('building', 'lab', 20, 26);
+  place('building', 'lab', 29, 26);
   place('building', 'crop_harbor', 20, 20);
   place('building', 'souvenir', 29, 22).start = now() - 45000;
   const trike = place('paddock', 'triceratops', 25, 18);

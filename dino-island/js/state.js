@@ -32,7 +32,7 @@ function newGameState() {
 function defOf(o) { return o.type === 'paddock' ? SPECIES[o.species] : o.type === 'deco' ? DECOS[o.def] : BUILDINGS[o.def]; }
 function coinsEquiv(cost) { return cost.coins || (cost.bucks || 0) * 1500; }
 function stageOf(level) { return level >= 30 ? 3 : level >= 20 ? 2 : level >= 10 ? 1 : 0; }
-function isAdult(d) { const lv = d.level; const base = [5, 15, 25, 35][d.stage || 0]; return lv >= base; }
+function isAdult(d) { return d.level >= 5; }
 function maxLevelForStage(stage) { return stage >= 3 ? MAX_LEVEL : STAGE_LEVELS[stage]; }
 
 function dinoRate(o) { // coins per minute

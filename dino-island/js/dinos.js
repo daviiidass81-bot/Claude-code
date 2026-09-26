@@ -8,11 +8,11 @@
 const DinoArt = (() => {
   // ---------- body plans ----------
   const PLANS = {
-    rex: { biped: true, hipH: 76, bodyLen: 46, tT: 22, tB: 27, arch: 4, tailLen: 118, tailDrop: -8, tailT: 0.8, neckLen: 24, neckA: 0.55, neckT: [16, 13], head: 'rex', headLen: 48, headH: 30, headPitch: 0.15, thigh: 36, shin: 34, legW: 17, foot: 14, stride: 24, arms: 'tiny', pattern: 'stripes', scales: true },
-    allo: { biped: true, hipH: 70, bodyLen: 46, tT: 18, tB: 22, arch: 4, tailLen: 112, tailDrop: -6, tailT: 0.75, neckLen: 26, neckA: 0.6, neckT: [13, 10], head: 'allo', headLen: 42, headH: 22, headPitch: 0.18, thigh: 33, shin: 33, legW: 14, foot: 13, stride: 24, arms: 'medium', pattern: 'stripes' },
-    carno: { biped: true, hipH: 72, bodyLen: 42, tT: 17, tB: 20, arch: 3, tailLen: 96, tailDrop: -6, tailT: 0.8, neckLen: 22, neckA: 0.5, neckT: [13, 11], head: 'carno', headLen: 32, headH: 24, headPitch: 0.12, thigh: 34, shin: 36, legW: 14, foot: 13, stride: 26, arms: 'stub', pattern: 'rosettes' },
+    rex: { biped: true, hipH: 78, bodyLen: 50, tT: 26, tB: 33, arch: 5, tailLen: 112, tailDrop: -8, tailT: 0.95, neckLen: 22, neckA: 0.5, neckT: [21, 18], head: 'rex', headLen: 58, headH: 40, headPitch: 0.2, thigh: 36, shin: 34, legW: 21, foot: 16, stride: 22, arms: 'tiny', pattern: 'stripes', scales: true },
+    allo: { biped: true, hipH: 70, bodyLen: 48, tT: 16, tB: 19, arch: 4, tailLen: 116, tailDrop: -6, tailT: 0.7, neckLen: 32, neckA: 0.72, neckT: [12, 8], head: 'allo', headLen: 44, headH: 21, headPitch: 0.25, thigh: 33, shin: 33, legW: 13, foot: 13, stride: 26, arms: 'long', pattern: 'stripes' },
+    carno: { biped: true, hipH: 82, bodyLen: 40, tT: 14, tB: 17, arch: 3, tailLen: 108, tailDrop: -6, tailT: 0.8, neckLen: 22, neckA: 0.5, neckT: [13, 11], head: 'carno', headLen: 30, headH: 25, headPitch: 0.12, thigh: 34, shin: 36, legW: 12, foot: 13, stride: 32, arms: 'stub', pattern: 'rosettes' },
     spino: { biped: true, hipH: 62, bodyLen: 60, tT: 19, tB: 24, arch: 5, tailLen: 124, tailDrop: -4, tailT: 0.95, tailFin: true, neckLen: 40, neckA: 0.48, neckT: [12, 9], head: 'croc', headLen: 58, headH: 16, headPitch: 0.2, thigh: 28, shin: 30, legW: 14, foot: 13, stride: 20, arms: 'long', pattern: 'stripes', sail: true },
-    bary: { biped: true, hipH: 66, bodyLen: 50, tT: 18, tB: 20, arch: 3, tailLen: 104, tailDrop: -4, tailT: 0.8, neckLen: 34, neckA: 0.45, neckT: [11, 9], head: 'croc', headLen: 50, headH: 14, headPitch: 0.2, thigh: 30, shin: 32, legW: 13, foot: 13, stride: 22, arms: 'long', pattern: 'blotch', crestRidge: true },
+    bary: { biped: true, hipH: 58, bodyLen: 54, tT: 18, tB: 21, arch: 3, tailLen: 104, tailDrop: -4, tailT: 0.8, neckLen: 34, neckA: 0.45, neckT: [11, 9], head: 'croc', headLen: 50, headH: 14, headPitch: 0.2, thigh: 30, shin: 32, legW: 13, foot: 13, stride: 22, arms: 'long', pattern: 'blotch', crestRidge: true },
     raptor: { biped: true, hipH: 48, bodyLen: 32, tT: 12, tB: 14, arch: 2, tailLen: 84, tailDrop: -8, tailT: 0.55, stiffTail: true, neckLen: 24, neckA: 0.95, neckT: [8, 6], head: 'raptor', headLen: 28, headH: 12, headPitch: 0.35, thigh: 24, shin: 26, legW: 9, foot: 11, stride: 20, arms: 'raptor', pattern: 'stripes', quills: true, sickle: true },
     dilo: { biped: true, hipH: 60, bodyLen: 38, tT: 14, tB: 16, arch: 3, tailLen: 92, tailDrop: -5, tailT: 0.65, neckLen: 30, neckA: 0.8, neckT: [9, 7], head: 'dilo', headLen: 32, headH: 15, headPitch: 0.3, thigh: 28, shin: 30, legW: 11, foot: 12, stride: 22, arms: 'medium', pattern: 'spots' },
     ornitho: { biped: true, hipH: 70, bodyLen: 30, tT: 13, tB: 15, arch: 2, tailLen: 80, tailDrop: -2, tailT: 0.6, stiffTail: true, neckLen: 44, neckA: 1.12, neckT: [7, 4.5], head: 'ornitho', headLen: 18, headH: 9, headPitch: 0.5, thigh: 34, shin: 40, legW: 9, foot: 11, stride: 30, arms: 'medium', pattern: 'spots' },
@@ -21,7 +21,7 @@ const DinoArt = (() => {
     hadro: { quad: true, hipH: 66, shH: 48, bodyLen: 56, tT: 24, tB: 26, arch: 8, tailLen: 104, tailDrop: -2, tailT: 0.9, neckLen: 30, neckA: 0.55, neckT: [13, 10], head: 'hadro', headLen: 36, headH: 18, headPitch: 0.35, thigh: 34, shin: 30, legW: 15, foot: 12, stride: 18, fThigh: 22, fShin: 22, fLegW: 8, pattern: 'stripes' },
     stego: { quad: true, hipH: 64, shH: 38, bodyLen: 64, tT: 26, tB: 26, arch: 16, tailLen: 84, tailDrop: 14, tailT: 0.8, neckLen: 20, neckA: -0.35, neckT: [12, 9], head: 'stego', headLen: 20, headH: 11, headPitch: -0.2, thigh: 34, shin: 30, legW: 15, foot: 10, stride: 16, fThigh: 20, fShin: 18, fLegW: 10, pattern: 'blotch', plates: true, thagomizer: true },
     anky: { quad: true, hipH: 42, shH: 38, bodyLen: 70, tT: 24, tB: 18, arch: 6, tailLen: 78, tailDrop: 6, tailT: 0.75, neckLen: 12, neckA: -0.15, neckT: [15, 13], head: 'anky', headLen: 26, headH: 16, headPitch: 0, thigh: 22, shin: 20, legW: 13, foot: 9, stride: 12, fThigh: 18, fShin: 18, fLegW: 11, pattern: 'none', armor: true, club: true },
-    sauropod: { quad: true, hipH: 86, shH: 104, bodyLen: 80, tT: 34, tB: 36, arch: 8, tailLen: 124, tailDrop: 16, tailT: 0.7, neckLen: 140, neckA: 1.2, neckT: [17, 7], head: 'sauropod', headLen: 20, headH: 12, headPitch: -0.9, thigh: 42, shin: 40, legW: 18, foot: 10, stride: 18, fThigh: 50, fShin: 48, fLegW: 15, pattern: 'blotch', scales: true },
+    sauropod: { quad: true, hipH: 86, shH: 104, bodyLen: 80, tT: 34, tB: 36, arch: 8, tailLen: 124, tailDrop: 16, tailT: 0.7, neckLen: 140, neckA: 1.2, neckT: [24, 9.5], head: 'sauropod', headLen: 20, headH: 12, headPitch: -0.9, thigh: 42, shin: 40, legW: 18, foot: 10, stride: 18, fThigh: 50, fShin: 48, fLegW: 15, pattern: 'blotch', scales: true },
   };
 
   function buildSpine(p, pose) {
@@ -137,7 +137,7 @@ const DinoArt = (() => {
     const edge = 'rgba(0,0,0,0.35)';
     ctx.lineWidth = 0.9;
     // thigh (big muscle)
-    if (!front) { ctx.fillStyle = limbGrad(ctx, hip, bent.knee, w * 1.2, col); ctx.beginPath(); ctx.ellipse(hip[0] + (bent.knee[0] - hip[0]) * 0.3, hip[1] + (bent.knee[1] - hip[1]) * 0.3, w * (p.quad ? 1.05 : 1.25), l1 * 0.48, Math.atan2(bent.knee[1] - hip[1], bent.knee[0] - hip[0]) - Math.PI / 2, 0, TAU); ctx.fill(); ctx.strokeStyle = edge; ctx.stroke(); }
+    if (!front) { ctx.fillStyle = limbGrad(ctx, hip, bent.knee, w * 1.2, col); ctx.beginPath(); ctx.ellipse(hip[0] + (bent.knee[0] - hip[0]) * 0.3, hip[1] + (bent.knee[1] - hip[1]) * 0.3, w * (p.quad ? 1.05 : 1.25), l1 * 0.48, Math.atan2(bent.knee[1] - hip[1], bent.knee[0] - hip[0]) - Math.PI / 2, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,0.16)'; ctx.stroke(); }
     limb(ctx, hip, bent.knee, w, w * 0.55, limbGrad(ctx, hip, bent.knee, w, col), front ? edge : null);
     limb(ctx, bent.knee, bent.foot, w * 0.52, w * 0.34, limbGrad(ctx, bent.knee, bent.foot, w * 0.5, shade(col, -0.05)), edge);
     // foot / toes
@@ -212,7 +212,8 @@ const DinoArt = (() => {
     // lower jaw
     ctx.save(); ctx.translate(hinge[0], hinge[1]); ctx.rotate(jaw * 0.75);
     ctx.fillStyle = mix(pal.base, pal.belly, 0.55); ctx.strokeStyle = edge; ctx.lineWidth = 0.9;
-    ctx.beginPath(); ctx.moveTo(-L * 0.2, -H * 0.12); ctx.quadraticCurveTo(L * 0.3, H * 0.34, L * 0.76, H * 0.1 * o.snout); ctx.lineTo(L * 0.78, -H * 0.02); ctx.lineTo(-L * 0.1, -H * 0.14); ctx.closePath(); ctx.fill(); ctx.stroke();
+    const dp = o.deep || 1;
+    ctx.beginPath(); ctx.moveTo(-L * 0.2, -H * 0.12); ctx.quadraticCurveTo(L * 0.3, H * 0.34 * dp, L * 0.76, H * 0.1 * o.snout * dp); ctx.lineTo(L * 0.78, -H * 0.02); ctx.lineTo(-L * 0.1, -H * 0.14); ctx.closePath(); ctx.fill(); ctx.stroke();
     if (jaw > 0.05) { ctx.fillStyle = '#6a1a14'; ctx.beginPath(); ctx.moveTo(-L * 0.05, -H * 0.12); ctx.lineTo(L * 0.75, -H * 0.03); ctx.lineTo(L * 0.6, -H * 0.08); ctx.closePath(); ctx.fill(); teeth(ctx, L * 0.05, -H * 0.12, L * 0.74, -H * 0.03, o.teeth || 9, H * 0.12, true); }
     ctx.restore();
     // skull
@@ -227,7 +228,7 @@ const DinoArt = (() => {
     if (jaw > 0.05) { ctx.fillStyle = '#7a2018'; ctx.beginPath(); ctx.moveTo(L * 0.12, H * 0.28); ctx.quadraticCurveTo(L * 0.5, H * 0.14, L * 0.92, H * 0.09); ctx.lineTo(L * 0.9, H * 0.12); ctx.lineTo(L * 0.14, H * 0.32); ctx.closePath(); ctx.fill(); }
     teeth(ctx, L * 0.2, H * 0.24, L * 0.9, H * 0.09, o.teeth || 9, H * (jaw > 0.05 ? 0.16 : 0.1), false);
     // cheek muscle and skin folds
-    ctx.fillStyle = rgba(pal.dark, 0.35); ctx.beginPath(); ctx.ellipse(L * 0.08, -H * 0.05, L * 0.14, H * 0.22, 0.3, 0, TAU); ctx.fill();
+    ctx.fillStyle = rgba(pal.dark, 0.35); ctx.beginPath(); ctx.ellipse(L * 0.08, -H * 0.05, L * 0.14 * (o.deep > 1 ? 1.4 : 1), H * 0.22 * (o.deep > 1 ? 1.3 : 1), 0.3, 0, TAU); ctx.fill();
     ctx.strokeStyle = rgba(pal.dark, 0.6); ctx.lineWidth = 0.8;
     for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.moveTo(-L * 0.08 + k * 3, H * 0.2); ctx.quadraticCurveTo(-L * 0.02 + k * 3, 0, -L * 0.06 + k * 3, -H * 0.2); ctx.stroke(); }
     // lips line
@@ -246,8 +247,8 @@ const DinoArt = (() => {
   function drawHead(ctx, type, p, pal, jaw, closed, statue, stage) {
     const L = p.headLen, H = p.headH, edge = 'rgba(0,0,0,0.45)';
     switch (type) {
-      case 'rex': theropodHead(ctx, p, pal, jaw, { L, H, snout: 0.8, teeth: 10, closed, statue, ridge: stage >= 2 }); break;
-      case 'allo': theropodHead(ctx, p, pal, jaw, { L, H, snout: 0.7, teeth: 10, closed, statue, horns: true, ridge: true }); break;
+      case 'rex': theropodHead(ctx, p, pal, jaw, { L, H, snout: 0.95, teeth: 11, closed, statue, ridge: stage >= 2, deep: 1.45, horns: stage >= 3 }); break;
+      case 'allo': theropodHead(ctx, p, pal, jaw, { L, H, snout: 0.62, teeth: 12, closed, statue, horns: true, ridge: true, deep: 0.85 }); break;
       case 'carno': theropodHead(ctx, p, pal, jaw, { L, H, snout: 0.9, teeth: 8, closed, statue });
         ctx.fillStyle = shade(pal.accent, -0.1); ctx.strokeStyle = edge;
         for (const dx of [0, 4]) { ctx.beginPath(); ctx.moveTo(L * 0.2 + dx, -H * 0.5); ctx.quadraticCurveTo(L * 0.1 + dx, -H * 0.95, L * 0.02 + dx - 4, -H * 1.05); ctx.quadraticCurveTo(L * 0.2 + dx, -H * 0.75, L * 0.36 + dx, -H * 0.48); ctx.closePath(); ctx.fill(); ctx.stroke(); }
@@ -309,17 +310,19 @@ const DinoArt = (() => {
         // dome
         const dg = ctx.createRadialGradient(L * 0.2, -H * 0.9, 1, L * 0.25, -H * 0.5, H * 0.8);
         dg.addColorStop(0, shade(pal.accent, 0.4)); dg.addColorStop(0.6, pal.accent); dg.addColorStop(1, shade(pal.accent, -0.4));
-        ctx.fillStyle = dg; ctx.beginPath(); ctx.ellipse(L * 0.28, -H * 0.42, L * 0.42, H * 0.6, -0.2, Math.PI, TAU); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = shade(pal.dark, -0.1); for (let k = 0; k < 6; k++) { const a = Math.PI + 0.3 + k * 0.45; ctx.beginPath(); ctx.arc(L * 0.28 + Math.cos(a) * L * 0.44, -H * 0.42 + Math.sin(a) * H * 0.58, 1.8, 0, TAU); ctx.fill(); }
+        const ds = 1 + 0.08 * stage;
+        ctx.fillStyle = dg; ctx.beginPath(); ctx.moveTo(-L * 0.12, -H * 0.2); ctx.bezierCurveTo(-L * 0.18, -H * 1.05 * ds, L * 0.62, -H * 1.1 * ds, L * 0.72, -H * 0.3); ctx.quadraticCurveTo(L * 0.3, -H * 0.42, -L * 0.12, -H * 0.2); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = rgba('#fff', 0.35); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(L * 0.05, -H * 0.75 * ds); ctx.quadraticCurveTo(L * 0.25, -H * 0.95 * ds, L * 0.45, -H * 0.82 * ds); ctx.stroke();
+        ctx.fillStyle = shade(pal.dark, -0.1); for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.arc(-L * 0.12 + k * L * 0.05, -H * (0.25 + k * 0.08), 1.6 + stage * 0.3, 0, TAU); ctx.fill(); }
         eye(ctx, L * 0.4, -H * 0.12, Math.max(1.8, H * 0.12), pal, closed, statue);
         ctx.fillStyle = '#1a0e08'; ctx.beginPath(); ctx.arc(L * 0.88, -H * 0.02, 1, 0, TAU); ctx.fill();
         break;
       }
       case 'cera': {
         // frill behind the head
-        const fr = H * 1.25;
+        const fr = H * 1.02 * (1 + 0.06 * stage), hs = 1 + 0.15 * stage;
         const fg = ctx.createRadialGradient(-L * 0.05, -H * 0.2, 2, -L * 0.05, -H * 0.2, fr);
-        fg.addColorStop(0, shade(pal.accent, 0.2)); fg.addColorStop(0.65, pal.accent); fg.addColorStop(1, shade(pal.accent, -0.35));
+        fg.addColorStop(0, mix(pal.base, pal.accent, 0.5)); fg.addColorStop(0.7, mix(pal.accent, pal.dark, 0.2)); fg.addColorStop(1, shade(pal.dark, -0.1));
         ctx.fillStyle = fg; ctx.strokeStyle = edge; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(L * 0.15, H * 0.3);
         for (let k = 0; k <= 14; k++) { const a = Math.PI * 0.35 + (k / 14) * Math.PI * 1.05; const r = fr * (1 + (k % 2) * 0.07); ctx.lineTo(-L * 0.08 + Math.cos(a) * r * 0.75, -H * 0.25 - Math.sin(a) * r); }
@@ -333,28 +336,30 @@ const DinoArt = (() => {
         ctx.fillStyle = '#3a2e22'; ctx.beginPath(); ctx.moveTo(L * 0.8, -H * 0.05); ctx.quadraticCurveTo(L * 1.05, H * 0.05, L * 0.96, H * 0.42); ctx.lineTo(L * 0.82, H * 0.22); ctx.closePath(); ctx.fill();
         // horns
         const horn = (x, y, len, ang, w) => { ctx.fillStyle = '#efe4cc'; ctx.strokeStyle = '#6a5a44'; ctx.beginPath(); ctx.moveTo(x - w, y); ctx.quadraticCurveTo(x + Math.cos(ang) * len * 0.5 - w, y + Math.sin(ang) * len * 0.6, x + Math.cos(ang) * len, y + Math.sin(ang) * len); ctx.quadraticCurveTo(x + Math.cos(ang) * len * 0.5 + w, y + Math.sin(ang) * len * 0.4, x + w, y); ctx.closePath(); ctx.fill(); ctx.stroke(); };
-        horn(L * 0.72, -H * 0.3, H * 0.4, -1.3, 3);
-        horn(L * 0.32, -H * 0.4, H * 1.15, -0.7, 3.4);
-        horn(L * 0.38, -H * 0.36, H * 1.05, -0.62, 3);
+        horn(L * 0.72, -H * 0.3, H * 0.42 * hs, -1.25, 3);
+        horn(L * 0.34, -H * 0.4, H * 1.05 * hs, -0.75, 3.4);
+        horn(L * 0.4, -H * 0.36, H * 0.95 * hs, -0.66, 3);
         eye(ctx, L * 0.3, -H * 0.12, Math.max(1.8, H * 0.09), pal, closed, statue);
         break;
       }
       case 'hadro': {
+        const cl = 1 + 0.12 * stage;
+        if (p.crest !== 'none') {
+          const cg = ctx.createLinearGradient(L * 0.3, -H * 0.4, -L * 0.8 * cl, -H * 1.5 * cl);
+          cg.addColorStop(0, pal.accent); cg.addColorStop(1, shade(pal.accent, -0.35));
+          ctx.fillStyle = cg; ctx.strokeStyle = edge; ctx.lineWidth = 0.9;
+          ctx.beginPath(); ctx.moveTo(L * 0.46, -H * 0.4);
+          ctx.quadraticCurveTo(L * 0.15, -H * 1.05 * cl, -L * 0.72 * cl, -H * 1.5 * cl);
+          ctx.quadraticCurveTo(-L * 0.9 * cl, -H * 1.42 * cl, -L * 0.76 * cl, -H * 1.22 * cl);
+          ctx.quadraticCurveTo(-L * 0.05, -H * 0.72, L * 0.14, -H * 0.3); ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.strokeStyle = rgba('#fff', 0.3); ctx.beginPath(); ctx.moveTo(L * 0.34, -H * 0.55); ctx.quadraticCurveTo(L * 0.05, -H * 1.1 * cl, -L * 0.66 * cl, -H * 1.42 * cl); ctx.stroke();
+        }
         ctx.fillStyle = skinFill(ctx, pal, -H, H * 0.5); ctx.strokeStyle = edge; ctx.lineWidth = 0.9;
         ctx.beginPath(); ctx.moveTo(-L * 0.05, H * 0.4); ctx.quadraticCurveTo(-L * 0.12, -H * 0.6, L * 0.3, -H * 0.55);
         ctx.quadraticCurveTo(L * 0.7, -H * 0.4, L * 1.02, -H * 0.05); ctx.quadraticCurveTo(L * 1.12, H * 0.25, L * 0.98, H * 0.4 + jaw * 3);
         ctx.quadraticCurveTo(L * 0.5, H * 0.5 + jaw * 4, L * 0.1, H * 0.5); ctx.closePath(); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#4a3a2a'; ctx.beginPath(); ctx.ellipse(L * 1.0, H * 0.2, L * 0.1, H * 0.25, 0, -Math.PI / 2, Math.PI / 2); ctx.fill();
-        if (p.crest !== 'none') {
-          const cg = ctx.createLinearGradient(0, -H, -L * 1.2, -H * 2);
-          cg.addColorStop(0, pal.accent); cg.addColorStop(1, shade(pal.accent, -0.35));
-          ctx.fillStyle = cg; ctx.strokeStyle = edge;
-          ctx.beginPath(); ctx.moveTo(L * 0.25, -H * 0.5); ctx.quadraticCurveTo(-L * 0.2, -H * 1.3, -L * 1.1, -H * 1.9);
-          ctx.quadraticCurveTo(-L * 1.25, -H * 1.75, -L * 1.1, -H * 1.55); ctx.quadraticCurveTo(-L * 0.3, -H * 1.0, L * 0.05, -H * 0.3); ctx.closePath(); ctx.fill(); ctx.stroke();
-          ctx.strokeStyle = rgba('#fff', 0.3); ctx.beginPath(); ctx.moveTo(L * 0.15, -H * 0.6); ctx.quadraticCurveTo(-L * 0.3, -H * 1.25, -L * 1.0, -H * 1.75); ctx.stroke();
-        } else {
-          ctx.fillStyle = rgba(pal.accent, 0.7); ctx.beginPath(); ctx.ellipse(L * 0.1, -H * 0.5, L * 0.2, H * 0.12, -0.3, 0, TAU); ctx.fill();
-        }
+        if (p.crest === 'none') { ctx.fillStyle = rgba(pal.accent, 0.7); ctx.beginPath(); ctx.ellipse(L * 0.25, -H * 0.5, L * 0.22 * cl, H * 0.14 * cl, -0.2, 0, TAU); ctx.fill(); }
         eye(ctx, L * 0.28, -H * 0.18, Math.max(1.8, H * 0.13), pal, closed, statue);
         ctx.fillStyle = '#1a0e08'; ctx.beginPath(); ctx.ellipse(L * 0.85, -H * 0.12, 2, 1.2, 0.3, 0, TAU); ctx.fill();
         break;
@@ -393,10 +398,10 @@ const DinoArt = (() => {
   }
 
   /* ---------- features along the spine ---------- */
-  function drawPlates(ctx, top, N, from, to, pal, far) {
+  function drawPlates(ctx, top, N, from, to, pal, far, stage = 0) {
     for (let i = from; i < to; i++) {
       const k = (i - from) / (to - from);
-      const hgt = (10 + Math.sin(k * Math.PI) * 22) * (far ? 0.85 : 1);
+      const hgt = (10 + Math.sin(k * Math.PI) * 22) * (far ? 0.85 : 1) * (1 + 0.12 * stage);
       const n = N[i], [x, y] = top[i];
       const off = far ? -5 : 3;
       const ang = Math.atan2(n.ny, n.nx);
@@ -409,30 +414,34 @@ const DinoArt = (() => {
       ctx.restore();
     }
   }
-  function drawSail(ctx, top, from, to, pal, t) {
-    const pts = [];
-    for (let i = from; i <= to; i++) {
-      const k = (i - from) / (to - from);
-      const h = 58 * Math.pow(Math.sin(k * Math.PI), 0.8) + 4;
-      pts.push([top[i][0], top[i][1] + 4, top[i][0] + (k - 0.5) * 6, top[i][1] - h]);
+  function drawSail(ctx, top, from, to, pal, t, stage = 0) {
+    // spined membrane: tall neural spines with a scalloped skin edge between them
+    const n = (to - from) * 2 + 1, spines = [];
+    for (let i = 0; i < n; i++) {
+      const f = i / (n - 1), idx = from + f * (to - from), i0 = Math.floor(idx), i1 = Math.min(to, i0 + 1), fr = idx - i0;
+      const bx = lerp(top[i0][0], top[i1][0], fr), by = lerp(top[i0][1], top[i1][1], fr) + 4;
+      const h = (60 * Math.pow(Math.sin(f * Math.PI), 0.7) + 5) * (1 + 0.12 * stage) * (0.9 + 0.1 * Math.sin(i * 2.3));
+      spines.push([bx, by, bx + (f - 0.5) * 10, by - h]);
     }
-    const g = ctx.createLinearGradient(0, pts[0][1], 0, pts[0][1] - 60);
-    g.addColorStop(0, pal.dark); g.addColorStop(0.5, pal.accent); g.addColorStop(1, shade(pal.accent, 0.35));
+    const g = ctx.createLinearGradient(0, spines[0][1], 0, spines[0][1] - 66);
+    g.addColorStop(0, pal.dark); g.addColorStop(0.45, pal.accent); g.addColorStop(1, shade(pal.accent, 0.3));
     ctx.fillStyle = g; ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
-    const tops = pts.map(p => [p[2], p[3]]);
-    ctx.lineTo(tops[0][0], tops[0][1]);
-    for (let i = 1; i < tops.length - 1; i++) ctx.quadraticCurveTo(tops[i][0], tops[i][1], (tops[i][0] + tops[i + 1][0]) / 2, (tops[i][1] + tops[i + 1][1]) / 2);
-    ctx.lineTo(tops[tops.length - 1][0], tops[tops.length - 1][1]);
-    for (let i = pts.length - 1; i >= 0; i--) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.beginPath(); ctx.moveTo(spines[0][0], spines[0][1]);
+    for (let i = 0; i < spines.length; i++) {
+      const s0 = spines[i];
+      ctx.lineTo(s0[2], s0[3] + 6);
+      if (i < spines.length - 1) { const s1 = spines[i + 1]; ctx.quadraticCurveTo((s0[2] + s1[2]) / 2, Math.max(s0[3], s1[3]) + 12, s1[2], s1[3] + 6); }
+    }
+    ctx.lineTo(spines[spines.length - 1][0], spines[spines.length - 1][1]);
     ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = rgba(pal.dark, 0.55); ctx.lineWidth = 1.1;
-    for (let i = 0; i < pts.length; i++) { ctx.beginPath(); ctx.moveTo(pts[i][0], pts[i][1]); ctx.lineTo(pts[i][2], pts[i][3] + 2); ctx.stroke(); }
-    // stripe pattern on sail
     ctx.save(); ctx.clip();
-    ctx.strokeStyle = rgba(pal.pattern, 0.35); ctx.lineWidth = 4;
-    for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.moveTo(pts[0][0] - 20 + i * 22, pts[0][1] - 70); ctx.lineTo(pts[0][0] + i * 22, pts[0][1]); ctx.stroke(); }
+    ctx.fillStyle = rgba(pal.pattern, 0.35);
+    for (let i = 0; i < 9; i++) { ctx.beginPath(); ctx.ellipse(spines[0][0] + i * 10, spines[0][1] - 20 - (i % 3) * 10, 4, 7, 0.3, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(spines[0][0] - 20, spines[0][1] - 80, 400, 22);
     ctx.restore();
+    ctx.strokeStyle = shade(pal.dark, -0.2); ctx.lineCap = 'round';
+    for (const sp of spines) { ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(sp[0], sp[1]); ctx.lineTo(sp[2], sp[3]); ctx.stroke(); }
+    ctx.fillStyle = shade(pal.accent, 0.35); for (const sp of spines) { ctx.beginPath(); ctx.arc(sp[2], sp[3], 1.4, 0, TAU); ctx.fill(); }
   }
   function drawArmor(ctx, top, N, from, to, pal) {
     for (let i = from; i < to; i++) {
@@ -485,6 +494,7 @@ const DinoArt = (() => {
 
   /* ---------- pterosaur (special) ---------- */
   function drawPtero(ctx, pal, anim, pose, statue) {
+    ctx.scale(1.9, 1.9);
     const flying = pose.fly !== false && !pose.perched;
     const flap = flying ? Math.sin(anim.t * 7) : 0;
     const edge = 'rgba(0,0,0,0.45)';
@@ -547,7 +557,10 @@ const DinoArt = (() => {
     const dir = opts.dir || 1;
     const sc = scale * lerp(0.5, 1, growth);
     const headBoost = 1 + (1 - growth) * 0.45;
-    if (sp.gig) { p.headLen *= 1.1; p.headH *= 0.85; }
+    if (sp.gig) { p.headLen *= 1.12; p.headH *= 0.78; p.tB *= 0.9; p.tailLen *= 1.08; }
+    // evolution stages grow bulkier
+    const bulk = 1 + 0.07 * stage;
+    if (p.neckT) p.tT *= bulk; if (p.neckT) { p.tB *= bulk; p.neckT = p.neckT.map(v => v * bulk); } p.legW *= bulk; if (p.fLegW) p.fLegW *= bulk; p.headH *= 1 + 0.04 * stage;
 
     ctx.save();
     ctx.translate(x, y);
@@ -578,7 +591,7 @@ const DinoArt = (() => {
         n.y += Math.sin(t * 1.6 + k * 2.2) * 6 * k * k * sway + (pose.sleep ? k * k * p.hipH * 0.4 : 0);
       }
       if (n.neck !== undefined) {
-        n.y += Math.sin(t * 1.3) * 1.5 * n.neck;
+        n.y += Math.sin(t * 1.3) * 1.5 * n.neck + Math.sin(anim.phase * TAU * 2) * 2.5 * anim.speed * n.neck;
         if (pose.sleep) n.y += n.neck * p.hipH * 0.35;
       }
     }
@@ -593,8 +606,8 @@ const DinoArt = (() => {
     if (p.quad) drawLeg(ctx, p, [sh[0] - 2, sh[1] - 2], phase, true, pal, true, pose, anim);
     else drawArm(ctx, p, [sh[0] + 2, sh[1] - 1], true, pal, anim, pose);
     // far plates
-    if (p.plates) drawPlates(ctx, top, N, 2, shI + 1, pal, true);
-    if (p.sail) drawSail(ctx, top, hipI - 1, shI + 1, pal, t);
+    if (p.plates) drawPlates(ctx, top, N, 2, shI + 1, pal, true, stage);
+    if (p.sail) drawSail(ctx, top, hipI - 1, shI + 1, pal, t, stage);
     // tail spikes (behind)
     if (p.thagomizer) {
       const tip = N[1];
@@ -635,9 +648,9 @@ const DinoArt = (() => {
       ctx.strokeStyle = rgba(pal.accent, 0.95); ctx.lineWidth = 1.3;
       for (let i = hipI - 1; i < N.length - 1; i++) { const [x, yq] = top[i]; ctx.beginPath(); ctx.moveTo(x, yq + 1); ctx.lineTo(x - 5, yq - 5); ctx.stroke(); }
     }
-    if (p.crestRidge || stage >= 2) {
-      ctx.fillStyle = shade(pal.dark, -0.15);
-      for (let i = 1; i < N.length - 1; i++) { const [x, yq] = top[i], n = N[i]; const s = Math.min(3.5, n.t * 0.18); ctx.beginPath(); ctx.moveTo(x - s, yq + 1); ctx.lineTo(x + n.nx * s * 1.4, yq + n.ny * s * 1.4 - 1); ctx.lineTo(x + s, yq + 1); ctx.fill(); }
+    if ((p.crestRidge || stage >= 1) && !p.plates && !p.armor) {
+      ctx.fillStyle = stage >= 2 ? shade(pal.accent, -0.1) : shade(pal.dark, -0.15);
+      for (let i = 1; i < N.length - 1; i++) { const [x, yq] = top[i], n = N[i]; const s = Math.min(2.5 + stage * 1.6, n.t * (0.12 + 0.06 * stage)); ctx.beginPath(); ctx.moveTo(x - s, yq + 1); ctx.lineTo(x + n.nx * s * 1.4, yq + n.ny * s * 1.4 - 1); ctx.lineTo(x + s, yq + 1); ctx.fill(); }
     }
     if (p.armor) drawArmor(ctx, top, N, 3, shI + 1, pal);
     if (p.club) {
@@ -648,7 +661,7 @@ const DinoArt = (() => {
       ctx.beginPath(); ctx.ellipse(tip.x - 2, tip.y, 10, 7, 0, 0, TAU); ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.ellipse(tip.x + 6, tip.y + 1, 6, 5, 0, 0, TAU); ctx.fill(); ctx.stroke();
     }
-    if (p.plates) drawPlates(ctx, top, N, 3, shI + 2, pal, false);
+    if (p.plates) drawPlates(ctx, top, N, 3, shI + 2, pal, false, stage);
     // near limbs
     drawLeg(ctx, p, hip, phase, false, pal, false, pose, anim);
     if (p.quad) drawLeg(ctx, p, sh, phase + 0.5, false, pal, true, pose, anim);
@@ -660,7 +673,7 @@ const DinoArt = (() => {
     const chew = pose.chew ? Math.max(0, Math.sin(t * 9)) * 0.25 : 0;
     ctx.save();
     ctx.translate(last.x - 2, last.y + 1);
-    ctx.rotate(neckAng + (p.headPitch || 0) + (pose.headPitch || 0) + Math.sin(t * 1.1) * 0.03);
+    ctx.rotate(neckAng + (p.headPitch || 0) + (pose.headPitch || 0) + Math.sin(t * 1.1) * 0.03 + (anim.speed ? 0 : Math.sin(t * 0.37) * 0.09));
     ctx.scale(headBoost, headBoost);
     drawHead(ctx, p.head, p, pal, jaw + chew, pose.sleep, statue, stage);
     ctx.restore();

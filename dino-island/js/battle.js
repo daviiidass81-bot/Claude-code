@@ -33,7 +33,9 @@ const Battle = {
     this.me = objs.map(o => this.fighter(o.species, o.level, o.stage || 0, o));
     const rng = Math.random;
     const lo = league.lv[0], hi = league.lv[1];
-    const lvl = () => Math.round(lerp(lo, hi, (this.round + rng()) / 3));
+    // opponents scale with the player's team so fights stay challenging
+    const avg = objs.reduce((a, o) => a + o.level, 0) / Math.max(1, objs.length);
+    const lvl = () => Math.max(Math.round(lerp(lo, hi, (this.round + rng()) / 3)), Math.round(avg * (0.85 + 0.1 * this.round) + rand(-1, 1)));
     this.foe = [];
     const pool = league.pool.slice();
     for (let i = 0; i < 3; i++) {
@@ -52,7 +54,7 @@ const Battle = {
     this.anim.me = { x: -this.W * 0.6, pose: 'walk', flash: 0, tint: 0, lunge: 0 };
     this.anim.foe = { x: this.W * 0.6, pose: 'walk', flash: 0, tint: 0, lunge: 0 };
     this.crowd = Array.from({ length: 220 }, () => ({ x: Math.random(), y: Math.random(), c: pick(['#e0513a', '#4aa8e0', '#ffd23f', '#7dc15a', '#fff', '#b35ae0', '#ff8a3a']), p: Math.random() * TAU }));
-    $('#bRound').textContent = `${league.name.toUpperCase()} · ROUND ${this.round + 1}`;
+    $('#bRound').textContent = `${league.name.toUpperCase()} · MATCH ${this.round + 1}/3`;
     this.hud();
     this.intro();
   },
