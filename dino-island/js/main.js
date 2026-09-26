@@ -458,7 +458,7 @@ function setupNewPark() {
   place('building', 'visitor_center', 25, 26);
   place('building', 'lab', 29, 26);
   place('building', 'crop_harbor', 20, 20);
-  place('building', 'souvenir', 29, 22).start = now() - 45000;
+  place('building', 'souvenir', 29, 20).start = now() - 45000;
   const trike = place('paddock', 'triceratops', 25, 18);
   trike.hatchEnd = now() - 1000; trike.hatchStart = now() - 20000; trike.level = 4; trike.coins = 120;
   const cropH = G.objects.find(o => o.def === 'crop_harbor');

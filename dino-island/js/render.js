@@ -199,7 +199,7 @@ const Render = {
       const w = World.toWorld(o.x, o.y);
       drawSprite(ctx, f, w.x, w.y);
       // floodlights on the fence corners
-      if (World.night > 0.05 && !SPECIES[o.species].aviary) for (const [cx, cy] of [[o.x, o.y], [o.x + o.w, o.y], [o.x, o.y + o.h], [o.x + o.w, o.y + o.h]]) { const p = World.toWorld(cx, cy); this.lights.push({ x: p.x, y: p.y - 36, r: 42, col: 'rgba(255,230,160,' }); }
+      if (World.night > 0.05 && !SPECIES[o.species].aviary) for (const [cx, cy] of [[o.x + o.w / 2, o.y + o.h], [o.x + o.w, o.y + o.h / 2]]) { const p = World.toWorld(cx, cy); this.lights.push({ x: p.x, y: p.y - 36, r: 42, col: 'rgba(255,230,160,' }); }
     }
     // selection outline
     if (this.selected && G.objects.includes(this.selected)) {
@@ -263,11 +263,17 @@ const Render = {
       if (o.type === 'paddock') this.pushPaddock(list, o);
       else list.push({ d: o.x + o.y + (o.w + o.h) / 2, k: 'obj', o });
     }
-    for (const vis of Entities.visitors) list.push({ d: vis.x + vis.y, k: 'vis', v: vis });
-    for (const j of Entities.jeeps) list.push({ d: j.x + j.y, k: 'jeep', j });
+    for (const vis of Entities.visitors) list.push({ d: vis.x + vis.y, k: 'vis', v: vis, px: vis.x, py: vis.y });
+    for (const j of Entities.jeeps) list.push({ d: j.x + j.y, k: 'jeep', j, px: j.x, py: j.y });
     for (const c of G.clearing) { const x = c.i % MAP, y = Math.floor(c.i / MAP); list.push({ d: x + y + 1.3, k: 'worker', c, x, y }); }
     if (this.ghost && this.ghost.type !== 'paddock') { const g = this.ghost; list.push({ d: g.x + g.y + (g.w + g.h) / 2, k: 'ghost', g }); }
-    list.sort((a, b) => a.d - b.d);
+    // objects vs. moving actors: use footprint relation instead of plain depth
+    const rel = (px, py, o) => ((px >= o.x + o.w && py > o.y) || (py >= o.y + o.h && px > o.x)) ? 1 : (px <= o.x || py <= o.y) ? -1 : 0;
+    list.sort((a, b) => {
+      if (a.k === 'obj' && b.px !== undefined) { const r = rel(b.px, b.py, a.o); if (r) return r > 0 ? -1 : 1; }
+      if (b.k === 'obj' && a.px !== undefined) { const r = rel(a.px, a.py, b.o); if (r) return r > 0 ? 1 : -1; }
+      return a.d - b.d;
+    });
     for (const it of list) this.drawItem(ctx, it, t);
   },
   pushPaddock(list, o) {
@@ -295,7 +301,7 @@ const Render = {
     if (!sp.aviary) list.push({ d: o.x + o.w - 1.2 + o.y + o.h - 0.55, k: 'trough', x: o.x + o.w - 1.2, y: o.y + o.h - 0.55, diet: sp.diet });
     const a = Entities.dinos.get(o.id);
     if (o.hatchEnd > now()) list.push({ d: o.x + o.y + o.w / 2 + o.h / 2, k: 'egg', o });
-    else if (a) list.push({ d: a.x + a.y + (a.fly ? 0 : 0), k: 'dino', a, o });
+    else if (a) list.push({ d: a.x + a.y, k: 'dino', a, o, px: a.x, py: a.y });
   },
   drawItem(ctx, it, t) {
     switch (it.k) {
@@ -376,7 +382,7 @@ const Render = {
   drawDino(ctx, a, o, t) {
     const w = World.toWorld(a.x, a.y);
     const sp = SPECIES[o.species];
-    const scale = DINO_WORLD_SCALE * sp.size;
+    const scale = DINO_WORLD_SCALE * sp.size * (sp.body === 'sauropod' ? 0.82 : 1);
     let pose = a.pose;
     if (a.state === 'walk' || a.state === 'toEat') pose = pose === 'roar' ? 'roar' : 'walk';
     DinoArt.draw(ctx, o.species, w.x, w.y, scale, { stage: o.stage || 0, dir: a.dir, t: t + a.t0, pose, speed: a.speed, phase: a.phase, growth: a.growth(), fly: sp.aviary ? a.fly : 0 });

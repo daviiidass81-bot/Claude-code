@@ -40,14 +40,14 @@ const World = {
       this.shade[this.idx(x, y)] = fbm(x * 0.07, y * 0.07, s + 50, 3);
     }
     // keep the starting area solid land
-    for (let y = 15; y < 34; y++) for (let x = 16; x < 33; x++) {
+    for (let y = 15; y < 34; y++) for (let x = 16; x < 35; x++) {
       const i = this.idx(x, y);
       if (this.tiles[i] !== T_MOUNT) this.tiles[i] = T_GRASS;
     }
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const i = this.idx(x, y), t = this.tiles[i];
       if (t !== T_GRASS && t !== T_SAND) continue;
-      if (x >= 17 && x <= 31 && y >= 17 && y <= 32) continue; // starting clearing
+      if (x >= 17 && x <= 33 && y >= 17 && y <= 32) continue; // starting clearing
       const dens = fbm(x * 0.16, y * 0.16, s + 99, 3);
       const r = rng();
       if (t === T_SAND) { if (r < 0.16) this.obs[i] = 2; else if (r < 0.2) this.obs[i] = 4; continue; }

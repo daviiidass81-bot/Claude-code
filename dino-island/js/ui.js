@@ -208,7 +208,7 @@ const UI = {
           <div class="stat"><i class="ic ic-${sp.weak === 'charge' ? 'charge' : sp.weak === 'bite' ? 'bite' : 'swipe'}"></i><span>Weak: <b>${ATTACKS[sp.weak]}</b></span></div>
           <div class="stat"><i class="ic ic-xp"></i><span>Bonus <b>+${o.bonus || 0}%</b></span></div>
         </div>
-        <div class="btn-row">
+        <div class="btn-row primary">
           <button class="btn btn-gold" data-act="collect" type="button" ${o.coins < 1 ? 'disabled' : ''}>Collect <i class="ic ic-coin"></i>${fmt(o.coins)}</button>
           ${feedBtn}
         </div>`;

@@ -299,7 +299,11 @@ const Battle = {
     sg.addColorStop(0, 'rgba(255,250,220,1)'); sg.addColorStop(0.2, 'rgba(255,230,160,0.8)'); sg.addColorStop(1, 'rgba(255,200,120,0)');
     ctx.fillStyle = sg; ctx.fillRect(0, 0, W, H);
     // distant volcano & jungle
-    ctx.fillStyle = '#b86a4a'; ctx.beginPath(); ctx.moveTo(W * 0.05, H * 0.5); ctx.lineTo(W * 0.22, H * 0.2); ctx.lineTo(W * 0.3, H * 0.2); ctx.lineTo(W * 0.5, H * 0.5); ctx.fill();
+    const vg2 = ctx.createLinearGradient(W * 0.05, 0, W * 0.5, 0); vg2.addColorStop(0, '#c88a6a'); vg2.addColorStop(0.5, '#a4604a'); vg2.addColorStop(1, '#7a4636');
+    ctx.fillStyle = vg2; ctx.beginPath(); ctx.moveTo(W * 0.02, H * 0.5); ctx.quadraticCurveTo(W * 0.16, H * 0.34, W * 0.22, H * 0.2); ctx.lineTo(W * 0.3, H * 0.2); ctx.quadraticCurveTo(W * 0.36, H * 0.34, W * 0.52, H * 0.5); ctx.fill();
+    ctx.strokeStyle = 'rgba(90,40,30,0.35)'; ctx.lineWidth = 2;
+    for (let i = 0; i < 9; i++) { const x0 = W * (0.225 + i * 0.009); ctx.beginPath(); ctx.moveTo(x0, H * 0.21); ctx.quadraticCurveTo(x0 + (i - 4) * W * 0.01, H * 0.36, W * (0.08 + i * 0.045), H * 0.5); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(255,140,40,0.8)'; ctx.fillRect(W * 0.225, H * 0.195, W * 0.07, 4);
     ctx.fillStyle = 'rgba(80,40,30,0.4)'; for (let i = 0; i < 4; i++) { const k = (t * 0.05 + i / 4) % 1; ctx.beginPath(); ctx.arc(W * 0.26 + k * 40, H * 0.2 - k * H * 0.15, 10 + k * 30, 0, TAU); ctx.fill(); }
     ctx.fillStyle = '#4a6a3a';
     ctx.beginPath(); ctx.moveTo(0, H * 0.5);
@@ -310,11 +314,20 @@ const Battle = {
     const wg = ctx.createLinearGradient(0, wallTop, 0, wallBot);
     wg.addColorStop(0, '#9a8468'); wg.addColorStop(1, '#6a5640');
     ctx.fillStyle = wg; ctx.fillRect(0, wallTop, W, wallBot - wallTop);
+    // tiered stands with seated spectators (shoulders, heads, raised arms)
+    const rows = 5, rh = (wallBot - wallTop - 26) / rows;
+    for (let r = 0; r < rows; r++) {
+      const ry = wallTop + 6 + r * rh;
+      ctx.fillStyle = r % 2 ? '#8a7458' : '#7e6a50'; ctx.fillRect(0, ry + rh * 0.62, W, rh * 0.38);
+      ctx.fillStyle = 'rgba(0,0,0,0.18)'; ctx.fillRect(0, ry + rh * 0.62, W, 2);
+    }
     for (const c of this.crowd) {
-      const cx = c.x * W, cy = wallTop + 8 + c.y * (wallBot - wallTop - 36);
-      const jump = this.phase === 'end' || Math.sin(t * 6 + c.p) > 0.85 ? Math.abs(Math.sin(t * 10 + c.p)) * 4 : 0;
-      ctx.fillStyle = c.c; ctx.beginPath(); ctx.arc(cx, cy - jump, 4, 0, TAU); ctx.fill();
-      ctx.fillStyle = '#e8b58e'; ctx.beginPath(); ctx.arc(cx, cy - 6 - jump, 3, 0, TAU); ctx.fill();
+      const r = Math.floor(c.y * rows), cx = c.x * W, cy = wallTop + 6 + r * rh + rh * 0.62;
+      const cheer = this.phase === 'end' || Math.sin(t * 6 + c.p) > 0.8;
+      const jump = cheer ? Math.abs(Math.sin(t * 10 + c.p)) * 3 : 0;
+      ctx.fillStyle = c.c; ctx.beginPath(); ctx.ellipse(cx, cy - 3 - jump, 5, 5, 0, Math.PI, TAU); ctx.fill();
+      ctx.fillStyle = c.s || (c.s = pick(['#f2d0b0', '#e8b58e', '#c8905e', '#8a5a3a'])); ctx.beginPath(); ctx.arc(cx, cy - 10 - jump, 3.2, 0, TAU); ctx.fill();
+      if (cheer) { ctx.strokeStyle = c.s; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(cx - 4, cy - 5 - jump); ctx.lineTo(cx - 6, cy - 14 - jump); ctx.moveTo(cx + 4, cy - 5 - jump); ctx.lineTo(cx + 6, cy - 14 - jump); ctx.stroke(); }
     }
     ctx.fillStyle = '#5a4630'; ctx.fillRect(0, wallBot - 22, W, 22);
     ctx.fillStyle = '#3a2c1c'; for (let x = 0; x < W; x += 60) ctx.fillRect(x, wallBot - 22, 4, 22);
