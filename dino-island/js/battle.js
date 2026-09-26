@@ -75,7 +75,16 @@ const Battle = {
   },
   cur() { return this.me[this.mi]; },
   enemy() { return this.foe[this.fi]; },
-  beginTurn() { this.phase = 'choose'; this.timer = 15; this.buttons(); },
+  beginTurn() {
+    this.phase = 'choose'; this.timer = 15;
+    // the rival telegraphs its next move – but may feint 20% of the time
+    this.nextFoe = this.aiChoice();
+    const shown = this.nextFoe !== 'block' && this.nextFoe !== 'special' && Math.random() < 0.2 ? pick(['charge', 'bite', 'swipe'].filter(a => a !== this.nextFoe)) : this.nextFoe;
+    const ic = { charge: 'ic-charge', bite: 'ic-bite', swipe: 'ic-swipe', block: 'ic-shield', special: 'ic-star' }[shown];
+    const label = { charge: 'Charge', bite: 'Bite', swipe: 'Swipe', block: 'Block', special: 'SPECIAL!' }[shown];
+    $('#bIntent').innerHTML = `Intends: <i class="ic ${ic}"></i> ${label}`;
+    this.buttons();
+  },
   buttons() {
     const on = this.phase === 'choose';
     const c = this.cur(), e = this.enemy();
@@ -125,7 +134,7 @@ const Battle = {
   async choose(act) {
     if (this.phase !== 'choose') return;
     this.phase = 'resolve'; this.buttons(); this.turn++;
-    const eAct = this.aiChoice();
+    const eAct = this.nextFoe || this.aiChoice(); $('#bIntent').innerHTML = '';
     const meBlock = act === 'block', foeBlock = eAct === 'block';
     // player acts first
     if (act === 'swap') {

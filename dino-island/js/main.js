@@ -191,6 +191,7 @@ const Game = {
     const st = o.stage || 0;
     if (st >= 3 || o.level < maxLevelForStage(st) || (G.stageResearch[o.species] || 0) < st + 1) return;
     o.stage = st + 1; o.level++; o.feeds = 0;
+    if (o.stage === 3 && !G.stats.firstApex) { G.stats.firstApex = true; gain('bucks', 10); UI.toast('🏅 Milestone: your first Apex dinosaur! +10 Dino Bucks', 'good big', 4500); }
     missionEvent('evolve', { species: o.species });
     addXP(150 * o.stage, 'evolve');
     const c = World.toWorld(o.x + o.w / 2, o.y + o.h / 2);
@@ -426,6 +427,7 @@ const Game = {
       }
     }
     for (const job of [...G.clearing]) if (nowT >= job.end) this.finishClear(job);
+    checkSpeciesMilestones();
     // world time
     const dayLen = 480;
     const dayT = window.FORCE_HOUR !== undefined ? window.FORCE_HOUR / 24 : G.settings.daynight ? ((nowT / 1000 / dayLen) + G.dayOffset) % 1 : 0.45;
@@ -503,7 +505,7 @@ function loop(ts) {
 }
 UI.renderTrackerSoft = function () {
   // refresh progress of state-based missions (visitors, level, ...)
-  const sig = G.missions.active.map(id => { const m = MISSIONS.find(x => x.id === id); return missionProgress(m); }).join(',');
+  const sig = G.missions.active.map(id => { const m = missionById(id); return missionProgress(m); }).join(',');
   if (sig !== this._trackSig) { this._trackSig = sig; this.renderTracker(); }
 };
 function drawHintArrow() {
@@ -558,7 +560,32 @@ function startGame(fresh) {
   } else refillMissions();
   UI.renderTracker();
   UI.hud();
+  checkDaily(fresh);
   saveGame();
+}
+function checkDaily(fresh) {
+  const day = new Date().toISOString().slice(0, 10);
+  const d = G.daily || (G.daily = { last: null, streak: 0 });
+  if (d.last === day) return;
+  const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+  d.streak = d.last === yesterday ? Math.min(d.streak + 1, 7) : 1;
+  d.last = day;
+  if (fresh) return; // the very first day starts the streak silently
+  const coins = 200 * G.level * d.streak, bucks = d.streak >= 7 ? 5 : d.streak >= 3 ? 2 : 1;
+  setTimeout(() => {
+    gain('coins', coins); gain('bucks', bucks);
+    UI.toast(`☀️ Daily bonus – day ${d.streak}: +${fmt(coins)} coins, +${bucks} Dino Bucks`, 'good big', 5000);
+    Sfx.cash(); UI.fly('coins', Render.W / 2, Render.H / 2, 6);
+  }, 2200);
+}
+function checkSpeciesMilestones() {
+  const seen = G.stats.seen || (G.stats.seen = {});
+  let changed = false;
+  for (const o of G.objects) if (o.type === 'paddock' && o.hatchEnd <= now() && !seen[o.species]) {
+    seen[o.species] = true; changed = true;
+    if (Object.keys(seen).length > 1 && Game.started) { gain('bucks', 2); UI.toast(`📖 New Dinopedia entry: ${SPECIES[o.species].name}! +2 Dino Bucks`, 'good'); }
+  }
+  if (changed && Object.keys(seen).length === SPECIES_ORDER.length && !G.stats.pediaDone) { G.stats.pediaDone = true; gain('bucks', 50); UI.toast('🏆 Dinopedia complete! +50 Dino Bucks', 'good big', 6000); }
 }
 addEventListener('beforeunload', () => { if (Game.started) saveGame(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && Game.started) saveGame(); });

@@ -304,6 +304,8 @@ button { font-family: inherit; cursor: pointer; }
 .b-team i { width: 14px; height: 14px; border-radius: 50%; background: #7dc15a; border: 2px solid #000; }
 .b-team i.ko { background: #500; }
 .b-team i.act { box-shadow: 0 0 0 2px #ffd479; }
+.b-intent { margin-top: 6px; font: 400 16px var(--font-head); color: #ffd479; display: flex; gap: 6px; align-items: center; justify-content: flex-end; min-height: 24px; text-shadow: 0 2px 0 #000; }
+.b-intent .ic { width: 24px; height: 24px; }
 .b-round { font: 400 26px var(--font-head); color: #fff; text-shadow: 0 3px 0 #000, 0 0 16px rgba(255,160,40,.8); padding-top: 12px; white-space: nowrap; }
 .b-msg { position: absolute; left: 50%; top: 32%; transform: translateX(-50%); font: 400 34px var(--font-head); color: #fff; text-shadow: 0 4px 0 #000, 0 0 20px rgba(0,0,0,.8); text-align: center; pointer-events: none; white-space: nowrap; }
 .b-msg.show { animation: bmsg 1.4s ease-out forwards; }
@@ -469,7 +471,7 @@ button { font-family: inherit; cursor: pointer; }
   <div class="b-top">
     <div class="b-side me"><div class="b-name" id="bMeName"></div><div class="b-hp"><i id="bMeHp"></i><span id="bMeHpT"></span></div><div class="b-team" id="bMeTeam"></div></div>
     <div class="b-round" id="bRound">ROUND 1</div>
-    <div class="b-side foe"><div class="b-name" id="bFoeName"></div><div class="b-hp"><i id="bFoeHp"></i><span id="bFoeHpT"></span></div><div class="b-team" id="bFoeTeam"></div></div>
+    <div class="b-side foe"><div class="b-name" id="bFoeName"></div><div class="b-hp"><i id="bFoeHp"></i><span id="bFoeHpT"></span></div><div class="b-team" id="bFoeTeam"></div><div class="b-intent" id="bIntent"></div></div>
   </div>
   <div class="b-msg" id="bMsg"></div>
   <div class="b-actions" id="bActions">
@@ -926,7 +928,7 @@ const SPECIES = {
     name: 'Brachiosaurus', diet: 'herb', rarity: 'gold', body: 'sauropod', size: 1.25, pad: 5, level: 12, cost: { coins: 80000 },
     hatch: 150, income: 200, weak: 'bite', hp: 700, atk: 72, era: 'Late Jurassic · 154 mya', len: '26 m',
     fact: 'A towering long-neck that could browse treetops 13 metres above the ground.',
-    pals: [P('#7a8a8a', '#4e5c5c', '#d4dcd8', '#34403e', '#a0b0a0'), P('#8a8060', '#5a5238', '#e4dcc0', '#3a3422', '#c0a060'), P('#6a7a5a', '#40503a', '#d8e0c8', '#28321e', '#80c060'), P('#2a3a4a', '#141e28', '#a8bcc8', '#60e0ff', '#60e0ff', '#80ffff')],
+    pals: [P('#7a8a8a', '#4e5c5c', '#d4dcd8', '#34403e', '#a0b0a0'), P('#8a8060', '#5a5238', '#e4dcc0', '#3a3422', '#c0a060'), P('#6a7a5a', '#40503a', '#d8e0c8', '#28321e', '#80c060'), P('#2a3a4a', '#141e28', '#a8bcc8', '#6a9aaa', '#7aaab8', '#9ae0f0')],
   },
   baryonyx: {
     name: 'Baryonyx', diet: 'carn', rarity: 'silver', body: 'bary', size: 0.9, pad: 4, level: 13, cost: { coins: 90000 },
@@ -1249,11 +1251,30 @@ function missionProgress(m) {
   return Math.min(missionTarget(m), G.missions.progress[m.id] || 0);
 }
 function missionDone(m) { return missionProgress(m) >= missionTarget(m); }
+function missionById(id) { return MISSIONS.find(x => x.id === id) || (G.missions.gen || {})[id]; }
+function genMission() {
+  // endless "ranger jobs" once the story chain is done
+  const L = G.level, n = (G.missions.genCount = (G.missions.genCount || 0) + 1);
+  const hasArena = countDef('arena') > 0;
+  const pool = [
+    ['feed', 'Feeding Round', 'reyes', 'The keepers need a hand at feeding time. Feed your dinosaurs.', 4 + Math.floor(L / 4)],
+    ['clear', 'Push Back the Jungle', 'reyes', 'The jungle keeps growing back. Clear some more obstacles.', 3 + Math.floor(L / 6)],
+    ['collect_shop', 'Busy Shops', 'vance', 'Guests are spending! Collect from your shops.', 5 + Math.floor(L / 4)],
+    ['collect_dino', 'Dino Dividends', 'vance', 'Collect coins from your dinosaur paddocks.', 5 + Math.floor(L / 5)],
+    ['collect_food', 'Supply Run', 'reyes', 'Bring in fresh food shipments from the harbors.', 2],
+    ['deco', 'Garden Club', 'vance', 'Our guests love a pretty park. Place more decorations.', 2],
+  ];
+  if (hasArena) pool.push(['battle_win', 'Arena Glory', 'reyes', 'The crowd wants a show. Win arena battles.', 2]);
+  const [type, title, who, text, count] = pool[Math.floor(Math.random() * pool.length)];
+  const m = { id: 'g' + n, who, title, text, goal: { type, count }, reward: { coins: Math.round(250 * L * (1 + count * 0.1)), xp: Math.round(40 * Math.pow(L, 0.9)), bucks: n % 3 === 0 ? 2 : 0 } };
+  (G.missions.gen || (G.missions.gen = {}))[m.id] = m;
+  return m;
+}
 function refillMissions() {
   const ms = G.missions;
   let added = false;
-  while (ms.active.length < 3 && ms.next < MISSIONS.length) {
-    const m = MISSIONS[ms.next++];
+  while (ms.active.length < 3) {
+    const m = ms.next < MISSIONS.length ? MISSIONS[ms.next++] : genMission();
     ms.active.push(m.id);
     if (m.goal.type === 'build' && countDef(m.goal.id) > 0) ms.progress[m.id] = 1;
     Bus.emit('newMission', m);
@@ -1264,7 +1285,7 @@ function refillMissions() {
 function missionEvent(type, data = {}) {
   let changed = false;
   for (const id of G.missions.active) {
-    const m = MISSIONS.find(x => x.id === id), g = m.goal;
+    const m = missionById(id), g = m.goal;
     if (g.type !== type) continue;
     if (g.id && data.id !== g.id) continue;
     if (g.species && data.species !== g.species) continue;
@@ -1274,9 +1295,11 @@ function missionEvent(type, data = {}) {
   if (changed) Bus.emit('missions');
 }
 function claimMission(id) {
-  const m = MISSIONS.find(x => x.id === id);
+  const m = missionById(id);
   if (!m || !missionDone(m)) return false;
   G.missions.active = G.missions.active.filter(x => x !== id);
+  G.stats.missionsDone = (G.stats.missionsDone || 0) + 1;
+  if (G.missions.gen && G.missions.gen[id]) delete G.missions.gen[id];
   const r = m.reward;
   if (r.coins) gain('coins', r.coins, 'mission');
   if (r.bucks) gain('bucks', r.bucks, 'mission');
@@ -3411,13 +3434,13 @@ const DinoArt = (() => {
     const foldedWing = (far) => {
       // standing pterosaur: walks on its wing knuckles, membrane folded against the body
       const d = far ? -6 : 0, col = far ? shade(pal.base, -0.35) : pal.base;
-      const sh = [body[0] + 8 + d, body[1] - 8], elbow = [body[0] + 12 + d, body[1] + 6], knuckle = [body[0] + 22 + d, 0];
+      const sh = [body[0] + 6 + d, body[1] - 8], elbow = [body[0] + 2 + d, body[1] + 6], knuckle = [body[0] + 14 + d, 0];
       const fold = [body[0] - 14 + d, body[1] - 24];
       const g = ctx.createLinearGradient(sh[0], sh[1] - 20, knuckle[0], knuckle[1]);
       g.addColorStop(0, far ? shade(pal.accent, -0.45) : shade(pal.accent, -0.15)); g.addColorStop(1, far ? shade(pal.dark, -0.2) : pal.dark);
       ctx.fillStyle = g; ctx.strokeStyle = edge; ctx.lineWidth = 0.9;
       ctx.beginPath(); ctx.moveTo(sh[0], sh[1]); ctx.lineTo(elbow[0], elbow[1]); ctx.lineTo(knuckle[0], knuckle[1] - 3); ctx.quadraticCurveTo(fold[0] + 10, fold[1] + 4, fold[0], fold[1]); ctx.quadraticCurveTo(body[0] - 6, body[1] + 2, sh[0], sh[1]); ctx.closePath(); ctx.fill(); ctx.stroke();
-      const wc = shade(pal.dark, far ? -0.35 : -0.1); limb(ctx, sh, elbow, 2, 1.5, wc, edge); limb(ctx, elbow, knuckle, 1.5, 1.1, wc, edge);
+      const wc = shade(pal.dark, far ? -0.35 : -0.1); limb(ctx, sh, elbow, 1.4, 1.1, wc, null); limb(ctx, elbow, knuckle, 1.1, 0.8, wc, null);
       ctx.strokeStyle = shade(col, -0.3); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(knuckle[0], knuckle[1] - 2); ctx.quadraticCurveTo(fold[0] + 16, fold[1] - 8, fold[0], fold[1]); ctx.stroke();
       ctx.fillStyle = '#2a2016'; ctx.beginPath(); ctx.ellipse(knuckle[0] + 2, -0.5, 3, 1.4, 0, 0, TAU); ctx.fill();
     };
@@ -3477,7 +3500,7 @@ const DinoArt = (() => {
     const anim = { t, speed: opts.speed || 0, phase: opts.phase || 0 };
     const statue = !!opts.statue;
     const dir = opts.dir || 1;
-    const sc = scale * lerp(0.5, 1, growth) * (1 + 0.07 * stage);
+    const sc = scale * lerp(0.5, 1, growth) * (1 + 0.07 * stage * (sp.body === 'sauropod' ? 0.2 : 1));
     const headBoost = 1 + (1 - growth) * 0.45;
     if (sp.gig) { p.head = 'giga'; p.headLen *= 1.14; p.headH *= 0.66; p.tT *= 0.8; p.tB *= 0.72; p.tailLen *= 1.18; p.neckLen *= 1.25; p.hipH *= 0.9; p.bodyLen *= 1.18; p.legW *= 0.85; p.arch = 2; }
     // evolution stages grow bulkier
@@ -3777,6 +3800,10 @@ class DinoActor {
     const w = World.toWorld(this.x, this.y);
     Entities.emit(w.x + this.dir * 20, w.y - 30, 'dust', 6);
     Render.shake(this.sp.size > 1.1 ? 6 : 2);
+    // nearby guests cheer and leave a small tip
+    let fans = 0;
+    for (const v of Entities.visitors) if (Math.hypot(v.x - this.x, v.y - this.y) < 5 && v.fade <= 0) { fans++; v.stop = Math.max(v.stop, 1.5); v.flash = v.camera ? 0.15 : 0; const p = World.toWorld(v.x, v.y); Entities.emit(p.x, p.y - 26, 'heart', 1); }
+    if (fans && Game.started) { const tip = fans * (2 + Math.floor(G.level / 3)); gain('coins', tip, 'tips'); Entities.float(w.x, w.y - 60, `+${tip} tips`, '#ffd479', 15); }
   }
   eatNow() {
     // walk to the trough then eat
@@ -4996,7 +5023,7 @@ const UI = {
     $('#parkName').textContent = G.parkName;
     const labReady = (G.lab && now() >= G.lab.end) || (!G.lab && amberCount() > 0);
     $('#labBadge').classList.toggle('hidden', !labReady);
-    const misReady = G.missions.active.some(id => missionDone(MISSIONS.find(m => m.id === id)));
+    const misReady = G.missions.active.some(id => missionDone(missionById(id)));
     $('#misBadge').classList.toggle('hidden', !misReady);
     this.hudDirty = false;
   },
@@ -5055,7 +5082,7 @@ const UI = {
     const box = $('#missionTracker');
     box.innerHTML = '';
     for (const id of G.missions.active) {
-      const m = MISSIONS.find(x => x.id === id);
+      const m = missionById(id);
       const p = missionProgress(m), tgt = missionTarget(m), done = p >= tgt;
       const card = el('div', 'm-card' + (done ? ' done' : ''), `
         <div class="m-ico"><i class="ic ${goalIcon(m.goal.type)}"></i></div>
@@ -5436,7 +5463,7 @@ const UI = {
       box.appendChild(el('div', 'section-title', 'Active missions'));
       if (!G.missions.active.length) list.appendChild(el('div', 'empty', 'All missions complete – you built a legendary park! Keep growing and battling.'));
       for (const id of G.missions.active) {
-        const m = MISSIONS.find(x => x.id === id), p = missionProgress(m), tgt = missionTarget(m), done = p >= tgt;
+        const m = missionById(id), p = missionProgress(m), tgt = missionTarget(m), done = p >= tgt;
         const r = m.reward;
         const row = el('div', 'row-card' + (done ? ' done' : ''), `<div class="rc-thumb" style="background:none">${portraitSVG(m.who)}</div>
           <div class="rc-main"><h4>${esc(m.title)}</h4><p>${esc(m.text)}</p>
@@ -5447,7 +5474,7 @@ const UI = {
         list.appendChild(row);
       }
       box.appendChild(list);
-      box.appendChild(el('p', 'note', `Completed: ${MISSIONS.length - G.missions.active.length - (MISSIONS.length - G.missions.next)} of ${MISSIONS.length}`));
+      box.appendChild(el('p', 'note', `Missions completed: ${G.stats.missionsDone || 0}. After the story missions, new ranger jobs keep coming.`));
     });
   },
 
@@ -5720,7 +5747,16 @@ const Battle = {
   },
   cur() { return this.me[this.mi]; },
   enemy() { return this.foe[this.fi]; },
-  beginTurn() { this.phase = 'choose'; this.timer = 15; this.buttons(); },
+  beginTurn() {
+    this.phase = 'choose'; this.timer = 15;
+    // the rival telegraphs its next move – but may feint 20% of the time
+    this.nextFoe = this.aiChoice();
+    const shown = this.nextFoe !== 'block' && this.nextFoe !== 'special' && Math.random() < 0.2 ? pick(['charge', 'bite', 'swipe'].filter(a => a !== this.nextFoe)) : this.nextFoe;
+    const ic = { charge: 'ic-charge', bite: 'ic-bite', swipe: 'ic-swipe', block: 'ic-shield', special: 'ic-star' }[shown];
+    const label = { charge: 'Charge', bite: 'Bite', swipe: 'Swipe', block: 'Block', special: 'SPECIAL!' }[shown];
+    $('#bIntent').innerHTML = `Intends: <i class="ic ${ic}"></i> ${label}`;
+    this.buttons();
+  },
   buttons() {
     const on = this.phase === 'choose';
     const c = this.cur(), e = this.enemy();
@@ -5770,7 +5806,7 @@ const Battle = {
   async choose(act) {
     if (this.phase !== 'choose') return;
     this.phase = 'resolve'; this.buttons(); this.turn++;
-    const eAct = this.aiChoice();
+    const eAct = this.nextFoe || this.aiChoice(); $('#bIntent').innerHTML = '';
     const meBlock = act === 'block', foeBlock = eAct === 'block';
     // player acts first
     if (act === 'swap') {
@@ -6259,6 +6295,7 @@ const Game = {
     const st = o.stage || 0;
     if (st >= 3 || o.level < maxLevelForStage(st) || (G.stageResearch[o.species] || 0) < st + 1) return;
     o.stage = st + 1; o.level++; o.feeds = 0;
+    if (o.stage === 3 && !G.stats.firstApex) { G.stats.firstApex = true; gain('bucks', 10); UI.toast('🏅 Milestone: your first Apex dinosaur! +10 Dino Bucks', 'good big', 4500); }
     missionEvent('evolve', { species: o.species });
     addXP(150 * o.stage, 'evolve');
     const c = World.toWorld(o.x + o.w / 2, o.y + o.h / 2);
@@ -6494,6 +6531,7 @@ const Game = {
       }
     }
     for (const job of [...G.clearing]) if (nowT >= job.end) this.finishClear(job);
+    checkSpeciesMilestones();
     // world time
     const dayLen = 480;
     const dayT = window.FORCE_HOUR !== undefined ? window.FORCE_HOUR / 24 : G.settings.daynight ? ((nowT / 1000 / dayLen) + G.dayOffset) % 1 : 0.45;
@@ -6571,7 +6609,7 @@ function loop(ts) {
 }
 UI.renderTrackerSoft = function () {
   // refresh progress of state-based missions (visitors, level, ...)
-  const sig = G.missions.active.map(id => { const m = MISSIONS.find(x => x.id === id); return missionProgress(m); }).join(',');
+  const sig = G.missions.active.map(id => { const m = missionById(id); return missionProgress(m); }).join(',');
   if (sig !== this._trackSig) { this._trackSig = sig; this.renderTracker(); }
 };
 function drawHintArrow() {
@@ -6626,7 +6664,32 @@ function startGame(fresh) {
   } else refillMissions();
   UI.renderTracker();
   UI.hud();
+  checkDaily(fresh);
   saveGame();
+}
+function checkDaily(fresh) {
+  const day = new Date().toISOString().slice(0, 10);
+  const d = G.daily || (G.daily = { last: null, streak: 0 });
+  if (d.last === day) return;
+  const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+  d.streak = d.last === yesterday ? Math.min(d.streak + 1, 7) : 1;
+  d.last = day;
+  if (fresh) return; // the very first day starts the streak silently
+  const coins = 200 * G.level * d.streak, bucks = d.streak >= 7 ? 5 : d.streak >= 3 ? 2 : 1;
+  setTimeout(() => {
+    gain('coins', coins); gain('bucks', bucks);
+    UI.toast(`☀️ Daily bonus – day ${d.streak}: +${fmt(coins)} coins, +${bucks} Dino Bucks`, 'good big', 5000);
+    Sfx.cash(); UI.fly('coins', Render.W / 2, Render.H / 2, 6);
+  }, 2200);
+}
+function checkSpeciesMilestones() {
+  const seen = G.stats.seen || (G.stats.seen = {});
+  let changed = false;
+  for (const o of G.objects) if (o.type === 'paddock' && o.hatchEnd <= now() && !seen[o.species]) {
+    seen[o.species] = true; changed = true;
+    if (Object.keys(seen).length > 1 && Game.started) { gain('bucks', 2); UI.toast(`📖 New Dinopedia entry: ${SPECIES[o.species].name}! +2 Dino Bucks`, 'good'); }
+  }
+  if (changed && Object.keys(seen).length === SPECIES_ORDER.length && !G.stats.pediaDone) { G.stats.pediaDone = true; gain('bucks', 50); UI.toast('🏆 Dinopedia complete! +50 Dino Bucks', 'good big', 6000); }
 }
 addEventListener('beforeunload', () => { if (Game.started) saveGame(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && Game.started) saveGame(); });

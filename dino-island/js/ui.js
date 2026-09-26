@@ -36,7 +36,7 @@ const UI = {
     $('#parkName').textContent = G.parkName;
     const labReady = (G.lab && now() >= G.lab.end) || (!G.lab && amberCount() > 0);
     $('#labBadge').classList.toggle('hidden', !labReady);
-    const misReady = G.missions.active.some(id => missionDone(MISSIONS.find(m => m.id === id)));
+    const misReady = G.missions.active.some(id => missionDone(missionById(id)));
     $('#misBadge').classList.toggle('hidden', !misReady);
     this.hudDirty = false;
   },
@@ -95,7 +95,7 @@ const UI = {
     const box = $('#missionTracker');
     box.innerHTML = '';
     for (const id of G.missions.active) {
-      const m = MISSIONS.find(x => x.id === id);
+      const m = missionById(id);
       const p = missionProgress(m), tgt = missionTarget(m), done = p >= tgt;
       const card = el('div', 'm-card' + (done ? ' done' : ''), `
         <div class="m-ico"><i class="ic ${goalIcon(m.goal.type)}"></i></div>
@@ -476,7 +476,7 @@ const UI = {
       box.appendChild(el('div', 'section-title', 'Active missions'));
       if (!G.missions.active.length) list.appendChild(el('div', 'empty', 'All missions complete – you built a legendary park! Keep growing and battling.'));
       for (const id of G.missions.active) {
-        const m = MISSIONS.find(x => x.id === id), p = missionProgress(m), tgt = missionTarget(m), done = p >= tgt;
+        const m = missionById(id), p = missionProgress(m), tgt = missionTarget(m), done = p >= tgt;
         const r = m.reward;
         const row = el('div', 'row-card' + (done ? ' done' : ''), `<div class="rc-thumb" style="background:none">${portraitSVG(m.who)}</div>
           <div class="rc-main"><h4>${esc(m.title)}</h4><p>${esc(m.text)}</p>
@@ -487,7 +487,7 @@ const UI = {
         list.appendChild(row);
       }
       box.appendChild(list);
-      box.appendChild(el('p', 'note', `Completed: ${MISSIONS.length - G.missions.active.length - (MISSIONS.length - G.missions.next)} of ${MISSIONS.length}`));
+      box.appendChild(el('p', 'note', `Missions completed: ${G.stats.missionsDone || 0}. After the story missions, new ranger jobs keep coming.`));
     });
   },
 

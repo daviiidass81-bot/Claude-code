@@ -177,11 +177,30 @@ function missionProgress(m) {
   return Math.min(missionTarget(m), G.missions.progress[m.id] || 0);
 }
 function missionDone(m) { return missionProgress(m) >= missionTarget(m); }
+function missionById(id) { return MISSIONS.find(x => x.id === id) || (G.missions.gen || {})[id]; }
+function genMission() {
+  // endless "ranger jobs" once the story chain is done
+  const L = G.level, n = (G.missions.genCount = (G.missions.genCount || 0) + 1);
+  const hasArena = countDef('arena') > 0;
+  const pool = [
+    ['feed', 'Feeding Round', 'reyes', 'The keepers need a hand at feeding time. Feed your dinosaurs.', 4 + Math.floor(L / 4)],
+    ['clear', 'Push Back the Jungle', 'reyes', 'The jungle keeps growing back. Clear some more obstacles.', 3 + Math.floor(L / 6)],
+    ['collect_shop', 'Busy Shops', 'vance', 'Guests are spending! Collect from your shops.', 5 + Math.floor(L / 4)],
+    ['collect_dino', 'Dino Dividends', 'vance', 'Collect coins from your dinosaur paddocks.', 5 + Math.floor(L / 5)],
+    ['collect_food', 'Supply Run', 'reyes', 'Bring in fresh food shipments from the harbors.', 2],
+    ['deco', 'Garden Club', 'vance', 'Our guests love a pretty park. Place more decorations.', 2],
+  ];
+  if (hasArena) pool.push(['battle_win', 'Arena Glory', 'reyes', 'The crowd wants a show. Win arena battles.', 2]);
+  const [type, title, who, text, count] = pool[Math.floor(Math.random() * pool.length)];
+  const m = { id: 'g' + n, who, title, text, goal: { type, count }, reward: { coins: Math.round(250 * L * (1 + count * 0.1)), xp: Math.round(40 * Math.pow(L, 0.9)), bucks: n % 3 === 0 ? 2 : 0 } };
+  (G.missions.gen || (G.missions.gen = {}))[m.id] = m;
+  return m;
+}
 function refillMissions() {
   const ms = G.missions;
   let added = false;
-  while (ms.active.length < 3 && ms.next < MISSIONS.length) {
-    const m = MISSIONS[ms.next++];
+  while (ms.active.length < 3) {
+    const m = ms.next < MISSIONS.length ? MISSIONS[ms.next++] : genMission();
     ms.active.push(m.id);
     if (m.goal.type === 'build' && countDef(m.goal.id) > 0) ms.progress[m.id] = 1;
     Bus.emit('newMission', m);
@@ -192,7 +211,7 @@ function refillMissions() {
 function missionEvent(type, data = {}) {
   let changed = false;
   for (const id of G.missions.active) {
-    const m = MISSIONS.find(x => x.id === id), g = m.goal;
+    const m = missionById(id), g = m.goal;
     if (g.type !== type) continue;
     if (g.id && data.id !== g.id) continue;
     if (g.species && data.species !== g.species) continue;
@@ -202,9 +221,11 @@ function missionEvent(type, data = {}) {
   if (changed) Bus.emit('missions');
 }
 function claimMission(id) {
-  const m = MISSIONS.find(x => x.id === id);
+  const m = missionById(id);
   if (!m || !missionDone(m)) return false;
   G.missions.active = G.missions.active.filter(x => x !== id);
+  G.stats.missionsDone = (G.stats.missionsDone || 0) + 1;
+  if (G.missions.gen && G.missions.gen[id]) delete G.missions.gen[id];
   const r = m.reward;
   if (r.coins) gain('coins', r.coins, 'mission');
   if (r.bucks) gain('bucks', r.bucks, 'mission');

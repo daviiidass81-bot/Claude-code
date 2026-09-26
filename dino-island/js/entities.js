@@ -127,6 +127,10 @@ class DinoActor {
     const w = World.toWorld(this.x, this.y);
     Entities.emit(w.x + this.dir * 20, w.y - 30, 'dust', 6);
     Render.shake(this.sp.size > 1.1 ? 6 : 2);
+    // nearby guests cheer and leave a small tip
+    let fans = 0;
+    for (const v of Entities.visitors) if (Math.hypot(v.x - this.x, v.y - this.y) < 5 && v.fade <= 0) { fans++; v.stop = Math.max(v.stop, 1.5); v.flash = v.camera ? 0.15 : 0; const p = World.toWorld(v.x, v.y); Entities.emit(p.x, p.y - 26, 'heart', 1); }
+    if (fans && Game.started) { const tip = fans * (2 + Math.floor(G.level / 3)); gain('coins', tip, 'tips'); Entities.float(w.x, w.y - 60, `+${tip} tips`, '#ffd479', 15); }
   }
   eatNow() {
     // walk to the trough then eat

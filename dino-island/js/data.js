@@ -99,7 +99,7 @@ const SPECIES = {
     name: 'Brachiosaurus', diet: 'herb', rarity: 'gold', body: 'sauropod', size: 1.25, pad: 5, level: 12, cost: { coins: 80000 },
     hatch: 150, income: 200, weak: 'bite', hp: 700, atk: 72, era: 'Late Jurassic · 154 mya', len: '26 m',
     fact: 'A towering long-neck that could browse treetops 13 metres above the ground.',
-    pals: [P('#7a8a8a', '#4e5c5c', '#d4dcd8', '#34403e', '#a0b0a0'), P('#8a8060', '#5a5238', '#e4dcc0', '#3a3422', '#c0a060'), P('#6a7a5a', '#40503a', '#d8e0c8', '#28321e', '#80c060'), P('#2a3a4a', '#141e28', '#a8bcc8', '#60e0ff', '#60e0ff', '#80ffff')],
+    pals: [P('#7a8a8a', '#4e5c5c', '#d4dcd8', '#34403e', '#a0b0a0'), P('#8a8060', '#5a5238', '#e4dcc0', '#3a3422', '#c0a060'), P('#6a7a5a', '#40503a', '#d8e0c8', '#28321e', '#80c060'), P('#2a3a4a', '#141e28', '#a8bcc8', '#6a9aaa', '#7aaab8', '#9ae0f0')],
   },
   baryonyx: {
     name: 'Baryonyx', diet: 'carn', rarity: 'silver', body: 'bary', size: 0.9, pad: 4, level: 13, cost: { coins: 90000 },

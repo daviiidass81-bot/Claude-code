@@ -520,13 +520,13 @@ const DinoArt = (() => {
     const foldedWing = (far) => {
       // standing pterosaur: walks on its wing knuckles, membrane folded against the body
       const d = far ? -6 : 0, col = far ? shade(pal.base, -0.35) : pal.base;
-      const sh = [body[0] + 8 + d, body[1] - 8], elbow = [body[0] + 12 + d, body[1] + 6], knuckle = [body[0] + 22 + d, 0];
+      const sh = [body[0] + 6 + d, body[1] - 8], elbow = [body[0] + 2 + d, body[1] + 6], knuckle = [body[0] + 14 + d, 0];
       const fold = [body[0] - 14 + d, body[1] - 24];
       const g = ctx.createLinearGradient(sh[0], sh[1] - 20, knuckle[0], knuckle[1]);
       g.addColorStop(0, far ? shade(pal.accent, -0.45) : shade(pal.accent, -0.15)); g.addColorStop(1, far ? shade(pal.dark, -0.2) : pal.dark);
       ctx.fillStyle = g; ctx.strokeStyle = edge; ctx.lineWidth = 0.9;
       ctx.beginPath(); ctx.moveTo(sh[0], sh[1]); ctx.lineTo(elbow[0], elbow[1]); ctx.lineTo(knuckle[0], knuckle[1] - 3); ctx.quadraticCurveTo(fold[0] + 10, fold[1] + 4, fold[0], fold[1]); ctx.quadraticCurveTo(body[0] - 6, body[1] + 2, sh[0], sh[1]); ctx.closePath(); ctx.fill(); ctx.stroke();
-      const wc = shade(pal.dark, far ? -0.35 : -0.1); limb(ctx, sh, elbow, 2, 1.5, wc, edge); limb(ctx, elbow, knuckle, 1.5, 1.1, wc, edge);
+      const wc = shade(pal.dark, far ? -0.35 : -0.1); limb(ctx, sh, elbow, 1.4, 1.1, wc, null); limb(ctx, elbow, knuckle, 1.1, 0.8, wc, null);
       ctx.strokeStyle = shade(col, -0.3); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(knuckle[0], knuckle[1] - 2); ctx.quadraticCurveTo(fold[0] + 16, fold[1] - 8, fold[0], fold[1]); ctx.stroke();
       ctx.fillStyle = '#2a2016'; ctx.beginPath(); ctx.ellipse(knuckle[0] + 2, -0.5, 3, 1.4, 0, 0, TAU); ctx.fill();
     };
@@ -586,7 +586,7 @@ const DinoArt = (() => {
     const anim = { t, speed: opts.speed || 0, phase: opts.phase || 0 };
     const statue = !!opts.statue;
     const dir = opts.dir || 1;
-    const sc = scale * lerp(0.5, 1, growth) * (1 + 0.07 * stage);
+    const sc = scale * lerp(0.5, 1, growth) * (1 + 0.07 * stage * (sp.body === 'sauropod' ? 0.2 : 1));
     const headBoost = 1 + (1 - growth) * 0.45;
     if (sp.gig) { p.head = 'giga'; p.headLen *= 1.14; p.headH *= 0.66; p.tT *= 0.8; p.tB *= 0.72; p.tailLen *= 1.18; p.neckLen *= 1.25; p.hipH *= 0.9; p.bodyLen *= 1.18; p.legW *= 0.85; p.arch = 2; }
     // evolution stages grow bulkier

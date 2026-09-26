@@ -74,3 +74,21 @@ Wird das Spiel mitten in einer Runde geschlossen, wird die Runde beim nächsten 
 - Quoten simulieren: `node tools/simulate.js`
 - Reines HTML/CSS/JavaScript ohne Abhängigkeiten und ohne Build-Schritt
 - Übersetzungen stehen in `js/i18n-data.js`. Deutsch ist die Quellsprache, und jede Zeile enthält alle 5 Sprachen.
+
+---
+
+# Dino Island – Park Builder
+
+Ein eigenständiges Aufbauspiel auf **Englisch**, inspiriert von *Jurassic Park Builder*. Alle Namen, Figuren und Grafiken sind eigene Werke; die Grafik wird komplett im Code gezeichnet.
+
+**Starten:** `Dino-Island-Builder.html` im Browser öffnen (eine einzige Datei). Quellcode liegt in `dino-island/`, neu bauen mit `python3 tools/build_dino.py`.
+
+- Isometrische Insel mit Vulkan, Strand und Dschungel. Bäume und Felsen roden, dabei **Bernstein** finden.
+- **Genlabor:** Bernstein entschlüsseln, um neue Arten freizuschalten, und Evolutionen erforschen.
+- **17 Arten**, animiert und in 4 Evolutionsstufen: Pflanzenfresser bekommen Crops, Fleischfresser Meat. Füttern lässt sie aufsteigen und vom Jungtier zum ausgewachsenen Tier werden.
+- **Häfen** mit Frachtschiffen, 14 Gebäude, 13 Dekorationen mit Einkommensbonus, Wege mit Besuchern und Tour-Jeeps.
+- **Arena:** rundenbasiert mit Charge / Bite / Swipe (Schwächen-System), Block, Special und angekündigten Gegnerzügen, dazu 5 Ligen.
+- 25 Story-Missionen mit drei Beratern, danach endlose Ranger-Aufträge, Tagesbonus und Meilensteine.
+- Tag-Nacht-Zyklus mit Beleuchtung, Regen, Wolkenschatten, synthetische Soundeffekte, Dschungel-Ambiente und Musik. Speichert im Browser, Dinos verdienen auch offline.
+
+Steuerung: Ziehen = Kamera, Mausrad/Pinch = Zoom, WASD = Kamera, `R` Wege, `M` Markt, `L` Labor, `Esc` abbrechen, in der Arena `1`–`6`.

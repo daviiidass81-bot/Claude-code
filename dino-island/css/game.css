@@ -293,6 +293,8 @@ button { font-family: inherit; cursor: pointer; }
 .b-team i { width: 14px; height: 14px; border-radius: 50%; background: #7dc15a; border: 2px solid #000; }
 .b-team i.ko { background: #500; }
 .b-team i.act { box-shadow: 0 0 0 2px #ffd479; }
+.b-intent { margin-top: 6px; font: 400 16px var(--font-head); color: #ffd479; display: flex; gap: 6px; align-items: center; justify-content: flex-end; min-height: 24px; text-shadow: 0 2px 0 #000; }
+.b-intent .ic { width: 24px; height: 24px; }
 .b-round { font: 400 26px var(--font-head); color: #fff; text-shadow: 0 3px 0 #000, 0 0 16px rgba(255,160,40,.8); padding-top: 12px; white-space: nowrap; }
 .b-msg { position: absolute; left: 50%; top: 32%; transform: translateX(-50%); font: 400 34px var(--font-head); color: #fff; text-shadow: 0 4px 0 #000, 0 0 20px rgba(0,0,0,.8); text-align: center; pointer-events: none; white-space: nowrap; }
 .b-msg.show { animation: bmsg 1.4s ease-out forwards; }
