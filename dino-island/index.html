@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Dino Island Builder</title>
+<meta name="description" content="Build your own prehistoric theme park: clear the jungle, decode amber, hatch dinosaurs and battle in the arena.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@500;700;800;900&display=swap">
+<link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+<canvas id="game" aria-label="Park view"></canvas>
+
+<!-- ===== Title screen ===== -->
+<div id="title" class="title">
+  <div class="title-inner">
+    <div class="logo">
+      <svg class="logo-emblem" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <radialGradient id="lgAmber" cx="40%" cy="35%" r="70%">
+            <stop offset="0" stop-color="#ffe7a3"/><stop offset=".45" stop-color="#f5a623"/><stop offset="1" stop-color="#8a3f06"/>
+          </radialGradient>
+          <linearGradient id="lgRing" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3b4a25"/><stop offset="1" stop-color="#151d0c"/>
+          </linearGradient>
+        </defs>
+        <circle cx="100" cy="100" r="96" fill="url(#lgRing)" stroke="#e8b04a" stroke-width="5"/>
+        <circle cx="100" cy="100" r="80" fill="none" stroke="#e8b04a" stroke-width="1.5" stroke-dasharray="3 5" opacity=".7"/>
+        <path d="M100 26 C 132 62 150 88 150 118 A 50 50 0 0 1 50 118 C 50 88 68 62 100 26Z" fill="url(#lgAmber)" stroke="#5a2a04" stroke-width="3"/>
+        <!-- sauropod silhouette trapped in amber -->
+        <path d="M62 128 C 66 118 78 114 90 116 C 96 104 104 88 108 76 C 110 70 116 68 120 71 C 123 73 122 78 118 79 C 114 80 113 86 112 92 C 110 104 108 112 112 118 C 124 120 136 124 146 134 C 136 131 126 130 120 132 L 120 146 L 114 146 L 112 134 L 98 134 L 97 146 L 91 146 L 90 133 C 80 134 70 132 62 128Z" fill="#4a2004" opacity=".82"/>
+        <ellipse cx="82" cy="72" rx="10" ry="16" fill="#fff" opacity=".35" transform="rotate(-25 82 72)"/>
+      </svg>
+      <h1><span class="l1">DINO ISLAND</span><span class="l2">PARK BUILDER</span></h1>
+    </div>
+    <p class="tagline">Clear the jungle · Decode amber · Hatch dinosaurs · Rule the arena</p>
+    <div class="title-buttons">
+      <button id="btnContinue" class="btn btn-gold big" type="button">Continue Park</button>
+      <button id="btnNew" class="btn btn-green big" type="button">New Park</button>
+    </div>
+    <p class="fineprint">A fan-made tribute game. All names, characters and artwork are original. Progress is saved in your browser.</p>
+  </div>
+</div>
+
+<!-- ===== HUD ===== -->
+<div id="hud" class="hud hidden">
+  <div class="topbar">
+    <button class="lvl" id="lvlBtn" type="button" title="Player level">
+      <svg viewBox="0 0 44 44" class="lvl-ring"><circle cx="22" cy="22" r="19" class="ring-bg"/><circle cx="22" cy="22" r="19" class="ring-fg" id="xpRing"/></svg>
+      <b id="lvlNum">1</b>
+      <span class="lvl-meta"><span id="parkName">Dino Island</span><small id="xpText">0 / 100 XP</small></span>
+    </button>
+    <div class="res-row">
+      <div class="res coins" title="Coins"><i class="ic ic-coin"></i><b id="rCoins">0</b></div>
+      <div class="res bucks" title="Dino Bucks"><i class="ic ic-buck"></i><b id="rBucks">0</b></div>
+      <div class="res crops" title="Crops (herbivore food)"><i class="ic ic-crop"></i><b id="rCrops">0</b></div>
+      <div class="res meat" title="Meat (carnivore food)"><i class="ic ic-meat"></i><b id="rMeat">0</b></div>
+      <div class="res amber" title="Amber"><i class="ic ic-amber"></i><b id="rAmber">0</b></div>
+      <div class="res visitors" title="Visitors / park rating"><i class="ic ic-visitor"></i><b id="rVisitors">0</b><span class="stars" id="rStars"></span></div>
+    </div>
+    <div class="top-right">
+      <span class="clock" id="clock" title="Island time"></span>
+      <button class="icon-btn" id="btnSettings" type="button" title="Settings"><i class="ic ic-gear"></i></button>
+    </div>
+  </div>
+
+  <div class="missions" id="missionTracker"></div>
+
+  <div class="toolbar" id="toolbar">
+    <button class="tool" data-tool="market" type="button"><i class="ic ic-market"></i><span>Market</span></button>
+    <button class="tool" data-tool="road" type="button"><i class="ic ic-road"></i><span>Roads</span></button>
+    <button class="tool" data-tool="edit" type="button"><i class="ic ic-move"></i><span>Edit</span></button>
+    <button class="tool" data-tool="lab" type="button"><i class="ic ic-lab"></i><span>Lab</span><em class="badge hidden" id="labBadge">!</em></button>
+    <button class="tool" data-tool="arena" type="button"><i class="ic ic-arena"></i><span>Arena</span></button>
+    <button class="tool" data-tool="missions" type="button"><i class="ic ic-scroll"></i><span>Missions</span><em class="badge hidden" id="misBadge">!</em></button>
+    <button class="tool" data-tool="dinopedia" type="button"><i class="ic ic-book"></i><span>Dinopedia</span></button>
+  </div>
+
+  <div class="modebar hidden" id="modebar">
+    <span id="modeText">Road mode</span>
+    <button class="btn btn-small" id="modeAlt" type="button">Erase</button>
+    <button class="btn btn-small btn-gold" id="modeOk" type="button">Done</button>
+  </div>
+
+  <div class="placebar hidden" id="placebar">
+    <span id="placeText">Place building</span>
+    <button class="round-btn ok" id="placeOk" type="button" title="Confirm (Enter)">✔</button>
+    <button class="round-btn no" id="placeNo" type="button" title="Cancel (Esc)">✖</button>
+  </div>
+
+  <div class="info hidden" id="info"></div>
+  <div class="zoom">
+    <button class="icon-btn" id="zoomIn" type="button" title="Zoom in">+</button>
+    <button class="icon-btn" id="zoomOut" type="button" title="Zoom out">−</button>
+  </div>
+</div>
+
+<div id="advisor" class="advisor hidden" role="dialog" aria-live="polite">
+  <div class="adv-portrait" id="advPortrait"></div>
+  <div class="adv-box">
+    <div class="adv-name" id="advName"></div>
+    <div class="adv-text" id="advText"></div>
+    <button class="btn btn-gold btn-small" id="advNext" type="button">Continue ▸</button>
+  </div>
+</div>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-card" id="modalCard">
+    <div class="modal-head"><h2 id="modalTitle"></h2><button class="close" id="modalClose" type="button" aria-label="Close">✖</button></div>
+    <div class="modal-tabs" id="modalTabs"></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div id="battle" class="battle hidden">
+  <canvas id="battleCanvas"></canvas>
+  <div class="b-top">
+    <div class="b-side me"><div class="b-name" id="bMeName"></div><div class="b-hp"><i id="bMeHp"></i><span id="bMeHpT"></span></div><div class="b-team" id="bMeTeam"></div></div>
+    <div class="b-round" id="bRound">ROUND 1</div>
+    <div class="b-side foe"><div class="b-name" id="bFoeName"></div><div class="b-hp"><i id="bFoeHp"></i><span id="bFoeHpT"></span></div><div class="b-team" id="bFoeTeam"></div></div>
+  </div>
+  <div class="b-msg" id="bMsg"></div>
+  <div class="b-actions" id="bActions">
+    <button class="b-act charge" data-act="charge" type="button"><i class="ic ic-charge"></i><span>Charge</span></button>
+    <button class="b-act bite" data-act="bite" type="button"><i class="ic ic-bite"></i><span>Bite</span></button>
+    <button class="b-act swipe" data-act="swipe" type="button"><i class="ic ic-swipe"></i><span>Swipe</span></button>
+    <button class="b-act block" data-act="block" type="button"><i class="ic ic-shield"></i><span>Block</span></button>
+    <button class="b-act special" data-act="special" type="button"><i class="ic ic-star"></i><span>Special</span><em id="bSpecial"></em></button>
+    <button class="b-act swap" data-act="swap" type="button"><i class="ic ic-swap"></i><span>Swap</span></button>
+  </div>
+  <div class="b-timer"><i id="bTimer"></i></div>
+</div>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div id="flyLayer" class="fly-layer"></div>
+
+<script src="js/util.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/world.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/dinos.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/render.js"></script>
+<script src="js/input.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/battle.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
