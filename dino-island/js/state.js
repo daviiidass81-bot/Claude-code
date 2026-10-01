@@ -9,7 +9,7 @@ function newGameState() {
   const seed = (Math.random() * 1e9) | 0;
   return {
     v: 1, seed, created: now(), parkName: 'Dino Island',
-    coins: 3000, bucks: 20, crops: 120, meat: 40, level: 1, xp: 0,
+    coins: 3000, bucks: 20, crops: 120, meat: 40, fish: 60, level: 1, xp: 0, worldVer: 2,
     objects: [], nextId: 1,
     roads: '', obs: '',            // encoded grids (filled by World)
     clearing: [],                  // [{i, start, end}]
@@ -29,6 +29,8 @@ function newGameState() {
 }
 
 /* ---------- definitions helpers ---------- */
+function foodOf(sp) { return sp.diet === 'fish' ? 'fish' : sp.diet === 'herb' ? 'crops' : 'meat'; }
+function habitatOf(sp) { return sp.habitat || 'land'; }
 function defOf(o) { return o.type === 'paddock' ? SPECIES[o.species] : o.type === 'deco' ? DECOS[o.def] : BUILDINGS[o.def]; }
 function coinsEquiv(cost) { return cost.coins || (cost.bucks || 0) * 1500; }
 function stageOf(level) { return level >= 30 ? 3 : level >= 20 ? 2 : level >= 10 ? 1 : 0; }
@@ -57,7 +59,7 @@ function evolveCost(sid, stage) { // research cost for stage (1..3)
 }
 function speedCost(msLeft) { return Math.max(1, Math.ceil(msLeft / 60000)); }
 function shopIncome(o) { const d = BUILDINGS[o.def]; return Math.round(d.income * (1 + (o.bonus || 0) / 100)); }
-function harborOrderCost(o, idx) { const b = BUILDINGS[o.def]; const c = HARBOR_ORDERS[idx].cost; return Math.round(b.food === 'meat' ? c * MEAT_COST_MULT : c); }
+function harborOrderCost(o, idx) { const b = BUILDINGS[o.def]; const c = HARBOR_ORDERS[idx].cost; return Math.round(b.food === 'crops' ? c : c * MEAT_COST_MULT); }
 function clearTime(kind) {
   const hasRanger = G.objects.some(o => o.def === 'ranger');
   return CLEAR[kind].time * (hasRanger ? 0.75 : 1) * 1000;
@@ -67,15 +69,15 @@ function maxWorkers() { return 1 + G.objects.filter(o => o.def === 'ranger').len
 
 /* ---------- resources ---------- */
 function canAfford(cost) {
-  return (G.coins >= (cost.coins || 0)) && (G.bucks >= (cost.bucks || 0)) && (G.crops >= (cost.crops || 0)) && (G.meat >= (cost.meat || 0));
+  return (G.coins >= (cost.coins || 0)) && (G.bucks >= (cost.bucks || 0)) && (G.crops >= (cost.crops || 0)) && (G.meat >= (cost.meat || 0)) && ((G.fish || 0) >= (cost.fish || 0));
 }
 function spend(cost) {
   if (!canAfford(cost)) {
-    const lack = ['coins', 'bucks', 'crops', 'meat'].find(k => (G[k] || 0) < (cost[k] || 0));
+    const lack = ['coins', 'bucks', 'crops', 'meat', 'fish'].find(k => (G[k] || 0) < (cost[k] || 0));
     Bus.emit('lack', lack);
     return false;
   }
-  for (const k of ['coins', 'bucks', 'crops', 'meat']) if (cost[k]) G[k] -= cost[k];
+  for (const k of ['coins', 'bucks', 'crops', 'meat', 'fish']) if (cost[k]) G[k] -= cost[k];
   Bus.emit('change');
   return true;
 }
@@ -215,6 +217,7 @@ function missionEvent(type, data = {}) {
     if (g.type !== type) continue;
     if (g.id && data.id !== g.id) continue;
     if (g.species && data.species !== g.species) continue;
+    if (g.habitat && data.habitat !== g.habitat) continue;
     G.missions.progress[id] = (G.missions.progress[id] || 0) + (data.n || 1);
     changed = true;
   }
@@ -292,6 +295,7 @@ function loadGame() {
     if (!raw) return null;
     const s = JSON.parse(raw);
     if (!s || s.v !== 1) return null;
+    if (s.worldVer === undefined) s.worldVer = 1; // parks from before snow & lagoon biomes
     const base = newGameState();
     for (const k in base) if (s[k] === undefined) s[k] = base[k];
     for (const k in base.stats) if (s.stats[k] === undefined) s.stats[k] = base.stats[k];

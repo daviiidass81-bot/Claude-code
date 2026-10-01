@@ -2,8 +2,8 @@
 /* ==========================================================
    World: island generation, tiles, obstacles, roads, iso math
    ========================================================== */
-const T_DEEP = 0, T_SHALLOW = 1, T_SAND = 2, T_GRASS = 3, T_MOUNT = 4;
-const OBS_KIND = [null, 'tree', 'palm', 'bush', 'rock', 'bigrock'];
+const T_DEEP = 0, T_SHALLOW = 1, T_SAND = 2, T_GRASS = 3, T_MOUNT = 4, T_SNOW = 5;
+const OBS_KIND = [null, 'tree', 'palm', 'bush', 'rock', 'bigrock', 'snowpine', 'icerock'];
 const TSCALE = 1.5;          // terrain canvas resolution multiplier
 const CLIFF = 16;            // island edge cliff height (world px)
 
@@ -14,7 +14,8 @@ const World = {
   idx: (x, y) => y * MAP + x,
   inMap: (x, y) => x >= 0 && y >= 0 && x < MAP && y < MAP,
 
-  generate(seed) {
+  generate(seed, biomes = true) {
+    this.biomes = biomes;
     const N = MAP;
     this.tiles = new Uint8Array(N * N);
     this.obs = new Uint8Array(N * N);
@@ -25,6 +26,8 @@ const World = {
     const s = seed % 1000;
     const cx = N / 2, cy = N / 2;
     this.volcano = { x: Math.round(N * 0.27), y: Math.round(N * 0.25), r: 4.2 };
+    this.glacier = biomes ? { x: 37, y: 12, r: 8.5 } : null;
+    this.lagoon = biomes ? { x: 11, y: 27, r: 4.8 } : null;
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const dx = (x + 0.5 - cx) / (N / 2), dy = (y + 0.5 - cy) / (N / 2);
       let d = Math.sqrt(dx * dx + dy * dy);
@@ -33,21 +36,29 @@ const World = {
       // extend the island towards the volcano corner
       const vd = Math.hypot(x - this.volcano.x, y - this.volcano.y);
       if (vd < 10) v -= (10 - vd) * 0.02;
+      let gd = 99;
+      if (biomes) { gd = Math.hypot(x - this.glacier.x, y - this.glacier.y) + (fbm(x * 0.2, y * 0.2, s + 7, 2) - 0.5) * 3; if (gd < 12) v -= (12 - gd) * 0.022; }
       let t;
-      if (v < 0.74) t = T_GRASS; else if (v < 0.81) t = T_SAND; else if (v < 0.9) t = T_SHALLOW; else t = T_DEEP;
+      if (v < 0.74) t = T_GRASS; else if (v < 0.81) t = T_SAND; else if (v < (biomes ? 0.97 : 0.9)) t = T_SHALLOW; else t = T_DEEP;
       if (vd < this.volcano.r) t = T_MOUNT;
+      if (biomes) {
+        if (gd < this.glacier.r && (t === T_GRASS || t === T_SAND)) t = T_SNOW;
+        const ld = Math.hypot(x - this.lagoon.x, y - this.lagoon.y) + (fbm(x * 0.25, y * 0.25, s + 11, 2) - 0.5) * 2.4;
+        if (ld < this.lagoon.r) t = T_SHALLOW; else if (ld < this.lagoon.r + 1.1 && t === T_GRASS) t = T_SAND;
+      }
       this.tiles[this.idx(x, y)] = t;
       this.shade[this.idx(x, y)] = fbm(x * 0.07, y * 0.07, s + 50, 3);
     }
     // keep the starting area solid land
     for (let y = 15; y < 34; y++) for (let x = 16; x < 35; x++) {
       const i = this.idx(x, y);
-      if (this.tiles[i] !== T_MOUNT) this.tiles[i] = T_GRASS;
+      if (this.tiles[i] !== T_MOUNT && this.tiles[i] !== T_SNOW && this.tiles[i] !== T_SHALLOW) this.tiles[i] = T_GRASS;
     }
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const i = this.idx(x, y), t = this.tiles[i];
-      if (t !== T_GRASS && t !== T_SAND) continue;
+      if (t !== T_GRASS && t !== T_SAND && t !== T_SNOW) continue;
       if (x >= 17 && x <= 33 && y >= 17 && y <= 32) continue; // starting clearing
+      if (t === T_SNOW) { const r2 = rng(); if (r2 < 0.38) this.obs[i] = 6; else if (r2 < 0.5) this.obs[i] = 7; continue; }
       const dens = fbm(x * 0.16, y * 0.16, s + 99, 3);
       const r = rng();
       if (t === T_SAND) { if (r < 0.16) this.obs[i] = 2; else if (r < 0.2) this.obs[i] = 4; continue; }
@@ -64,18 +75,31 @@ const World = {
   },
 
   findShore() {
+    // flood-fill open ocean from the map border so inland lagoons are told apart
+    this.ocean = new Uint8Array(MAP * MAP);
+    const st = [];
+    for (let i = 0; i < MAP; i++) st.push([i, 0], [i, MAP - 1], [0, i], [MAP - 1, i]);
+    while (st.length) {
+      const [x, y] = st.pop();
+      if (!this.inMap(x, y)) continue;
+      const k = this.idx(x, y);
+      if (this.ocean[k] || this.isLandT(this.tiles[k])) continue;
+      this.ocean[k] = 1;
+      st.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+    }
     this.shore = [];
     for (let y = 0; y < MAP; y++) for (let x = 0; x < MAP; x++) {
       if (!this.isLandT(this.tiles[this.idx(x, y)])) continue;
       for (const [dx, dy, e] of [[1, 0, 'e'], [0, 1, 's'], [-1, 0, 'w'], [0, -1, 'n']]) {
         const nx = x + dx, ny = y + dy;
-        if (!this.inMap(nx, ny) || !this.isLandT(this.tiles[this.idx(nx, ny)])) this.shore.push({ x, y, e });
+        if (!this.inMap(nx, ny) || !this.isLandT(this.tiles[this.idx(nx, ny)])) this.shore.push({ x, y, e, ocean: !this.inMap(nx, ny) || this.ocean[this.idx(nx, ny)] === 1 });
       }
     }
   },
   isLandT: t => t >= T_SAND,
+  tileType(x, y) { return this.inMap(x, y) ? this.tiles[this.idx(x, y)] : T_DEEP; },
   isLand(x, y) { return this.inMap(x, y) && this.tiles[this.idx(x, y)] >= T_SAND; },
-  buildable(x, y) { if (!this.inMap(x, y)) return false; const t = this.tiles[this.idx(x, y)]; return t === T_GRASS || t === T_SAND; },
+  buildable(x, y) { if (!this.inMap(x, y)) return false; const t = this.tiles[this.idx(x, y)]; return t === T_GRASS || t === T_SAND || t === T_SNOW; },
   tileFree(x, y, ignoreId = 0) {
     if (!this.buildable(x, y)) return false;
     const i = this.idx(x, y);
@@ -83,8 +107,16 @@ const World = {
     if (this.occ[i] && this.occ[i] !== ignoreId) return false;
     return true;
   },
-  canPlace(x, y, w, h, ignoreId = 0, allowRoad = false) {
+  canPlace(x, y, w, h, ignoreId = 0, allowRoad = false, habitat = 'land') {
     for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) {
+      if (habitat === 'aqua') {
+        // lagoon pens float in shallow water
+        if (this.tileType(i, j) !== T_SHALLOW) return false;
+        const k = this.idx(i, j);
+        if (this.occ[k] && this.occ[k] !== ignoreId) return false;
+        continue;
+      }
+      if (habitat === 'ice' && this.tileType(i, j) !== T_SNOW) return false;
       if (!this.tileFree(i, j, ignoreId)) return false;
       if (!allowRoad && this.roads[this.idx(i, j)]) return false;
     }
@@ -128,6 +160,14 @@ const World = {
     const rnd = (x, y, k) => hash2(x, y, k + this.seedK);
     this.seedK = G.seed % 997;
 
+    // 0. shallow lagoon & reef water (lighter turquoise, slight variation)
+    for (let y = 0; y < MAP; y++) for (let x = 0; x < MAP; x++) {
+      if (this.tiles[this.idx(x, y)] !== T_SHALLOW) continue;
+      const inland = !this.ocean[this.idx(x, y)];
+      const n = fbm(x * 0.3, y * 0.3, this.seedK + 3, 2);
+      ctx.fillStyle = inland ? `rgba(70,205,215,${0.42 + n * 0.2})` : `rgba(70,190,205,${0.16 + n * 0.14})`;
+      diamond(x, y, 1.08, CLIFF * 0.6); ctx.fill();
+    }
     // 1. shallow water halo (layered soft diamonds)
     const layers = [[3.4, 'rgba(60,200,210,0.07)'], [2.6, 'rgba(70,210,215,0.09)'], [1.9, 'rgba(90,220,215,0.12)'], [1.4, 'rgba(130,230,210,0.16)']];
     for (const [sc, col] of layers) {
@@ -141,7 +181,7 @@ const World = {
     for (let y = 0; y < MAP; y++) for (let x = 0; x < MAP; x++) {
       if (!land(x, y)) continue;
       const t = this.tiles[this.idx(x, y)];
-      const top = t === T_SAND ? ['#d8c088', '#a88a54'] : ['#8a6a40', '#4e3820'];
+      const top = t === T_SAND ? ['#d8c088', '#a88a54'] : t === T_SNOW ? ['#e8f2fa', '#8eaac4'] : ['#8a6a40', '#4e3820'];
       const [a0, a1] = P(x, y + 1), [b0, b1] = P(x + 1, y + 1), [c0, c1] = P(x + 1, y);
       if (!land(x, y + 1)) { // south-west face
         const g = ctx.createLinearGradient(0, a1, 0, a1 + CLIFF); g.addColorStop(0, top[0]); g.addColorStop(1, top[1]);
@@ -161,6 +201,7 @@ const World = {
       const sh = this.shade[this.idx(x, y)];
       let col;
       if (t === T_SAND) col = mix('#f0dca0', '#dcc080', sh);
+      else if (t === T_SNOW) col = mix('#f7fbfe', '#d6e4f0', clamp(sh * 1.3 - 0.15, 0, 1));
       else if (t === T_MOUNT) col = mix('#6a5a48', '#4a3e32', sh);
       else {
         col = mix('#8cc45a', '#5a9a3c', clamp(sh * 1.3 - 0.15, 0, 1));
@@ -226,12 +267,37 @@ const World = {
           ctx.fillStyle = '#fbe9dc'; ctx.strokeStyle = '#b88a6a'; ctx.lineWidth = 0.6;
           ctx.beginPath(); ctx.ellipse(px, py, 2.6, 1.8, 0.3, 0, TAU); ctx.fill(); ctx.stroke();
         }
+      } else if (t === T_SNOW) {
+        // blue shadows in the snow, footprint dimples and glittering crystals
+        for (let k = 0; k < 4; k++) {
+          const [px, py] = inTile(rnd(x, y, 800 + k), rnd(x, y, 820 + k));
+          ctx.fillStyle = 'rgba(120,160,200,0.18)'; ctx.beginPath(); ctx.ellipse(px, py, 5 + rnd(x, y, 840 + k) * 8, 2 + rnd(x, y, 850 + k) * 2.5, 0, 0, TAU); ctx.fill();
+        }
+        for (let k = 0; k < 10; k++) {
+          const [px, py] = inTile(rnd(x, y, 860 + k), rnd(x, y, 880 + k));
+          ctx.fillStyle = rnd(x, y, 900 + k) < 0.6 ? 'rgba(255,255,255,0.95)' : 'rgba(150,200,240,0.7)'; ctx.fillRect(px, py, 1.1, 1.1);
+        }
+        if (rnd(x, y, 920) < 0.15) for (let k = 0; k < 3; k++) { const [px, py] = inTile(0.3 + k * 0.2, 0.5 + (k % 2) * 0.1); ctx.strokeStyle = 'rgba(90,110,70,0.7)'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + 1, py - 4); ctx.stroke(); }
       } else if (t === T_MOUNT) {
         for (let k = 0; k < 10; k++) {
           const [px, py] = inTile(rnd(x, y, 500 + k), rnd(x, y, 530 + k));
           ctx.fillStyle = rnd(x, y, 560 + k) < 0.5 ? 'rgba(30,20,15,0.4)' : 'rgba(160,140,120,0.35)';
           ctx.beginPath(); ctx.ellipse(px, py, 2 + rnd(x, y, 590 + k) * 3, 1.2 + rnd(x, y, 600 + k) * 1.5, 0, 0, TAU); ctx.fill();
         }
+      }
+    }
+    // 6b. snow drifts spilling onto neighbouring ground
+    for (let y = 0; y < MAP; y++) for (let x = 0; x < MAP; x++) {
+      const t = this.tiles[this.idx(x, y)];
+      if (t !== T_GRASS && t !== T_SAND) continue;
+      let sn = 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (this.inMap(x + dx, y + dy) && this.tiles[this.idx(x + dx, y + dy)] === T_SNOW) sn++;
+      if (!sn) continue;
+      const [tx, ty] = P(x, y);
+      for (let k = 0; k < 6 + sn * 3; k++) {
+        const u = rnd(x, y, 940 + k), v = rnd(x, y, 960 + k);
+        ctx.fillStyle = `rgba(245,250,255,${0.5 + rnd(x, y, 980 + k) * 0.4})`;
+        ctx.beginPath(); ctx.ellipse(tx + (u - v) * TW / 2, ty + (u + v) * TH / 2, 3 + u * 6, 1.5 + v * 2, 0, 0, TAU); ctx.fill();
       }
     }
     // 7. grass tufts spilling onto sand borders

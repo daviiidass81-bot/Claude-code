@@ -301,6 +301,48 @@ function paintRock(ctx, rng, v, big) {
   return { hitR: big ? 34 : 16, hitH: big ? 34 : 22 };
 }
 
+/* ---------- snow biome ---------- */
+function paintSnowPine(ctx, rng, v) {
+  const H = 70 + rng() * 34, W = 20 + rng() * 8;
+  groundShadow(ctx, 10, 2, 24, 10, 0.25);
+  trunkPath(ctx, 0, 1, 0, -H * 0.3, 3.2, 2, 0);
+  ctx.fillStyle = barkFill(ctx, 0, -H, 0, 3, '#6a4a2a', '#2a1a0c'); ctx.fill();
+  const tiers = 5 + (v % 2);
+  for (let t = 0; t < tiers; t++) {
+    const k = t / tiers, y0 = -H * (0.18 + k * 0.78), w = W * (1 - k * 0.78), h = H * 0.3;
+    // needle mass
+    const g = ctx.createLinearGradient(-w, 0, w, 0);
+    g.addColorStop(0, '#2e5a44'); g.addColorStop(0.5, '#1e4434'); g.addColorStop(1, '#0e2a1e');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.moveTo(-w, y0); ctx.quadraticCurveTo(-w * 0.4, y0 - h * 0.35, 0, y0 - h); ctx.quadraticCurveTo(w * 0.4, y0 - h * 0.35, w, y0);
+    for (let i = 4; i >= -4; i--) ctx.lineTo(i * w / 4, y0 + (i % 2 ? 3 : 0)); ctx.closePath(); ctx.fill();
+    // snow cap resting on the tier
+    ctx.fillStyle = '#f4f8fc';
+    ctx.beginPath(); ctx.moveTo(-w * 0.85, y0 - 2); ctx.quadraticCurveTo(-w * 0.35, y0 - h * 0.4, 0, y0 - h * 0.98); ctx.quadraticCurveTo(w * 0.2, y0 - h * 0.55, w * 0.55, y0 - h * 0.25);
+    for (let i = 0; i < 5; i++) ctx.quadraticCurveTo(w * (0.5 - i * 0.28), y0 - h * 0.2 + (i % 2 ? 4 : 1), w * (0.4 - i * 0.3), y0 - h * 0.18 + (i % 2 ? 1 : 3));
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(150,190,225,0.5)'; ctx.beginPath(); ctx.ellipse(w * 0.3, y0 - h * 0.28, w * 0.25, h * 0.08, -0.4, 0, TAU); ctx.fill();
+  }
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0, -H * 0.98 - 2, 2.2, 0, TAU); ctx.fill();
+  return { hitR: 20, hitH: H + 6 };
+}
+function paintIceRock(ctx, rng, v) {
+  groundShadow(ctx, 6, 2, 26, 10, 0.3);
+  const n = 2 + (v % 2);
+  for (let i = 0; i < n; i++) {
+    const x = (i - (n - 1) / 2) * 14 + (rng() - 0.5) * 4, r = 12 + rng() * 8, y = i === 1 ? -3 : 1;
+    const pts = [];
+    for (let k = 0; k < 7; k++) { const a = Math.PI + (k / 6) * Math.PI; pts.push([x + Math.cos(a) * r * (0.9 + rng() * 0.3), y + Math.sin(a) * r * (1 + rng() * 0.5)]); }
+    const g = ctx.createLinearGradient(x - r, y - r * 1.4, x + r, y);
+    g.addColorStop(0, '#e8f6ff'); g.addColorStop(0.4, '#a8d4ec'); g.addColorStop(1, '#5a8aac');
+    ctx.fillStyle = g; ctx.strokeStyle = 'rgba(40,70,100,0.6)'; ctx.lineWidth = 0.9;
+    ctx.beginPath(); pts.forEach((p, k) => (k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]))); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.beginPath(); ctx.moveTo(pts[2][0], pts[2][1]); ctx.lineTo(x, y - 2); ctx.lineTo(pts[4][0], pts[4][1]); ctx.stroke();
+    ctx.fillStyle = '#f8fbfe'; ctx.beginPath(); ctx.moveTo(pts[1][0], pts[1][1] + 1); for (let k = 2; k < 6; k++) ctx.lineTo(pts[k][0], pts[k][1] - 1); ctx.quadraticCurveTo(x, pts[3][1] + r * 0.45, pts[1][0], pts[1][1] + 1); ctx.fill();
+  }
+  return { hitR: 26, hitH: 34 };
+}
+
 /* ---------- volcano ---------- */
 function paintVolcano() {
   const W = 620, Hh = 330;
@@ -663,15 +705,36 @@ const PAINT = {
     I.light(1.4, 1.4, 70, 120, 'rgba(100,200,255,');
     I.plant(0.2, 2.9, 6, 1, '#fff'); I.plant(2.9, 1.0, 6, 1);
   },
-  crop_harbor(I) { return PAINT._harbor(I, false); },
-  meat_harbor(I) { return PAINT._harbor(I, true); },
-  _harbor(I, meat) {
+  crop_harbor(I) { return PAINT._harbor(I, 'crops'); },
+  meat_harbor(I) { return PAINT._harbor(I, 'meat'); },
+  fish_harbor(I) { return PAINT._harbor(I, 'fish'); },
+  _harbor(I, food) {
+    const meat = food === 'meat';
     I.shadow(0.1, 0.1, 2.9, 2.9, 70);
     // dock deck
     I.box(0.05, 0.05, 2.95, 2.95, 0, 5, '#9a7a52', { top: '#b8966a' });
     const c = I.c; c.strokeStyle = 'rgba(60,40,20,0.45)'; c.lineWidth = 0.7;
     for (let k = 1; k < 12; k++) { const u = 0.05 + 2.9 * k / 12; c.beginPath(); c.moveTo(...I.p(u, 0.05, 5)); c.lineTo(...I.p(u, 2.95, 5)); c.stroke(); }
-    if (meat) {
+    if (food === 'fish') {
+      // weathered blue fishing shed with nets, fish crates and buoys
+      I.box(0.25, 0.25, 2.0, 2.1, 5, 34, '#4a7a9a');
+      c.strokeStyle = 'rgba(20,40,60,0.45)'; for (let k = 1; k < 10; k++) { const u = 0.25 + 1.75 * k / 10; c.beginPath(); c.moveTo(...I.p(u, 2.1, 5)); c.lineTo(...I.p(u, 2.1, 34)); c.stroke(); }
+      for (let k = 1; k < 9; k++) { const v = 0.25 + 1.85 * k / 9; c.beginPath(); c.moveTo(...I.p(2.0, v, 5)); c.lineTo(...I.p(2.0, v, 34)); c.stroke(); }
+      I.box(0.75, 2.1, 1.45, 2.14, 5, 24, '#2a3a4a');
+      I.winR(2.0, 0.6, 1.1, 16, 26, { frame: '#e8e4dc' }); I.winR(2.0, 1.4, 1.9, 16, 26, { frame: '#e8e4dc' });
+      I.gable(0.25, 0.25, 2.0, 2.1, 34, 18, '#e8e4dc', 'u', { style: 'metal', wall: '#5a8aaa', gableWin: true });
+      // hanging nets
+      c.strokeStyle = 'rgba(40,30,20,0.55)'; c.lineWidth = 0.6;
+      for (let k = 0; k <= 8; k++) { const u = 0.3 + k * 0.08; c.beginPath(); c.moveTo(...I.p(u, 2.16, 30)); c.quadraticCurveTo(...I.p(u + 0.03, 2.16, 18), ...I.p(u + 0.01, 2.16, 8)); c.stroke(); }
+      for (let z = 10; z < 30; z += 4) { c.beginPath(); c.moveTo(...I.p(0.3, 2.16, z)); c.lineTo(...I.p(0.94, 2.16, z + 1)); c.stroke(); }
+      for (const [u, col] of [[0.4, '#ff5a3a'], [0.62, '#ffd23f'], [0.84, '#ff5a3a']]) { const [x, y] = I.p(u, 2.18, 12); c.fillStyle = col; c.beginPath(); c.arc(x, y, 2.2, 0, TAU); c.fill(); }
+      I.crate(2.15, 0.25, 0.32, 5, '#7a8a94', ['#c0d0e0', '#a8b8c8', '#d8e4ec']);
+      I.crate(2.5, 0.25, 0.32, 5, '#7a8a94', ['#e0a090', '#c8d8e4']);
+      I.crate(2.15, 0.62, 0.32, 5, '#7a8a94', ['#c0d0e0', '#e8a888']);
+      for (let k = 0; k < 3; k++) I.cyl(2.55, 1.4 + k * 0.42, 5, 16, 0.16, '#3a6a8a', { top: '#a8c8d8' });
+      I.box(0.6, 2.35, 1.6, 2.4, 38, 50, '#1e3a52');
+      I.textL('FISH', 1.1, 2.42, 44, 8, '#8fd3ff', { glow: 'rgba(140,210,255,1)' });
+    } else if (meat) {
       I.box(0.25, 0.25, 2.0, 2.1, 5, 42, '#dfe3e6');
       I.quadL(0.25, 2.0, 2.1, 30, 36, '#c8302a'); I.quadR(2.0, 0.25, 2.1, 30, 36, '#9a221e');
       c.strokeStyle = 'rgba(0,0,0,0.15)'; for (let k = 1; k < 16; k++) { const u = 0.25 + 1.75 * k / 16; c.beginPath(); c.moveTo(...I.p(u, 2.1, 5)); c.lineTo(...I.p(u, 2.1, 30)); c.stroke(); }
@@ -1167,7 +1230,7 @@ function paintIcon(kind, size = 26) {
       ctx.fillStyle = g; ctx.strokeStyle = '#6a3a00'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill(); ctx.stroke();
       ctx.strokeStyle = '#b67800'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(0, 0, r * 0.68, 0, TAU); ctx.stroke();
       ctx.fillStyle = '#8a5500'; ctx.font = `900 ${r * 1.1}px Nunito, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('$', 0, 1);
-    } else if (kind === 'crops' || kind === 'meat' || kind === 'amber' || kind === 'bucks' || kind === 'xp') {
+    } else if (kind === 'crops' || kind === 'meat' || kind === 'fish' || kind === 'amber' || kind === 'bucks' || kind === 'xp') {
       const img = ICON_IMG[kind];
       if (img && img.complete) ctx.drawImage(img, -r, -r, r * 2, r * 2);
     } else if (kind === 'hammer') {
@@ -1188,7 +1251,7 @@ function paintIcon(kind, size = 26) {
 const ICON_IMG = {};
 function loadIconImages() {
   // reuse the CSS data-URI icons for world bubbles
-  const map = { crops: 'ic-crop', meat: 'ic-meat', amber: 'ic-amber', bucks: 'ic-buck', xp: 'ic-xp' };
+  const map = { crops: 'ic-crop', meat: 'ic-meat', fish: 'ic-fish', amber: 'ic-amber', bucks: 'ic-buck', xp: 'ic-xp' };
   const probe = document.createElement('i'); document.body.appendChild(probe);
   const proms = [];
   for (const k in map) {
@@ -1220,11 +1283,15 @@ function buildSprites() {
   for (let v = 0; v < 6; v++) { const rng = mulberry32(3000 + v * 13); Sprites.trees.bush.push(makeSprite(60, 48, 30, 38, ctx => paintBush(ctx, rng, v))); }
   Sprites.trees.rock = [];
   for (let v = 0; v < 4; v++) { const rng = mulberry32(4000 + v * 7); Sprites.trees.rock.push(makeSprite(60, 44, 30, 32, ctx => paintRock(ctx, rng, v, false))); }
+  Sprites.trees.snowpine = [];
+  for (let v = 0; v < 5; v++) { const rng = mulberry32(6000 + v * 19); Sprites.trees.snowpine.push(makeSprite(90, 140, 45, 126, ctx => paintSnowPine(ctx, rng, v))); }
+  Sprites.trees.icerock = [];
+  for (let v = 0; v < 3; v++) { const rng = mulberry32(7000 + v * 7); Sprites.trees.icerock.push(makeSprite(90, 70, 45, 52, ctx => paintIceRock(ctx, rng, v))); }
   Sprites.trees.bigrock = [];
   for (let v = 0; v < 3; v++) { const rng = mulberry32(5000 + v * 7); Sprites.trees.bigrock.push(makeSprite(90, 64, 45, 48, ctx => paintRock(ctx, rng, v, true))); }
   Sprites.misc.volcano = paintVolcano();
   // buildings
-  const heights = { visitor_center: 150, gate: 150, lab: 110, crop_harbor: 100, meat_harbor: 100, arena: 90, souvenir: 80, burger: 90, icecream: 100, coffee: 70, ranger: 90, restaurant: 100, tower: 160, jeep: 70, museum: 100, hotel: 170, helipad: 60 };
+  const heights = { visitor_center: 150, gate: 150, lab: 110, crop_harbor: 100, meat_harbor: 100, fish_harbor: 100, arena: 90, souvenir: 80, burger: 90, icecream: 100, coffee: 70, ranger: 90, restaurant: 100, tower: 160, jeep: 70, museum: 100, hotel: 170, helipad: 60 };
   for (const id in BUILDINGS) {
     const [w, h] = BUILDINGS[id].size;
     let extra = {};
@@ -1244,7 +1311,7 @@ function buildSprites() {
   Sprites.fences.gu = makeSprite(TW / 2 + fm * 2, TH / 2 + 44 + fm, fm, 44 + fm / 2, ctx => paintFence(ctx, 'u', true));
   Sprites.fences.gv = makeSprite(TW / 2 + fm * 2, TH / 2 + 44 + fm, TW / 2 + fm, 44 + fm / 2, ctx => paintFence(ctx, 'v', true));
   Sprites.fences.post = makeSprite(20, 50, 10, 42, ctx => { const I = new Iso(ctx, null); I.box(-0.05, -0.05, 0.05, 0.05, 0, 34, '#9a968e', { top: '#c8c4bc' }); ctx.fillStyle = '#ffcf3a'; ctx.beginPath(); ctx.arc(0, -35, 1.5, 0, TAU); ctx.fill(); });
-  for (const k of ['coin', 'crops', 'meat', 'amber', 'bucks', 'xp', 'hammer', 'zzz', 'hungry', 'check', 'evolve']) Sprites.icons[k] = paintIcon(k);
+  for (const k of ['coin', 'crops', 'meat', 'fish', 'amber', 'bucks', 'xp', 'hammer', 'zzz', 'hungry', 'check', 'evolve']) Sprites.icons[k] = paintIcon(k);
   // paddock props
   Sprites.misc.trough = makeSprite(60, 40, 30, 24, ctx => {
     const I = new Iso(ctx, null);

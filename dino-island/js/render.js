@@ -86,6 +86,7 @@ const Render = {
     this.drawGround(ctx, view);
     this.drawScene(ctx, view);
     this.drawParticles(ctx);
+    this.drawSnowfall(ctx);
     this.drawOverlays(ctx, view);
     // sky layer
     this.drawCloudShadows(ctx);
@@ -171,7 +172,7 @@ const Render = {
     let best = null, bd = 1e9;
     const cx = o.x + o.w / 2, cy = o.y + o.h / 2;
     for (const s of World.shore) {
-      if (s.e !== 'e' && s.e !== 's') continue;
+      if ((s.e !== 'e' && s.e !== 's') || !s.ocean) continue;
       const d = Math.hypot(s.x - cx, s.y - cy);
       if (d < bd) { bd = d; best = s; }
     }
@@ -217,7 +218,15 @@ const Render = {
         this.diamondPath(ctx, g.x - DECO_RADIUS, g.y - DECO_RADIUS, g.w + DECO_RADIUS * 2, g.h + DECO_RADIUS * 2);
         ctx.setLineDash([6, 6]); ctx.strokeStyle = 'rgba(255,230,140,0.7)'; ctx.stroke(); ctx.setLineDash([]);
       }
-      if (g.type === 'paddock') { const f = this.floor(g.w, SPECIES[g.def]); const w = World.toWorld(g.x, g.y); drawSprite(ctx, f, w.x, w.y, 1, 0.6); }
+      if (g.type === 'paddock') {
+        const hab = habitatOf(SPECIES[g.def]);
+        if (hab !== 'land') {
+          const want = hab === 'aqua' ? T_SHALLOW : T_SNOW;
+          ctx.fillStyle = hab === 'aqua' ? `rgba(120,240,255,${0.18 + 0.1 * Math.sin(this.t * 4)})` : `rgba(160,210,255,${0.2 + 0.1 * Math.sin(this.t * 4)})`;
+          for (let y = v.y0; y <= v.y1; y++) for (let x = v.x0; x <= v.x1; x++) if (World.tiles[World.idx(x, y)] === want && !World.occ[World.idx(x, y)]) { this.diamondPath(ctx, x, y, 1, 1); ctx.fill(); }
+        }
+        const f = this.floor(g.w, SPECIES[g.def]); const w = World.toWorld(g.x, g.y); drawSprite(ctx, f, w.x, w.y, 1, 0.6);
+      }
     }
     // road tool hover
     if (this.roadMode && this.hover) {
@@ -237,7 +246,7 @@ const Render = {
     ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.closePath();
   },
   floor(size, sp) {
-    const kind = sp.aviary ? 'aviary' : sp.diet === 'carn' ? 'dirt' : 'grass';
+    const kind = sp.habitat === 'aqua' ? 'lagoon' : sp.habitat === 'ice' ? 'snow' : sp.aviary ? 'aviary' : sp.diet === 'carn' ? 'dirt' : 'grass';
     const key = kind + size;
     if (!this.floorCache[key]) this.floorCache[key] = paintFloor(size, kind);
     return this.floorCache[key];
@@ -279,6 +288,12 @@ const Render = {
   pushPaddock(list, o) {
     const sp = SPECIES[o.species];
     const base = o.x + o.y;
+    if (sp.habitat === 'aqua') {
+      const a = Entities.dinos.get(o.id);
+      if (o.hatchEnd > now()) list.push({ d: o.x + o.y + o.w + o.h - 1.3, k: 'egg', o, ex: o.x + o.w - 0.42, ey: o.y + o.h - 0.42 });
+      else if (a) list.push({ d: base + 0.6, k: 'swim', a, o });
+      return;
+    }
     if (sp.aviary) {
       list.push({ d: base + 0.2, k: 'cageBack', o });
       list.push({ d: o.x + o.y + o.w + o.h - 0.2, k: 'cageFront', o });
@@ -294,7 +309,7 @@ const Render = {
     }
     // interior plants
     const r = hash2(o.id, 7, 1);
-    const plants = sp.diet === 'herb' ? [['tree', 0.9, 0.9], ['bush', o.w - 0.7, 0.7], ['bush', 0.7, o.h - 0.8]] : [['rock', 0.8, 0.9], ['bush', o.w - 0.7, 0.7], ['tree', 0.8, o.h - 0.9]];
+    const plants = sp.habitat === 'ice' ? [['snowpine', 0.9, 0.9], ['icerock', o.w - 0.7, 0.7], ['snowpine', 0.7, o.h - 0.8]] : sp.diet === 'herb' ? [['tree', 0.9, 0.9], ['bush', o.w - 0.7, 0.7], ['bush', 0.7, o.h - 0.8]] : [['rock', 0.8, 0.9], ['bush', o.w - 0.7, 0.7], ['tree', 0.8, o.h - 0.9]];
     if (sp.aviary) plants.length = 1;
     plants.forEach(([kind, px, py], i) => list.push({ d: o.x + px + o.y + py, k: 'plant', kind, x: o.x + px, y: o.y + py, v: Math.floor(r * 10 + i * 3) }));
     // trough
@@ -348,6 +363,7 @@ const Render = {
       case 'trough': { const w = World.toWorld(it.x, it.y); drawSprite(ctx, Sprites.misc.trough, w.x, w.y); break; }
       case 'egg': this.drawEgg(ctx, it.o, t); break;
       case 'dino': this.drawDino(ctx, it.a, it.o, t); break;
+      case 'swim': this.drawSwim(ctx, it.a, it.o, t); break;
       case 'cageBack': this.drawCage(ctx, it.o, false); break;
       case 'cageFront': this.drawCage(ctx, it.o, true); break;
       case 'vis': this.drawVisitor(ctx, it.v, t); break;
@@ -391,7 +407,46 @@ const Render = {
     const hw = sz.len * scale * a.growth() * 0.45, hh = (sz.h * scale * a.growth()) + (sp.aviary ? a.fly : 0) + 20;
     this.addHit(w.x - hw, w.y - hh, w.x + hw, w.y + 6, a.x + a.y + 0.5, { kind: 'dino', o });
   },
+  drawSwim(ctx, a, o, t) {
+    const sp = SPECIES[o.species], w = World.toWorld(a.x, a.y);
+    const scale = DINO_WORLD_SCALE * sp.size * 0.85 * a.growth();
+    const len = DinoArt.size(o.species).len * scale;
+    let lift = 0, rot = 0;
+    if (a.breach >= 0) { const k = a.breach; lift = Math.sin(Math.PI * k) * (40 + len * 0.25); rot = (0.5 - k) * 1.1; }
+    const pose = a.pose === 'roar' ? 'roar' : 'idle';
+    const draw = () => DinoArt.draw(ctx, o.species, 0, 0, scale, { stage: o.stage || 0, dir: a.dir, t: t + a.t0, pose, speed: a.speed, shadow: false });
+    // shadow on the pool floor
+    ctx.fillStyle = 'rgba(0,30,50,0.25)'; ctx.beginPath(); ctx.ellipse(w.x, w.y + 10, len * 0.4, 8, 0, 0, TAU); ctx.fill();
+    ctx.save();
+    if (lift < 8) { const p0 = World.toWorld(o.x + 0.16, o.y + 0.16), p1 = World.toWorld(o.x + o.w - 0.16, o.y + 0.16), p2 = World.toWorld(o.x + o.w - 0.16, o.y + o.h - 0.16), p3 = World.toWorld(o.x + 0.16, o.y + o.h - 0.16); ctx.beginPath(); ctx.moveTo(p0.x, p0.y - 60); ctx.lineTo(p1.x, p1.y - 60); ctx.lineTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.lineTo(p3.x, p3.y - 60); ctx.closePath(); ctx.clip(); }
+    ctx.translate(w.x, w.y - lift); ctx.rotate(rot * a.dir);
+    draw();
+    ctx.restore();
+    // the part below the surface is seen through tinted water
+    if (lift < 25) {
+      const wg = ctx.createRadialGradient(w.x, w.y + 6, 2, w.x, w.y + 6, len * 0.6);
+      wg.addColorStop(0, `rgba(30,130,170,${0.6 - lift / 60})`); wg.addColorStop(1, 'rgba(30,130,170,0)');
+      ctx.fillStyle = wg; ctx.beginPath(); ctx.ellipse(w.x, w.y + 8, len * 0.6, 12, 0, 0, TAU); ctx.fill();
+    }
+    // surface ripples
+    ctx.strokeStyle = 'rgba(230,250,255,0.55)'; ctx.lineWidth = 1.2;
+    for (let i = 0; i < 2; i++) { const k = ((t * 0.6 + i * 0.5 + a.t0) % 1); ctx.globalAlpha = 1 - k; ctx.beginPath(); ctx.ellipse(w.x, w.y + 2, len * (0.3 + k * 0.3), 4 + k * 6, 0, 0, TAU); ctx.stroke(); }
+    ctx.globalAlpha = 1;
+    this.addHit(w.x - len * 0.5, w.y - 40 - lift, w.x + len * 0.5, w.y + 16, a.x + a.y + 0.5, { kind: 'dino', o });
+  },
   drawEgg(ctx, o, t) {
+    if (SPECIES[o.species].habitat === 'aqua') {
+      // egg incubates on the pen's feeding platform under a heat lamp
+      const p = World.toWorld(o.x + o.w - 0.42, o.y + o.h - 0.42);
+      ctx.save(); ctx.translate(p.x, p.y - 4); ctx.scale(0.8, 0.8);
+      const g = ctx.createRadialGradient(-5, -22, 2, 0, -14, 18); g.addColorStop(0, '#fffaf0'); g.addColorStop(1, '#8ab0c0');
+      ctx.fillStyle = g; ctx.strokeStyle = 'rgba(30,50,60,0.5)'; ctx.beginPath(); ctx.moveTo(0, -30); ctx.bezierCurveTo(12, -30, 14, -6, 11, -2); ctx.quadraticCurveTo(0, 4, -11, -2); ctx.bezierCurveTo(-14, -6, -12, -30, 0, -30); ctx.fill(); ctx.stroke();
+      ctx.rotate(Math.sin(t * 6) * 0.05);
+      ctx.restore();
+      this.lights.push({ x: p.x, y: p.y - 30, r: 50, col: 'rgba(255,170,80,' });
+      this.addHit(p.x - 16, p.y - 34, p.x + 16, p.y + 4, o.x + o.y + o.w, { kind: 'dino', o });
+      return;
+    }
     const w = World.toWorld(o.x + o.w / 2, o.y + o.h / 2);
     drawSprite(ctx, Sprites.misc.nest, w.x, w.y);
     const total = o.hatchEnd - o.hatchStart, k = clamp(1 - (o.hatchEnd - now()) / total, 0, 1);
@@ -527,6 +582,22 @@ const Render = {
     ctx.strokeStyle = 'rgba(40,40,40,0.8)'; ctx.lineWidth = 2;
     for (let i = 0; i < 2; i++) { const aa = a + i * Math.PI / 2; ctx.beginPath(); ctx.moveTo(-Math.cos(aa) * 36, -25 - Math.sin(aa) * 12); ctx.lineTo(Math.cos(aa) * 36, -25 + Math.sin(aa) * 12); ctx.stroke(); }
     ctx.restore();
+  },
+
+  /* ---------- gentle snowfall over the glacier plateau ---------- */
+  drawSnowfall(ctx) {
+    const gl = World.glacier; if (!gl) return;
+    const c = World.toWorld(gl.x, gl.y), R = gl.r * 46;
+    const tl = this.s2w(0, 0), br = this.s2w(this.W, this.H);
+    if (c.x + R < tl.x || c.x - R > br.x || c.y + R < tl.y - 200 || c.y - R > br.y) return;
+    if (!this.flakes) this.flakes = Array.from({ length: 160 }, () => ({ x: rand(-1, 1), y: rand(-1, 1), z: rand(0, 120), v: rand(14, 26), p: rand(0, TAU) }));
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    for (const f of this.flakes) {
+      f.z -= f.v * 0.016; if (f.z < 0) { f.z = 120; f.x = rand(-1, 1); f.y = rand(-1, 1); }
+      if (f.x * f.x + f.y * f.y > 1) continue;
+      const x = c.x + f.x * R + Math.sin(this.t + f.p) * 6, y = c.y + f.y * R * 0.5 - f.z;
+      ctx.beginPath(); ctx.arc(x, y, 1.3, 0, TAU); ctx.fill();
+    }
   },
 
   /* ---------- particles ---------- */
@@ -802,7 +873,8 @@ function paintFloor(size, kind) {
     const I = new Iso(ctx, null);
     const rng = mulberry32(size * 31 + kind.length);
     const pts = [I.p(0.04, 0.04), I.p(size - 0.04, 0.04), I.p(size - 0.04, size - 0.04), I.p(0.04, size - 0.04)];
-    const cols = kind === 'grass' ? ['#5fa044', '#4a8a36', '#7ab852'] : kind === 'dirt' ? ['#a88a5c', '#8a6e46', '#c0a070'] : ['#d8c49a', '#b8a078', '#e8d8b0'];
+    if (kind === 'lagoon') { paintLagoonFloor(ctx, I, size, rng); return; }
+    const cols = kind === 'grass' ? ['#5fa044', '#4a8a36', '#7ab852'] : kind === 'dirt' ? ['#a88a5c', '#8a6e46', '#c0a070'] : kind === 'snow' ? ['#dce8f2', '#c4d6e6', '#f4f8fc'] : ['#d8c49a', '#b8a078', '#e8d8b0'];
     const g = ctx.createLinearGradient(0, 0, 0, size * TH);
     g.addColorStop(0, cols[2]); g.addColorStop(1, cols[1]);
     I.poly(pts, g);
@@ -812,7 +884,7 @@ function paintFloor(size, kind) {
       const [x, y] = I.p(rng() * size, rng() * size);
       const r = 6 + rng() * 14;
       const pg = ctx.createRadialGradient(x, y, 0, x, y, r);
-      const c = rng() < 0.5 ? cols[0] : kind === 'grass' ? '#8a7a4a' : cols[2];
+      const c = rng() < 0.5 ? cols[0] : kind === 'grass' ? '#8a7a4a' : kind === 'snow' ? '#a8c4dc' : cols[2];
       pg.addColorStop(0, rgba(c, 0.55)); pg.addColorStop(1, rgba(c, 0));
       ctx.fillStyle = pg; ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.5, 0, 0, TAU); ctx.fill();
     }
@@ -824,11 +896,21 @@ function paintFloor(size, kind) {
     // texture strokes
     for (let i = 0; i < size * size * 22; i++) {
       const [x, y] = I.p(rng() * size, rng() * size);
-      if (kind === 'grass') { ctx.strokeStyle = rng() < 0.5 ? 'rgba(30,80,20,0.5)' : 'rgba(170,220,110,0.45)'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + (rng() - 0.5) * 2, y - 3 - rng() * 3); ctx.stroke(); }
+      if (kind === 'snow') { ctx.fillStyle = rng() < 0.6 ? 'rgba(255,255,255,0.9)' : 'rgba(140,180,220,0.4)'; ctx.fillRect(x, y, 1.2, 1.2); }
+      else if (kind === 'grass') { ctx.strokeStyle = rng() < 0.5 ? 'rgba(30,80,20,0.5)' : 'rgba(170,220,110,0.45)'; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + (rng() - 0.5) * 2, y - 3 - rng() * 3); ctx.stroke(); }
       else { ctx.fillStyle = rng() < 0.5 ? 'rgba(60,40,20,0.35)' : 'rgba(255,240,210,0.35)'; ctx.fillRect(x, y, 1.3, 1.3); }
     }
     // pond or bones
-    if (kind === 'grass' || kind === 'aviary') {
+    if (kind === 'snow') {
+      // frozen pond with cracks
+      const [px, py] = I.p(size * 0.72, size * 0.28);
+      const pg = ctx.createRadialGradient(px - 6, py - 2, 2, px, py, size * 11);
+      pg.addColorStop(0, '#f0fbff'); pg.addColorStop(0.5, '#b8e0f4'); pg.addColorStop(1, '#7ab0d0');
+      ctx.fillStyle = pg; ctx.beginPath(); ctx.ellipse(px, py, size * 11, size * 5, 0, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 0.8;
+      for (let i = 0; i < 6; i++) { const a = rng() * TAU; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(a) * size * 8, py + Math.sin(a) * size * 3.5); ctx.stroke(); }
+      for (let i = 0; i < 5; i++) { const [x, y] = I.p(0.6 + rng() * (size - 1.2), 0.6 + rng() * (size - 1.2)); ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(x, y, 8 + rng() * 6, 3 + rng() * 2, 0, Math.PI, TAU); ctx.fill(); ctx.fillStyle = 'rgba(140,180,220,0.35)'; ctx.beginPath(); ctx.ellipse(x + 2, y + 1, 8, 2, 0, 0, Math.PI); ctx.fill(); }
+    } else if (kind === 'grass' || kind === 'aviary') {
       const [px, py] = I.p(size * 0.72, size * 0.28);
       const pg = ctx.createRadialGradient(px, py, 2, px, py, size * 9);
       pg.addColorStop(0, '#4ab8d8'); pg.addColorStop(0.7, '#2a88b0'); pg.addColorStop(1, '#1e6a8a');
@@ -848,6 +930,47 @@ function paintFloor(size, kind) {
     // concrete base rim
     ctx.strokeStyle = 'rgba(120,116,110,0.9)'; ctx.lineWidth = 2.5; I.path(pts); ctx.stroke();
   });
+}
+
+/* ---------- lagoon pens: concrete rim, deep water, buoys ---------- */
+function paintLagoonFloor(ctx, I, size, rng) {
+  const rim = 0.16, z = 7;
+  const outer = [I.p(0, 0), I.p(size, 0), I.p(size, size), I.p(0, size)];
+  const inner = [I.p(rim, rim), I.p(size - rim, rim), I.p(size - rim, size - rim), I.p(rim, size - rim)];
+  // water body
+  const g = ctx.createLinearGradient(0, 0, 0, size * TH);
+  g.addColorStop(0, '#1e7a9a'); g.addColorStop(0.5, '#2a9ab8'); g.addColorStop(1, '#46b8cc');
+  I.poly(inner, g);
+  ctx.save(); I.path(inner); ctx.clip();
+  // dark depth in the middle, rocks and kelp on the floor
+  const [cx, cy] = I.p(size / 2, size / 2);
+  const dg = ctx.createRadialGradient(cx, cy, 4, cx, cy, size * 26);
+  dg.addColorStop(0, 'rgba(8,50,80,0.55)'); dg.addColorStop(1, 'rgba(8,50,80,0)');
+  ctx.fillStyle = dg; ctx.fillRect(cx - size * 40, cy - size * 20, size * 80, size * 40);
+  for (let i = 0; i < size * 3; i++) {
+    const [x, y] = I.p(0.4 + rng() * (size - 0.8), 0.4 + rng() * (size - 0.8));
+    ctx.fillStyle = 'rgba(20,60,70,0.45)'; ctx.beginPath(); ctx.ellipse(x, y, 4 + rng() * 6, 2 + rng() * 2.5, 0, 0, TAU); ctx.fill();
+    if (rng() < 0.5) { ctx.strokeStyle = 'rgba(40,120,80,0.5)'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 3, y - 6, x - 1, y - 11); ctx.stroke(); }
+  }
+  ctx.strokeStyle = 'rgba(200,250,255,0.35)'; ctx.lineWidth = 1;
+  for (let i = 0; i < size * 7; i++) { const [x, y] = I.p(rng() * size, rng() * size); ctx.beginPath(); ctx.moveTo(x - 6, y); ctx.quadraticCurveTo(x, y - 2, x + 6, y); ctx.stroke(); }
+  ctx.restore();
+  // inner wall faces (visible on the back sides) and the rim
+  ctx.fillStyle = 'rgba(160,156,148,0.9)';
+  ctx.beginPath(); ctx.moveTo(...outer[0]); outer.forEach(p => ctx.lineTo(...p)); ctx.closePath();
+  ctx.moveTo(...inner[0]); [...inner].reverse().forEach(p => ctx.lineTo(...p)); ctx.closePath();
+  ctx.fill('evenodd');
+  ctx.strokeStyle = 'rgba(80,76,70,0.8)'; ctx.lineWidth = 1.2; I.path(outer); ctx.stroke(); I.path(inner); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(...inner[3]); ctx.lineTo(...inner[0]); ctx.lineTo(...inner[1]); ctx.stroke();
+  // safety rail along the rim
+  ctx.strokeStyle = 'rgba(230,230,225,0.9)'; ctx.lineWidth = 1.1;
+  const rail = (a, b) => { ctx.beginPath(); ctx.moveTo(a[0], a[1] - 9); ctx.lineTo(b[0], b[1] - 9); ctx.stroke(); };
+  for (let i = 0; i < 4; i++) rail(outer[i], outer[(i + 1) % 4]);
+  for (let i = 0; i < 4; i++) for (let k = 0; k <= size * 2; k++) { const t = k / (size * 2), a = outer[i], b = outer[(i + 1) % 4]; const x = lerp(a[0], b[0], t), y = lerp(a[1], b[1], t); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - 9); ctx.stroke(); }
+  // buoys and a feeding platform
+  for (const [u, v] of [[0.35, 0.35], [size - 0.35, 0.35], [0.35, size - 0.35]]) { const [x, y] = I.p(u, v); ctx.fillStyle = '#e0402a'; ctx.beginPath(); ctx.arc(x, y - 2, 3, 0, TAU); ctx.fill(); ctx.fillStyle = '#fff'; ctx.fillRect(x - 3, y - 3, 6, 1.6); }
+  I.box(size - 0.75, size - 0.75, size - 0.1, size - 0.1, 0, 5, '#b8b2a6', { top: '#d0cabe' });
+  const [bx, by] = I.p(size - 0.42, size - 0.42, 5); ctx.fillStyle = '#5a6a7a'; ctx.fillRect(bx - 4, by - 7, 8, 7); ctx.fillStyle = '#c0d4e4'; ctx.beginPath(); ctx.ellipse(bx, by - 7, 4, 1.6, 0, 0, TAU); ctx.fill();
 }
 
 /* ---------- people ---------- */
@@ -883,13 +1006,13 @@ function drawBoat(ctx, x, y, dir, food, big, t) {
   ctx.fillStyle = 'rgba(0,30,50,0.3)'; ctx.beginPath(); ctx.ellipse(0, 5, 34, 8, 0, 0, TAU); ctx.fill();
   // hull
   const g = ctx.createLinearGradient(0, -8, 0, 6);
-  g.addColorStop(0, food === 'meat' ? '#c8402a' : '#2e6a3a'); g.addColorStop(1, food === 'meat' ? '#7a2014' : '#18401e');
+  g.addColorStop(0, food === 'meat' ? '#c8402a' : food === 'fish' ? '#2a6aa0' : '#2e6a3a'); g.addColorStop(1, food === 'meat' ? '#7a2014' : food === 'fish' ? '#163a5a' : '#18401e');
   ctx.fillStyle = g; ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(-30, -8); ctx.lineTo(34, -8); ctx.quadraticCurveTo(30, 2, 22, 5); ctx.lineTo(-26, 5); ctx.quadraticCurveTo(-31, 0, -30, -8); ctx.closePath(); ctx.fill(); ctx.stroke();
   ctx.fillStyle = '#f2ead8'; ctx.fillRect(-29, -9.5, 62, 2.5);
   ctx.fillStyle = '#fff'; ctx.fillRect(-24, -3, 44, 1.2);
   // cargo
-  const cols = food === 'meat' ? ['#e8eef0', '#c8402a', '#d8a02a'] : ['#7ac04a', '#ffb03a', '#e0513a'];
+  const cols = food === 'meat' ? ['#e8eef0', '#c8402a', '#d8a02a'] : food === 'fish' ? ['#c0d0e0', '#ffd23f', '#e0513a'] : ['#7ac04a', '#ffb03a', '#e0513a'];
   for (let i = 0; i < 4; i++) { ctx.fillStyle = cols[i % cols.length]; ctx.fillRect(-8 + i * 9, -18, 8, 9); ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.strokeRect(-8 + i * 9, -18, 8, 9); }
   if (big) for (let i = 0; i < 3; i++) { ctx.fillStyle = cols[(i + 1) % cols.length]; ctx.fillRect(-4 + i * 9, -26, 8, 8); ctx.strokeRect(-4 + i * 9, -26, 8, 8); }
   // cabin

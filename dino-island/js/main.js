@@ -14,6 +14,7 @@ const Game = {
     if (m === 'road') { $('#modeText').innerHTML = this.roadErase ? 'Erase roads – drag over tiles' : `Road mode – drag to build (<i class="ic ic-coin"></i>${ROAD_COST}/tile)`; $('#modeAlt').classList.remove('hidden'); $('#modeAlt').textContent = this.roadErase ? 'Build' : 'Erase'; }
     if (m === 'edit') { $('#modeText').textContent = 'Edit mode – tap something to move it'; $('#modeAlt').classList.add('hidden'); }
     $('#placebar').classList.toggle('hidden', m !== 'place');
+    document.body.classList.toggle('bar-open', m === 'road' || m === 'edit' || m === 'place');
     this.refreshToolbar();
   },
   refreshToolbar() {
@@ -138,8 +139,8 @@ const Game = {
     missionEvent('collect_food');
     Sfx.food();
     const w = World.toWorld(o.x + o.w / 2, o.y + o.h / 2);
-    Entities.float(w.x, w.y - 90, `+${fmt(amt)} ${food}`, food === 'crops' ? '#b6e27a' : '#ff9a8a', 20);
-    Entities.emit(w.x, w.y - 60, 'food', 14, { col: food === 'crops' ? '#7ac04a' : '#c8402a' });
+    Entities.float(w.x, w.y - 90, `+${fmt(amt)} ${food}`, food === 'crops' ? '#b6e27a' : food === 'fish' ? '#8fd3ff' : '#ff9a8a', 20);
+    Entities.emit(w.x, w.y - 60, 'food', 14, { col: food === 'crops' ? '#7ac04a' : food === 'fish' ? '#8fc8e8' : '#c8402a' });
     UI.fly(food, sx, sy, 6);
     if (UI.infoObj === o) UI.renderInfo();
   },
@@ -164,17 +165,17 @@ const Game = {
     if (act === 'rushClear') { const job = G.clearing.find(c => c.i === World.idx(o.x, o.y)); if (job && spend({ bucks: speedCost(job.end - now()) })) { job.end = now(); } return; }
   },
   feed(o, sx, sy) {
-    const sp = SPECIES[o.species], food = sp.diet === 'herb' ? 'crops' : 'meat';
+    const sp = SPECIES[o.species], food = foodOf(sp);
     if (o.level >= maxLevelForStage(o.stage || 0)) return;
     const cost = feedCost(o);
-    if (!spend({ [food]: cost })) { UI.toast(food === 'crops' ? 'Order crops at the Crop Harbor!' : 'Order meat at the Meat Harbor!', 'err'); return; }
+    if (!spend({ [food]: cost })) { UI.toast(food === 'crops' ? 'Order crops at the Crop Harbor!' : food === 'fish' ? 'Order fish at the Fish Harbor!' : 'Order meat at the Meat Harbor!', 'err'); return; }
     o.feeds++;
     G.stats.fed++;
     missionEvent('feed', { species: o.species });
     Sfx.food();
     const a = Entities.dinos.get(o.id); if (a) a.eatNow();
     const w = World.toWorld(o.x + o.w - 1.2, o.y + o.h - 0.8);
-    Entities.emit(w.x, w.y - 10, 'food', 10, { col: food === 'crops' ? '#7ac04a' : '#c8402a' });
+    Entities.emit(w.x, w.y - 10, 'food', 10, { col: food === 'crops' ? '#7ac04a' : food === 'fish' ? '#8fc8e8' : '#c8402a' });
     addXP(3 + o.level, 'feed');
     if (o.feeds >= FEEDS_PER_LEVEL) {
       o.feeds = 0; o.level++;
@@ -293,14 +294,20 @@ const Game = {
     let w, h;
     if (type === 'paddock') w = h = SPECIES[def].pad; else if (type === 'deco') [w, h] = DECOS[def].size; else [w, h] = BUILDINGS[def].size;
     // start near the screen center on a free spot
+    const hab = type === 'paddock' ? habitatOf(SPECIES[def]) : 'land';
     const c = Render.s2t(Render.W / 2, Render.H / 2);
-    let best = { x: c.x - Math.floor(w / 2), y: c.y - Math.floor(h / 2) };
-    outer: for (let r = 0; r < 14; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+    let best = null;
+    // nearest valid spot to the screen centre (searching the whole island for lagoon / glacier species)
+    outer: for (let r = 0; r < MAP; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
       if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
       const x = c.x - Math.floor(w / 2) + dx, y = c.y - Math.floor(h / 2) + dy;
-      if (World.canPlace(x, y, w, h, moving ? moving.id : 0)) { best = { x, y }; break outer; }
+      if (World.canPlace(x, y, w, h, moving ? moving.id : 0, false, hab)) { best = { x, y }; break outer; }
     }
-    this.placing = { type, def, w, h, moving };
+    if (!best) {
+      best = { x: c.x - Math.floor(w / 2), y: c.y - Math.floor(h / 2) };
+      UI.toast(hab === 'aqua' ? 'No free shallow water big enough – try another spot in the lagoon.' : hab === 'ice' ? 'Clear snowy pines and ice rocks on the glacier to make room.' : 'Clear some jungle to make room.', 'err', 4000);
+    } else if (hab !== 'land' || Math.hypot(best.x - c.x, best.y - c.y) > 8) Render.focusTile(best.x + w / 2, best.y + h / 2);
+    this.placing = { type, def, w, h, moving, hab };
     Render.ghost = { type, def, w, h, x: best.x, y: best.y, valid: false, moving };
     this.mode = 'place';
     this.setMode('place');
@@ -311,7 +318,7 @@ const Game = {
   moveGhost(x, y) {
     const g = Render.ghost; if (!g) return;
     g.x = clamp(x, 0, MAP - g.w); g.y = clamp(y, 0, MAP - g.h);
-    g.valid = World.canPlace(g.x, g.y, g.w, g.h, g.moving ? g.moving.id : 0);
+    g.valid = World.canPlace(g.x, g.y, g.w, g.h, g.moving ? g.moving.id : 0, false, this.placing ? this.placing.hab : 'land');
     $('#placeOk').disabled = !g.valid;
   },
   moveGhostDone() {},
@@ -330,7 +337,7 @@ const Game = {
       const o = makeObject(p.type, p.def, g.x, g.y);
       addObject(o);
       Sfx.build();
-      if (p.type === 'paddock') { Entities.syncDinos(); missionEvent('buy_dino', { species: p.def }); addXP(20 + def.level * 5, 'buy'); UI.toast(`${def.name} egg placed! It will hatch in ${fmtTime(def.hatch * 1000)}.`, 'good'); }
+      if (p.type === 'paddock') { Entities.syncDinos(); missionEvent('buy_dino', { species: p.def, habitat: habitatOf(def) }); addXP(20 + def.level * 5, 'buy'); UI.toast(`${def.name} egg placed! It will hatch in ${fmtTime(def.hatch * 1000)}.`, 'good'); }
       else if (p.type === 'deco') { missionEvent('deco'); addXP(5, 'deco'); }
       else { missionEvent('build', { id: p.def }); addXP(def.xp || 20, 'build'); }
       const c = World.toWorld(g.x + g.w / 2, g.y + g.h / 2);
@@ -475,10 +482,23 @@ function setupNewPark() {
 }
 function loadPark(s) {
   G = s;
-  World.generate(G.seed);
+  World.generate(G.seed, true);
   World.decode(G.roads, World.roads);
   World.decode(G.obs, World.obs);
-  World.rebuildOcc(); recomputeBonuses();
+  World.rebuildOcc();
+  if ((G.worldVer || 1) < 2) {
+    // upgrade older parks: add glacier & lagoon without disturbing what was built
+    for (let i = 0; i < World.tiles.length; i++) {
+      const t = World.tiles[i];
+      if (t === T_SHALLOW && (World.occ[i] || World.roads[i])) World.tiles[i] = T_GRASS;
+      if (World.tiles[i] === T_SHALLOW || World.tiles[i] === T_DEEP) World.obs[i] = 0;
+      if (World.tiles[i] === T_SNOW && World.obs[i]) World.obs[i] = World.obs[i] >= 4 && World.obs[i] <= 5 ? 7 : World.obs[i] < 6 ? 6 : World.obs[i];
+    }
+    World.findShore();
+    G.worldVer = 2;
+    if (G.fish === undefined) G.fish = 60;
+  }
+  recomputeBonuses();
 }
 
 /* ==========================================================

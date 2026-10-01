@@ -85,7 +85,11 @@ Ein eigenständiges Aufbauspiel auf **Englisch**, inspiriert von *Jurassic Park 
 
 - Isometrische Insel mit Vulkan, Strand und Dschungel. Bäume und Felsen roden, dabei **Bernstein** finden.
 - **Genlabor:** Bernstein entschlüsseln, um neue Arten freizuschalten, und Evolutionen erforschen.
-- **17 Arten**, animiert und in 4 Evolutionsstufen: Pflanzenfresser bekommen Crops, Fleischfresser Meat. Füttern lässt sie aufsteigen und vom Jungtier zum ausgewachsenen Tier werden.
+- **37 Arten** in drei Lebensräumen, alle animiert und in 4 Evolutionsstufen:
+  - **Dschungel:** 23 Dinosaurier und Flugsaurier, unter anderem T-Rex, Spinosaurus, Therizinosaurus und Diplodocus.
+  - **Lagune (Wassergebiet):** 7 Meerestiere wie Mosasaurus, Megalodon, Plesiosaurus und Archelon. Sie leben in Becken im Flachwasser, springen aus dem Wasser und fressen Fisch vom Fischhafen.
+  - **Gletscher (Schneegebiet):** 7 Eiszeittiere wie Mammut, Säbelzahnkatze, Wollnashorn und Riesenhirsch, auf dem verschneiten Plateau mit Schneefall.
+- Füttern (Crops, Meat oder Fish) lässt die Tiere aufsteigen und vom Jungtier zum ausgewachsenen Tier werden.
 - **Häfen** mit Frachtschiffen, 14 Gebäude, 13 Dekorationen mit Einkommensbonus, Wege mit Besuchern und Tour-Jeeps.
 - **Arena:** rundenbasiert mit Charge / Bite / Swipe (Schwächen-System), Block, Special und angekündigten Gegnerzügen, dazu 5 Ligen.
 - 25 Story-Missionen mit drei Beratern, danach endlose Ranger-Aufträge, Tagesbonus und Meilensteine.

@@ -26,7 +26,7 @@ const UI = {
   /* ---------- HUD ---------- */
   hud() {
     const set = (id, v) => { const e = $(id); const s = fmt(v); if (e.textContent !== s) e.textContent = s; };
-    set('#rCoins', G.coins); set('#rBucks', G.bucks); set('#rCrops', G.crops); set('#rMeat', G.meat); set('#rAmber', amberCount());
+    set('#rCoins', G.coins); set('#rBucks', G.bucks); set('#rCrops', G.crops); set('#rMeat', G.meat); set('#rFish', G.fish || 0); set('#rAmber', amberCount());
     set('#rVisitors', Entities.visitors.length);
     $('#rStars').textContent = '★'.repeat(parkStars());
     $('#lvlNum').textContent = G.level;
@@ -179,7 +179,7 @@ const UI = {
     const st = o.stage || 0;
     const stats = dinoStats(sp, o.level, st);
     const cap = dinoCap(o);
-    const food = sp.diet === 'herb' ? 'crops' : 'meat';
+    const food = foodOf(sp);
     const cost = feedCost(o);
     let body = '';
     if (egg) {
@@ -196,7 +196,7 @@ const UI = {
       if (o.level >= MAX_LEVEL) feedBtn = `<button class="btn btn-gold" disabled type="button">Max level</button>`;
       else if (canEvolve) feedBtn = `<button class="btn btn-blue" data-act="evolve" type="button">★ Evolve to ${STAGE_NAMES[st + 1]}</button>`;
       else if (atCap) feedBtn = `<button class="btn btn-blue" data-act="openLab" type="button">Research ${STAGE_NAMES[st + 1]} in Lab</button>`;
-      else feedBtn = `<button class="btn btn-green" data-act="feed" type="button">Feed · <i class="ic ic-${food === 'crops' ? 'crop' : 'meat'}"></i>${fmt(cost)}</button>`;
+      else feedBtn = `<button class="btn btn-green" data-act="feed" type="button">Feed · <i class="ic ic-${food === 'crops' ? 'crop' : food}"></i>${fmt(cost)}</button>`;
       body = `
         <div class="lvl-track"><div class="row"><span>Level ${o.level}${isAdult(o) ? ' · Adult' : ' · Juvenile'}</span><span>${o.level >= MAX_LEVEL ? 'MAX' : atCap ? 'Evolve!' : `Feedings ${o.feeds}/${FEEDS_PER_LEVEL}`}</span></div><div class="pips" data-live="pips">${pips}</div></div>
         <div class="stage-row">${STAGE_NAMES.map((n, i) => `<span class="${i <= st ? 'on' : ''}">${n}</span>`).join('')}</div>
@@ -268,7 +268,7 @@ const UI = {
         <div class="btn-row"><button class="btn btn-gold" data-act="collectShop" type="button" ${ready ? '' : 'disabled'}>Collect <i class="ic ic-coin"></i>${fmt(shopIncome(o))}</button></div>`;
       key += ready ? 'r' : 'w';
     } else if (b.kind === 'harbor') {
-      const food = b.food, icon = food === 'crops' ? 'ic-crop' : 'ic-meat';
+      const food = b.food, icon = food === 'crops' ? 'ic-crop' : 'ic-' + food;
       if (!o.order) {
         body = `<p class="note">Order a shipment of ${food}. Bigger ships take longer but deliver much more.</p><div class="order-list">` +
           HARBOR_ORDERS.map((h, i) => `<div class="order"><i class="ic ${icon}"></i><div class="o-name">${h.name}<small>+${fmt(h.amount)} ${food} · ${fmtTime(h.time * 1000)}</small></div><button class="btn btn-gold btn-small" data-act="order${i}" type="button"><i class="ic ic-coin"></i>${fmt(harborOrderCost(o, i))}</button></div>`).join('') + '</div>';
@@ -352,21 +352,25 @@ const UI = {
 
   /* ---------- market ---------- */
   market(tab = 'dinos') {
-    this.openModal('market', 'Market', [['dinos', 'Dinosaurs'], ['buildings', 'Buildings'], ['decos', 'Decorations']], tab, t => this.renderMarket(t));
+    this.openModal('market', 'Market', [['dinos', 'Dinosaurs'], ['aqua', '🌊 Lagoon'], ['ice', '❄ Ice Age'], ['buildings', 'Buildings'], ['decos', 'Decorations']], tab, t => this.renderMarket(t));
   },
   renderMarket(tab) {
     const box = this.body(); box.innerHTML = '';
     const grid = el('div', 'cards'); box.appendChild(grid);
-    if (tab === 'dinos') {
+    if (tab === 'dinos' || tab === 'aqua' || tab === 'ice') {
+      const hab = tab === 'dinos' ? 'land' : tab;
+      const note = { aqua: 'Lagoon creatures live in pens built in shallow water: the turquoise lagoon bay in the west or the shallow reef around the coast. They eat fish from the Fish Harbor.', ice: 'Ice-age animals need paddocks fully on the snowy glacier plateau in the north-east. Clear the snowy pines and ice rocks to make room.' }[tab];
+      if (note) box.insertBefore(el('p', 'note', note), grid);
       for (const id of SPECIES_ORDER) {
         const sp = SPECIES[id];
+        if (habitatOf(sp) !== hab) continue;
         const lvLock = G.level < sp.level, dnaLock = !G.decoded[id] && !sp.cost.bucks;
         const owned = G.objects.filter(o => o.species === id).length;
         const card = el('div', 'card' + (lvLock || dnaLock ? ' locked' : ''), `
           <div class="thumb"></div>
           ${owned ? `<span class="owned">Owned ${owned}</span>` : ''}
           <h4>${esc(sp.name)}</h4>
-          <div class="meta"><span class="rarity ${sp.rarity}">${RARITY[sp.rarity].name}</span><i class="ic ic-${sp.diet === 'herb' ? 'herb' : 'carn'}"></i>${sp.pad}×${sp.pad} · ${fmt(sp.income)}/min</div>
+          <div class="meta"><span class="rarity ${sp.rarity}">${RARITY[sp.rarity].name}</span><i class="ic ic-${sp.diet === 'herb' ? 'herb' : sp.diet === 'fish' ? 'fish' : 'carn'}"></i>${sp.pad}×${sp.pad} · ${fmt(sp.income)}/min</div>
           <div class="desc">${esc(sp.fact)}</div>
           ${lvLock ? `<div class="lockmsg"><i class="ic ic-lock"></i>Level ${sp.level}</div>` : dnaLock ? `<div class="lockmsg"><i class="ic ic-amber"></i>Needs DNA</div>` : ''}
           <button class="btn ${sp.cost.bucks ? 'btn-green' : 'btn-gold'}" type="button" ${lvLock || dnaLock ? 'disabled' : ''}>${costLabel(sp.cost)}</button>`);
@@ -562,7 +566,7 @@ const UI = {
     if (!selLeague) { box.appendChild(el('p', 'note', 'Pick a league to choose your team. Each attack type (Charge, Bite, Swipe) deals full damage only against the matching weakness – 50% or 25% otherwise. Block cancels an attack, Special hits for 150%.')); return; }
     const L = LEAGUES.find(l => l.id === selLeague);
     box.appendChild(el('div', 'section-title', `Choose up to 3 fighters · Entry fee <i class="ic ic-coin"></i>${fmt(L.fee)}`));
-    const fighters = G.objects.filter(o => o.type === 'paddock' && o.hatchEnd <= now()).sort((a, b) => { const sa = dinoStats(SPECIES[a.species], a.level, a.stage || 0), sb = dinoStats(SPECIES[b.species], b.level, b.stage || 0); return (sb.hp + sb.atk * 4) - (sa.hp + sa.atk * 4); });
+    const fighters = G.objects.filter(o => o.type === 'paddock' && o.hatchEnd <= now() && habitatOf(SPECIES[o.species]) !== 'aqua').sort((a, b) => { const sa = dinoStats(SPECIES[a.species], a.level, a.stage || 0), sb = dinoStats(SPECIES[b.species], b.level, b.stage || 0); return (sb.hp + sb.atk * 4) - (sa.hp + sa.atk * 4); });
     if (!fighters.length) { box.appendChild(el('div', 'empty', 'You have no hatched dinosaurs yet.')); return; }
     const sel = this.teamSel || (this.teamSel = []);
     this.teamSel = sel.filter(id => fighters.some(f => f.id === id));

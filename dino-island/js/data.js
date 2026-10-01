@@ -132,7 +132,141 @@ const SPECIES = {
     pals: [P('#7a6a5a', '#4a3e34', '#e0d0bc', '#2e241a', '#c0402a'), P('#5a7a7a', '#344c4c', '#d0e0dc', '#1a2c2c', '#f08a2a'), P('#8a5a3a', '#583420', '#f0d0b0', '#381e10', '#e0d040'), P('#1a2a3a', '#0c1420', '#90a8c0', '#40a0ff', '#ff3a3a', '#40c0ff')],
   },
 };
+
+/* ---------- more land dinosaurs ---------- */
+Object.assign(SPECIES, {
+  kentrosaurus: {
+    name: 'Kentrosaurus', diet: 'herb', rarity: 'bronze', body: 'kentro', size: 0.75, pad: 3, level: 5, cost: { coins: 12000 },
+    hatch: 55, income: 64, weak: 'bite', hp: 360, atk: 60, era: 'Late Jurassic · 152 mya', len: '4.5 m',
+    fact: 'A smaller cousin of Stegosaurus whose plates turned into long spikes towards the tail – and on its shoulders.',
+    pals: [P('#8a7a4a', '#5a4a28', '#e0d4a8', '#3a2e18', '#d0703a'), P('#5a7a5a', '#344e36', '#d4e0c8', '#1e2e20', '#e0b040'), P('#7a5a6a', '#4e3444', '#e4d0dc', '#2e1a28', '#40c0b0'), P('#2a2a34', '#14141c', '#a0a0b4', '#ff6a3a', '#ff8a3a', '#ffd040')],
+  },
+  iguanodon: {
+    name: 'Iguanodon', diet: 'herb', rarity: 'bronze', body: 'iguano', size: 1.0, pad: 4, level: 6, cost: { coins: 17000 }, crest: 'none',
+    hatch: 70, income: 78, weak: 'swipe', hp: 400, atk: 66, era: 'Early Cretaceous · 125 mya', len: '10 m',
+    fact: 'One of the first dinosaurs ever named. Its thumb ended in a sharp spike for defence.',
+    pals: [P('#6a7a5a', '#44503a', '#d8dcc4', '#2a3020', '#c09050'), P('#8a6a4a', '#5a4430', '#e8d4b8', '#3a2818', '#70a040'), P('#5a6a7a', '#344250', '#d0d8e0', '#1c2632', '#e08a3a'), P('#3a2a20', '#1e140e', '#c8a888', '#40e0a0', '#40e0a0', '#e0ff60')],
+  },
+  ceratosaurus: {
+    name: 'Ceratosaurus', diet: 'carn', rarity: 'silver', body: 'cerato', size: 0.88, pad: 4, level: 9, cost: { coins: 40000 },
+    hatch: 95, income: 128, weak: 'charge', hp: 370, atk: 98, era: 'Late Jurassic · 150 mya', len: '6 m',
+    fact: 'Named for the blade-like horn on its nose. A row of bony scutes ran down its back.',
+    pals: [P('#7a5a3a', '#4a3420', '#e0c8a8', '#2a1a0c', '#e04a2a'), P('#5a6a5a', '#344034', '#d0d8cc', '#1a221a', '#e0c040'), P('#6a4a6a', '#3e2a40', '#dcc8dc', '#221626', '#ff7a3a'), P('#202830', '#0e1418', '#90a0b0', '#ff3a3a', '#ff3a3a', '#ffe040')],
+  },
+  styracosaurus: {
+    name: 'Styracosaurus', diet: 'herb', rarity: 'silver', body: 'styraco', size: 0.92, pad: 4, level: 11, cost: { coins: 60000 },
+    hatch: 110, income: 155, weak: 'swipe', hp: 460, atk: 72, era: 'Late Cretaceous · 75 mya', len: '5.5 m',
+    fact: 'Its frill was crowned with six long spikes and a single huge horn sat on its nose.',
+    pals: [P('#9a7a4a', '#6a4a28', '#ecd8b0', '#3a2810', '#c84a2a'), P('#6a8a6a', '#3e5a40', '#d8e8d4', '#1e3020', '#e0a030'), P('#5a6a8a', '#34405a', '#d0d8e8', '#1a2038', '#f0d040'), P('#3a1a1a', '#200c0c', '#c8a0a0', '#ffb040', '#ffb040', '#ffe060')],
+  },
+  therizinosaurus: {
+    name: 'Therizinosaurus', diet: 'herb', rarity: 'gold', body: 'therizino', size: 1.05, pad: 5, level: 14, cost: { coins: 130000 },
+    hatch: 170, income: 280, weak: 'bite', hp: 560, atk: 118, era: 'Late Cretaceous · 70 mya', len: '10 m',
+    fact: 'A feathered giant with the longest claws of any known animal – nearly a metre each – used to pull down branches.',
+    pals: [P('#8a6a4a', '#5a4028', '#e8d4b4', '#3a2410', '#e0b060'), P('#6a6a7a', '#40404e', '#d8d8e4', '#20202e', '#e08a4a'), P('#7a8a5a', '#4e5a34', '#e0e8c8', '#2a321a', '#ff6a8a'), P('#1e1a2a', '#0e0c16', '#a8a0c0', '#c060ff', '#c060ff', '#ffe040')],
+  },
+  diplodocus: {
+    name: 'Diplodocus', diet: 'herb', rarity: 'gold', body: 'diplo', size: 1.2, pad: 5, level: 17, cost: { coins: 190000 },
+    hatch: 200, income: 330, weak: 'charge', hp: 760, atk: 76, era: 'Late Jurassic · 154 mya', len: '26 m',
+    fact: 'Longer than a tennis court. It could crack the tip of its whip-like tail faster than the speed of sound.',
+    pals: [P('#8a8a7a', '#5a5a4e', '#e0e0d4', '#3a3a30', '#b0a080'), P('#7a6a5a', '#4e4034', '#e4d8c8', '#2e241a', '#c08a50'), P('#5a7a6a', '#344e44', '#d0e4dc', '#1a2e26', '#80c0a0'), P('#3a3a2a', '#1e1e14', '#b8b8a0', '#e0c060', '#e0c060', '#fff080')],
+  },
+});
+
+/* ---------- marine reptiles & prehistoric fish (lagoon) ---------- */
+Object.assign(SPECIES, {
+  ichthyosaurus: {
+    name: 'Ichthyosaurus', diet: 'fish', habitat: 'aqua', rarity: 'bronze', body: 'ichthyo', size: 0.95, pad: 4, level: 7, cost: { coins: 24000 },
+    hatch: 70, income: 96, weak: 'charge', hp: 330, atk: 80, era: 'Early Jurassic · 190 mya', len: '3 m',
+    fact: 'Shaped just like a dolphin, with enormous eyes for hunting squid in the dark deep.',
+    pals: [P('#6a8aa0', '#3a5a74', '#e8f0f4', '#2a4458', '#4aa8e0', '#1a1a1a'), P('#7a7a8a', '#4a4a5e', '#ecece8', '#2e2e3e', '#e0a040', '#1a1a1a'), P('#5a8a7a', '#345a4e', '#e0f0e8', '#1e3a30', '#ff7a5a', '#1a1a1a'), P('#1a2a4a', '#0a1428', '#a0b4d0', '#40e0ff', '#40e0ff', '#40ffff')],
+  },
+  archelon: {
+    name: 'Archelon', diet: 'fish', habitat: 'aqua', rarity: 'bronze', body: 'turtle', size: 0.9, pad: 4, level: 8, cost: { coins: 30000 },
+    hatch: 80, income: 108, weak: 'bite', hp: 520, atk: 58, era: 'Late Cretaceous · 75 mya', len: '4.6 m',
+    fact: 'The largest sea turtle ever – as big as a small car, with a leathery shell.',
+    pals: [P('#6a7a5a', '#40503a', '#d8dcc0', '#2e3a24', '#8a7a4a'), P('#5a6a7a', '#34404e', '#d0d8e0', '#1e2832', '#c0a060'), P('#7a6a4a', '#4e4028', '#e4d8b8', '#2e2414', '#60a0a0'), P('#1a3a3a', '#0c1e1e', '#90c0b8', '#40ffc0', '#40ffc0', '#e0ff60')],
+  },
+  plesiosaurus: {
+    name: 'Plesiosaurus', diet: 'fish', habitat: 'aqua', rarity: 'silver', body: 'plesio', size: 0.95, pad: 4, level: 10, cost: { coins: 52000 },
+    hatch: 100, income: 150, weak: 'swipe', hp: 420, atk: 92, era: 'Early Jurassic · 195 mya', len: '3.5 m',
+    fact: 'A long-necked marine reptile that "flew" through the water with four paddle flippers.',
+    pals: [P('#5a7a8a', '#34505e', '#dce8ec', '#1e3440', '#e0a040'), P('#7a6a5a', '#4e4234', '#e8dccc', '#2e2418', '#40a0c0'), P('#5a8a5a', '#345a36', '#dcecd8', '#1e341e', '#e06a4a'), P('#2a1a3a', '#140c20', '#b8a8cc', '#ff60c0', '#ff60c0', '#ffe040')],
+  },
+  dunkleosteus: {
+    name: 'Dunkleosteus', diet: 'fish', habitat: 'aqua', rarity: 'silver', body: 'dunkle', size: 1.0, pad: 4, level: 12, cost: { coins: 78000 },
+    hatch: 115, income: 185, weak: 'charge', hp: 480, atk: 106, era: 'Late Devonian · 375 mya', len: '6 m',
+    fact: 'An armoured fish with self-sharpening bony blades instead of teeth – one of the first top predators.',
+    pals: [P('#6a6a5a', '#40403a', '#d8d8c8', '#2a2a22', '#a08a6a'), P('#5a6a7a', '#344050', '#d0d8e4', '#1a2230', '#c0a040'), P('#7a5a4a', '#4e362a', '#e4d0c4', '#2e1c14', '#e0e0e0'), P('#1a1a2a', '#0c0c16', '#9a9ab4', '#ff4a4a', '#ff4a4a', '#ffd040')],
+  },
+  liopleurodon: {
+    name: 'Liopleurodon', diet: 'fish', habitat: 'aqua', rarity: 'gold', body: 'plio', size: 1.1, pad: 5, level: 14, cost: { coins: 125000 },
+    hatch: 160, income: 270, weak: 'bite', hp: 600, atk: 124, era: 'Middle Jurassic · 160 mya', len: '7 m',
+    fact: 'A short-necked pliosaur with a crocodile-like skull and four huge flippers. A true sea monster.',
+    pals: [P('#4a5a6a', '#2a3644', '#c8d4dc', '#18222c', '#c08a4a'), P('#6a5a4a', '#423628', '#e0d0bc', '#281c10', '#4aa0c0'), P('#3a6a5a', '#1e443a', '#c4e0d4', '#0e2a20', '#e06a3a'), P('#2a1018', '#14060c', '#c098a8', '#ff3a6a', '#ff3a6a', '#ffe060')],
+  },
+  mosasaurus: {
+    name: 'Mosasaurus', diet: 'fish', habitat: 'aqua', rarity: 'gold', body: 'mosa', size: 1.3, pad: 5, level: 17, cost: { coins: 210000 },
+    hatch: 210, income: 380, weak: 'swipe', hp: 700, atk: 136, era: 'Late Cretaceous · 70 mya', len: '15 m',
+    fact: 'The ruler of the Cretaceous seas: a giant marine lizard with a double row of teeth in its palate.',
+    pals: [P('#4a6a7a', '#2a4250', '#d0e0e8', '#182a34', '#3a7a9a'), P('#5a5a4a', '#3a3a2e', '#dcdcc8', '#22221a', '#c08040'), P('#3a5a4a', '#20382c', '#c8dcd0', '#10241a', '#a0d060'), P('#14202e', '#080e16', '#90a4bc', '#40c0ff', '#40c0ff', '#e0ffff')],
+  },
+  megalodon: {
+    name: 'Megalodon', diet: 'fish', habitat: 'aqua', rarity: 'legend', body: 'shark', size: 1.35, pad: 5, level: 19, cost: { bucks: 160 },
+    hatch: 230, income: 420, weak: 'charge', hp: 740, atk: 145, era: 'Miocene – Pliocene · 15 mya', len: '18 m',
+    fact: 'The biggest shark that ever lived, with teeth as large as a human hand.',
+    pals: [P('#6a7a8a', '#3e4a58', '#eef2f4', '#28323e', '#8a9aa8'), P('#5a6a6a', '#344242', '#e8eeec', '#1e2a2a', '#a0b0b0'), P('#4a5a7a', '#2a3450', '#e0e6f0', '#141c30', '#7a8ac0'), P('#1a1a22', '#0a0a10', '#c8c8d4', '#ff4040', '#ff4040', '#ffffff')],
+  },
+});
+
+/* ---------- ice age mammals (glacier) ---------- */
+Object.assign(SPECIES, {
+  direwolf: {
+    name: 'Dire Wolf', diet: 'carn', habitat: 'ice', rarity: 'bronze', body: 'wolf', size: 0.85, pad: 3, level: 10, cost: { coins: 46000 },
+    hatch: 90, income: 140, weak: 'bite', hp: 340, atk: 96, era: 'Pleistocene · 100,000 years ago', len: '1.7 m',
+    fact: 'Bigger and heavier than any wolf today. Packs hunted bison and horses on the ice-age plains.',
+    pals: [P('#8a8a86', '#5a5a58', '#e4e4e0', '#3a3a38', '#c8c8c0', '#e0c040'), P('#8a7050', '#5a4630', '#e8dcc8', '#3a2c1a', '#f0e0c0', '#e0c040'), P('#4a4a50', '#2a2a30', '#b8b8c0', '#1a1a20', '#9090a0', '#80d0ff'), P('#e8ecf0', '#b0b8c4', '#ffffff', '#6080a0', '#80c0ff', '#40c0ff')],
+  },
+  megaloceros: {
+    name: 'Megaloceros', diet: 'herb', habitat: 'ice', rarity: 'bronze', body: 'deer', size: 1.0, pad: 4, level: 11, cost: { coins: 54000 },
+    hatch: 100, income: 152, weak: 'charge', hp: 390, atk: 80, era: 'Pleistocene · 400,000 years ago', len: '2.1 m tall',
+    fact: 'The "Irish elk" carried antlers up to 3.6 metres wide – the largest of any deer.',
+    pals: [P('#8a6a4a', '#5a4430', '#e0ccb0', '#3a2818', '#d8c8a0'), P('#7a7060', '#4e483c', '#e4ddd0', '#2e2a20', '#e8dcb8'), P('#6a5040', '#44322a', '#dcc8bc', '#281c14', '#f0e8d0'), P('#d8dce4', '#9aa2b0', '#ffffff', '#6a8ab0', '#a0d0ff', '#40c0ff')],
+  },
+  glyptodon: {
+    name: 'Glyptodon', diet: 'herb', habitat: 'ice', rarity: 'bronze', body: 'glypto', size: 1.0, pad: 4, level: 12, cost: { coins: 62000 },
+    hatch: 105, income: 160, weak: 'bite', hp: 560, atk: 64, era: 'Pleistocene · 20,000 years ago', len: '3.3 m',
+    fact: 'A giant armadillo the size of a small car, protected by a dome of more than 1,000 bony plates.',
+    pals: [P('#8a7a5a', '#5a4e38', '#dcd0b8', '#3a3020', '#b0a078'), P('#7a6a5a', '#4e4436', '#e0d4c8', '#2e261c', '#a89080'), P('#6a6a5a', '#44443a', '#d8d8c8', '#2a2a22', '#c0b890'), P('#2a2a34', '#14141c', '#a8a8bc', '#60c0ff', '#60c0ff', '#e0ffff')],
+  },
+  smilodon: {
+    name: 'Smilodon', diet: 'carn', habitat: 'ice', rarity: 'silver', body: 'smilo', size: 0.95, pad: 4, level: 13, cost: { coins: 88000 },
+    hatch: 120, income: 200, weak: 'swipe', hp: 420, atk: 114, era: 'Pleistocene · 15,000 years ago', len: '2.2 m',
+    fact: 'The famous sabre-toothed cat. Its 28 cm fangs were used to bite down on large prey.',
+    pals: [P('#b08a5a', '#7a5a34', '#f0e0c4', '#5a3e1e', '#e8d8b0'), P('#9a8a6a', '#6a5e44', '#ece4d0', '#4a3e28', '#ece0c4'), P('#8a6a5a', '#5a4234', '#e8d4c8', '#3a2418', '#f0e0d0'), P('#e4e8ee', '#a8b0bc', '#ffffff', '#4a6a90', '#80c0ff', '#40c0ff')],
+  },
+  woollyrhino: {
+    name: 'Woolly Rhino', diet: 'herb', habitat: 'ice', rarity: 'silver', body: 'rhino', size: 1.05, pad: 4, level: 15, cost: { coins: 115000 },
+    hatch: 140, income: 245, weak: 'swipe', hp: 600, atk: 98, era: 'Pleistocene · 30,000 years ago', len: '3.6 m',
+    fact: 'A shaggy rhino with a metre-long front horn that it used to sweep snow off the grass.',
+    pals: [P('#8a6a4a', '#5a4228', '#d8c4a4', '#3a2614', '#e8dcc0'), P('#7a6a5a', '#4e4234', '#dcd0c0', '#2e241a', '#f0e8d8'), P('#5a4a3a', '#3a2c20', '#c8b8a4', '#22180e', '#e0d4c0'), P('#d8dce4', '#9ca4b2', '#ffffff', '#5a7aa0', '#90c8ff', '#40c0ff')],
+  },
+  cavebear: {
+    name: 'Cave Bear', diet: 'carn', habitat: 'ice', rarity: 'silver', body: 'bear', size: 1.08, pad: 4, level: 16, cost: { coins: 140000 },
+    hatch: 150, income: 270, weak: 'charge', hp: 640, atk: 112, era: 'Pleistocene · 50,000 years ago', len: '3 m',
+    fact: 'A huge bear of the ice age that spent the long winters hibernating in deep caves.',
+    pals: [P('#6a4a30', '#40281a', '#a8845e', '#2a180c', '#8a6a4a', '#2a1a10'), P('#8a6a4a', '#5a4028', '#c8a882', '#3a2614', '#a8885e', '#2a1a10'), P('#3a3430', '#22201c', '#7a7068', '#141210', '#6a625a', '#e0c040'), P('#e8ecf2', '#b0b8c6', '#ffffff', '#6a8ab0', '#a0d0ff', '#40c0ff')],
+  },
+  mammoth: {
+    name: 'Woolly Mammoth', diet: 'herb', habitat: 'ice', rarity: 'gold', body: 'mammoth', size: 1.3, pad: 5, level: 20, cost: { coins: 260000 },
+    hatch: 240, income: 420, weak: 'bite', hp: 820, atk: 120, era: 'Pleistocene · 10,000 years ago', len: '4 m tall',
+    fact: 'The icon of the ice age: thick shaggy fur, a fatty hump and curved tusks up to 4 metres long.',
+    pals: [P('#7a5236', '#4e3220', '#a8805a', '#2e1c10', '#e8dcc4'), P('#9a7048', '#6a4a2c', '#c8a078', '#422a16', '#f0e6d0'), P('#5a4a3e', '#3a2e24', '#8a7a68', '#201810', '#ece2cc'), P('#e4e8ee', '#a8b2c0', '#ffffff', '#5a7aa0', '#a0d8ff', '#40c0ff')],
+  },
+});
+
 const SPECIES_ORDER = Object.keys(SPECIES);
+const HABITAT_NAMES = { land: 'Dinosaurs', aqua: 'Lagoon', ice: 'Ice Age' };
 
 /* ---------- buildings ---------- */
 const BUILDINGS = {
@@ -140,6 +274,7 @@ const BUILDINGS = {
   gate: { name: 'Park Gate', kind: 'gate', size: [3, 1], level: 1, cost: { coins: 0 }, unique: true, noSell: true, desc: 'Guests arrive here. Connect it with roads so they can explore!' },
   lab: { name: 'Genetics Lab', kind: 'lab', size: [3, 3], level: 1, cost: { coins: 0 }, unique: true, noSell: true, desc: 'Decode amber into dinosaur DNA and research evolutions.' },
   crop_harbor: { name: 'Crop Harbor', kind: 'harbor', food: 'crops', size: [3, 3], level: 1, cost: { coins: 1500 }, unique: true, desc: 'Ships in fresh greens for your herbivores.' },
+  fish_harbor: { name: 'Fish Harbor', kind: 'harbor', food: 'fish', size: [3, 3], level: 7, cost: { coins: 9000 }, unique: true, desc: 'Fishing boats bring fresh fish for your marine reptiles.' },
   meat_harbor: { name: 'Meat Harbor', kind: 'harbor', food: 'meat', size: [3, 3], level: 3, cost: { coins: 5000 }, unique: true, desc: 'Refrigerated cargo for your hungry carnivores.' },
   arena: { name: 'Battle Arena', kind: 'arena', size: [4, 4], level: 6, cost: { coins: 25000 }, unique: true, xp: 200, desc: 'Pit your dinosaurs against rival parks in the tournament.' },
   souvenir: { name: 'Souvenir Shop', kind: 'shop', size: [2, 2], level: 1, cost: { coins: 800 }, income: 60, period: 60, xp: 20, desc: 'Plush raptors and amber keychains.' },
@@ -154,7 +289,7 @@ const BUILDINGS = {
   hotel: { name: 'Island Hotel', kind: 'shop', size: [3, 3], level: 14, cost: { coins: 75000 }, income: 2600, period: 720, xp: 240, desc: 'Guests stay overnight – more visitors every day.' },
   helipad: { name: 'Helipad', kind: 'shop', size: [3, 3], level: 16, cost: { coins: 110000 }, income: 3800, period: 900, xp: 300, desc: 'VIP guests fly in by helicopter.' },
 };
-const BUILD_ORDER = ['crop_harbor', 'meat_harbor', 'souvenir', 'burger', 'icecream', 'ranger', 'coffee', 'arena', 'restaurant', 'tower', 'jeep', 'museum', 'hotel', 'helipad'];
+const BUILD_ORDER = ['crop_harbor', 'meat_harbor', 'fish_harbor', 'souvenir', 'burger', 'icecream', 'ranger', 'coffee', 'arena', 'restaurant', 'tower', 'jeep', 'museum', 'hotel', 'helipad'];
 
 const DECOS = {
   palm: { name: 'Palm Tree', size: [1, 1], level: 1, cost: { coins: 150 }, bonus: 1, desc: '+1% income nearby.' },
@@ -189,6 +324,8 @@ const CLEAR = {
   bush: { cost: 25, time: 3, xp: 3 },
   rock: { cost: 180, time: 12, xp: 10 },
   bigrock: { cost: 600, time: 25, xp: 25 },
+  snowpine: { cost: 90, time: 7, xp: 7 },
+  icerock: { cost: 260, time: 14, xp: 12 },
 };
 const AMBER_CHANCE = 0.2;
 
@@ -229,14 +366,18 @@ const MISSIONS = [
   { id: 'm22', who: 'quill', title: 'Long Neck', text: 'Decode and hatch the mighty Brachiosaurus.', goal: { type: 'hatch', species: 'brachiosaurus', count: 1 }, reward: { coins: 12000, xp: 800, bucks: 10 } },
   { id: 'm23', who: 'reyes', title: 'The King', text: 'Every great park needs a Tyrannosaurus. Make it happen.', goal: { type: 'hatch', species: 'tyrannosaurus', count: 1 }, reward: { coins: 25000, xp: 1500, bucks: 15 } },
   { id: 'm24', who: 'reyes', title: 'Champion', text: 'Win the Gold League tournament.', goal: { type: 'league', league: 'gold', count: 1 }, reward: { coins: 40000, xp: 2500, bucks: 20 } },
-  { id: 'm25', who: 'vance', title: 'Legendary Park', text: 'Own 12 different species. You are a true park legend!', goal: { type: 'species', count: 12 }, reward: { coins: 80000, xp: 5000, bucks: 40 } },
+  { id: 'm25b', who: 'reyes', title: 'Gone Fishing', text: 'Marine reptiles eat fish! Reach level 7 and build a Fish Harbor.', goal: { type: 'build', id: 'fish_harbor', count: 1 }, reward: { coins: 4000, xp: 300, bucks: 3 } },
+  { id: 'm25c', who: 'quill', title: 'Into the Lagoon', text: 'The turquoise lagoon and the shallow coast are perfect for sea creatures. Decode a marine species and build its lagoon pen in the water.', goal: { type: 'buy_dino', habitat: 'aqua', count: 1 }, reward: { coins: 6000, xp: 500, bucks: 5 } },
+  { id: 'm25d', who: 'reyes', title: 'Frozen Frontier', text: 'Up on the snowy plateau the ice age lives on! Decode an ice-age animal and give it a paddock in the snow.', goal: { type: 'buy_dino', habitat: 'ice', count: 1 }, reward: { coins: 8000, xp: 700, bucks: 5 } },
+  { id: 'm25e', who: 'vance', title: 'Mammoth Moment', text: 'The guests want to see a real Woolly Mammoth. Hatch one on the glacier!', goal: { type: 'hatch', species: 'mammoth', count: 1 }, reward: { coins: 30000, xp: 2000, bucks: 15 } },
+  { id: 'm25', who: 'vance', title: 'Legendary Park', text: 'Own 20 different species across jungle, lagoon and glacier. You are a true park legend!', goal: { type: 'species', count: 20 }, reward: { coins: 80000, xp: 5000, bucks: 40 } },
 ];
 
 /* ---------- arena leagues ---------- */
 const LEAGUES = [
   { id: 'bronze', name: 'Bronze League', level: 6, fee: 500, lv: [2, 5], pool: ['triceratops', 'gallimimus', 'velociraptor', 'parasaurolophus', 'pachycephalosaurus'], reward: { coins: 3000, bucks: 3, xp: 150 } },
-  { id: 'silver', name: 'Silver League', level: 9, fee: 2000, lv: [6, 12], pool: ['velociraptor', 'dilophosaurus', 'stegosaurus', 'pachycephalosaurus', 'ankylosaurus', 'parasaurolophus'], reward: { coins: 10000, bucks: 6, xp: 400 } },
-  { id: 'gold', name: 'Gold League', level: 12, fee: 6000, lv: [12, 20], pool: ['dilophosaurus', 'stegosaurus', 'ankylosaurus', 'carnotaurus', 'pteranodon', 'baryonyx', 'edmontosaurus'], reward: { coins: 30000, bucks: 12, xp: 1000 } },
-  { id: 'platinum', name: 'Platinum League', level: 15, fee: 15000, lv: [20, 30], pool: ['carnotaurus', 'baryonyx', 'allosaurus', 'brachiosaurus', 'ankylosaurus', 'tyrannosaurus'], reward: { coins: 80000, bucks: 25, xp: 2500 } },
-  { id: 'allstar', name: 'All-Star League', level: 18, fee: 40000, lv: [30, 40], pool: ['tyrannosaurus', 'giganotosaurus', 'spinosaurus', 'allosaurus', 'brachiosaurus', 'carnotaurus'], reward: { coins: 200000, bucks: 50, xp: 6000 } },
+  { id: 'silver', name: 'Silver League', level: 9, fee: 2000, lv: [6, 12], pool: ['velociraptor', 'dilophosaurus', 'stegosaurus', 'pachycephalosaurus', 'ankylosaurus', 'parasaurolophus', 'kentrosaurus', 'iguanodon', 'direwolf'], reward: { coins: 10000, bucks: 6, xp: 400 } },
+  { id: 'gold', name: 'Gold League', level: 12, fee: 6000, lv: [12, 20], pool: ['dilophosaurus', 'stegosaurus', 'ankylosaurus', 'carnotaurus', 'pteranodon', 'baryonyx', 'edmontosaurus', 'ceratosaurus', 'styracosaurus', 'smilodon', 'megaloceros'], reward: { coins: 30000, bucks: 12, xp: 1000 } },
+  { id: 'platinum', name: 'Platinum League', level: 15, fee: 15000, lv: [20, 30], pool: ['carnotaurus', 'baryonyx', 'allosaurus', 'brachiosaurus', 'ankylosaurus', 'tyrannosaurus', 'therizinosaurus', 'woollyrhino', 'cavebear'], reward: { coins: 80000, bucks: 25, xp: 2500 } },
+  { id: 'allstar', name: 'All-Star League', level: 18, fee: 40000, lv: [30, 40], pool: ['tyrannosaurus', 'giganotosaurus', 'spinosaurus', 'allosaurus', 'diplodocus', 'therizinosaurus', 'mammoth'], reward: { coins: 200000, bucks: 50, xp: 6000 } },
 ];

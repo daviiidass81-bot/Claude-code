@@ -121,6 +121,7 @@ class DinoActor {
   setPose(p, time) { this.pose = p; this.poseTimer = time; }
   roar() {
     if (!this.hatched()) return;
+    if (this.sp.habitat === 'aqua' && this.breach !== undefined && this.breach < 0) { this.breach = 0; Sfx.roar(this.sp.size * 0.9); return; }
     this.setPose('roar', 1.6); this.state = 'idle'; this.timer = 2;
     const size = this.sp.size * (this.sp.diet === 'carn' ? 1.2 : 0.8) * this.growth();
     Sfx.roar(size);
@@ -133,6 +134,7 @@ class DinoActor {
     if (fans && Game.started) { const tip = fans * (2 + Math.floor(G.level / 3)); gain('coins', tip, 'tips'); Entities.float(w.x, w.y - 60, `+${tip} tips`, '#ffd479', 15); }
   }
   eatNow() {
+    if (this.sp.habitat === 'aqua') { this.tx = this.o.x + this.o.w - 1.1; this.ty = this.o.y + this.o.h - 1.1; this.state = 'walk'; this.setPose('roar', 1.2); return; }
     // walk to the trough then eat
     const o = this.o;
     this.tx = o.x + o.w - 1.2; this.ty = o.y + o.h - 0.9;
@@ -145,6 +147,7 @@ class DinoActor {
     this.poseTimer -= dt;
     if (this.poseTimer <= 0 && (this.pose === 'roar' || this.pose === 'eat')) this.pose = 'idle';
     if (sp.body === 'ptero') return this.updateFlyer(dt, t);
+    if (sp.habitat === 'aqua') return this.updateSwimmer(dt, t);
     const night = World.night > 0.75;
     const walkSpeed = (sp.body === 'ornitho' || sp.body === 'raptor' ? 0.75 : 0.42) * (0.75 + 0.25 * this.growth());
     this.timer -= dt;
@@ -182,6 +185,26 @@ class DinoActor {
         if (!night) { this.state = 'idle'; this.pose = 'idle'; this.timer = 1; }
         break;
     }
+  }
+  updateSwimmer(dt, t) {
+    const o = this.o, sp = this.sp;
+    if (this.breach === undefined) { this.breach = -1; this.breachIn = rand(6, 14); }
+    if (this.breach >= 0) {
+      this.breach += dt / 1.7;
+      if (this.breach >= 1) { this.breach = -1; this.breachIn = rand(8, 20); const w = World.toWorld(this.x, this.y); Entities.emit(w.x, w.y, 'splash', 26); if (Render.onScreen(this.x, this.y)) Sfx.noise(0.5, { vol: 0.25, freq: 900, q: 0.7 }); }
+      return;
+    }
+    this.breachIn -= dt;
+    const canJump = ['shark', 'ichthyo', 'mosa', 'plio', 'dunkle'].includes(sp.body);
+    if (canJump && this.breachIn <= 0 && World.night < 0.75) { this.breach = 0; const w = World.toWorld(this.x, this.y); Entities.emit(w.x, w.y, 'splash', 18); return; }
+    const m = 1.2;
+    if (this.state !== 'walk' || Math.hypot(this.tx - this.x, this.ty - this.y) < 0.2) { this.tx = rand(o.x + m, o.x + o.w - m); this.ty = rand(o.y + m, o.y + o.h - m); this.state = 'walk'; }
+    const dx = this.tx - this.x, dy = this.ty - this.y, d = Math.hypot(dx, dy) || 1;
+    this.speed = Math.min(1, this.speed + dt);
+    const v = (sp.body === 'turtle' ? 0.35 : 0.6) * dt;
+    this.x += dx / d * Math.min(d, v); this.y += dy / d * Math.min(d, v);
+    const sdx = dx - dy; if (Math.abs(sdx) > 0.05) this.dir = sdx > 0 ? 1 : -1;
+    if (Math.random() < dt * 0.15) { const w = World.toWorld(this.x, this.y); Entities.emit(w.x + this.dir * 20, w.y, 'splash', 2); }
   }
   updateFlyer(dt, t) {
     const o = this.o;
